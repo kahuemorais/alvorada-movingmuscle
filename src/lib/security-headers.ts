@@ -21,8 +21,8 @@
 // describes (01-app/02-guides/content-security-policy.md).
 export type Header = { key: string; value: string };
 
-function policy(ambiente: string) {
-  const isDevelopment = ambiente === "development";
+function policy(environment: string) {
+  const isDevelopment = environment === "development";
   return [
     "default-src 'self'",
     // The Vercel meter loads `/_vercel/insights/script.js`, from the same origin, when it is production; the
@@ -51,9 +51,9 @@ function policy(ambiente: string) {
 // The environment enters as a parameter so the test can exercise both sides: the production one, which cannot
 // have `unsafe-eval`, and the development one, which needs it. Without the parameter, the function reads the environment it
 // is running in, which is what the Next configuration does.
-export function securityHeaders(ambiente: string = process.env.NODE_ENV ?? "production"): Header[] {
+export function securityHeaders(environment: string = process.env.NODE_ENV ?? "production"): Header[] {
   return [
-    { key: "Content-Security-Policy", value: policy(ambiente) },
+    { key: "Content-Security-Policy", value: policy(environment) },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     { key: "X-Frame-Options", value: "DENY" },

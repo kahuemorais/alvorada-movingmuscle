@@ -33,9 +33,9 @@ describe("city data", () => {
 
   it("names the file and the field when the data is wrong", () => {
     const folder = mkdtempSync(path.join(tmpdir(), "cidade-"));
-    writeFileSync(path.join(folder, "quebrada.json"), JSON.stringify({ ...realCity, utilityRatePerKwh: 0 }));
-    expect(() => loadCityFrom(folder, "quebrada")).toThrow(/quebrada\.json/);
-    expect(() => loadCityFrom(folder, "quebrada")).toThrow(/utilityRatePerKwh/);
+    writeFileSync(path.join(folder, "broken.json"), JSON.stringify({ ...realCity, utilityRatePerKwh: 0 }));
+    expect(() => loadCityFrom(folder, "broken")).toThrow(/broken\.json/);
+    expect(() => loadCityFrom(folder, "broken")).toThrow(/utilityRatePerKwh/);
   });
 
   it("optional city returns null instead of throwing", () => {

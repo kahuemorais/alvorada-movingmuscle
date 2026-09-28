@@ -43,8 +43,8 @@ describe("security headers", () => {
   });
 
   it("does not allow a third-party origin beyond the one that serves the meter", () => {
-    const origens = policy().match(/https:\/\/[a-z0-9.-]+/g) ?? [];
-    expect(new Set(origens)).toEqual(new Set(["https://va.vercel-scripts.com"]));
+    const origins = policy().match(/https:\/\/[a-z0-9.-]+/g) ?? [];
+    expect(new Set(origins)).toEqual(new Set(["https://va.vercel-scripts.com"]));
   });
 
   it("allows inline script, which is what the Next hydration requires", () => {

@@ -51,12 +51,12 @@ test("the page photos go through a local path, and not through a third party", a
   // exists, and the guard applies to every image on the page.
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
-  const origens = await page.evaluate(() =>
+  const origins = await page.evaluate(() =>
     [...document.querySelectorAll("img")].map((i) => new URL((i as HTMLImageElement).src).origin),
   );
   const proprio = new URL(page.url()).origin;
-  expect(origens.length).toBeGreaterThan(0);
-  for (const o of origens) expect(o, "image served by a third party").toBe(proprio);
+  expect(origins.length).toBeGreaterThan(0);
+  for (const o of origins) expect(o, "image served by a third party").toBe(proprio);
 });
 
 

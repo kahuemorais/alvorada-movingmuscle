@@ -28,7 +28,7 @@ describe("public address", () => {
     ["on Vercel", { VERCEL: "1" }],
     ["on continuous integration", { CI: "1" }],
     ["with an explicit requirement", { REQUIRE_PUBLIC_ADDRESS: "1" }],
-  ])("in a publication %s with no address configured, it fails instead of pointing at localhost", (_nome, marker) => {
+  ])("in a publication %s with no address configured, it fails instead of pointing at localhost", (_name, marker) => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");

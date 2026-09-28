@@ -13,7 +13,7 @@ type ServiceNode = {
   provider: { telephone: string; aggregateRating: { ratingValue: number } };
 };
 
-function no<T>(type: string): T {
+function nodeOf<T>(type: string): T {
   const found = graphSchema(phoenix, base)["@graph"].find((n) => n["@type"] === type);
   if (!found) throw new Error(`missing the ${type} node in the graph`);
   return found as T;
@@ -21,13 +21,13 @@ function no<T>(type: string): T {
 
 describe("structured data", () => {
   it("generates FAQPage with one question per file item", () => {
-    const faq = no<FaqNode>("FAQPage");
+    const faq = nodeOf<FaqNode>("FAQPage");
     expect(faq.mainEntity).toHaveLength(phoenix.faq.length);
     expect(faq.mainEntity[0].acceptedAnswer.text.length).toBeGreaterThan(40);
   });
 
   it("generates the service with city, provider and average rating", () => {
-    const service = no<ServiceNode>("Service");
+    const service = nodeOf<ServiceNode>("Service");
     expect(service.areaServed).toBe("Phoenix, AZ");
     expect(service.provider.aggregateRating.ratingValue).toBe(4.8);
     expect(service.provider.telephone).toContain("555-0147");
