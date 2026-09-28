@@ -1,0 +1,478 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------------------------
+   Tokens do shadcn: cada nome semântico aponta para um utilitário do Tailwind, e o valor real vive
+   no :root mais abaixo, que por sua vez aponta para os tokens do DESIGN.md.
+   --------------------------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Tema do projeto, gerado do DESIGN.md:
+     npx -y @google/design.md export --format css-tailwind DESIGN.md
+   Não editar à mão: mudar o DESIGN.md e rodar o export de novo. Este bloco vem DEPOIS do bloco do
+   shadcn de propósito, porque os dois declaram --color-primary e --radius-*: com o mesmo nome, quem
+   vence é a última declaração, e a última tem que ser a nossa.
+   --------------------------------------------------------------------------------------------- */
+@theme {
+  /* Sem --font-display/title/body/label de proposito: o nome de familia e o de peso de um mesmo
+     degrau caem na mesma classe do Tailwind. A familia fica so no --font-sans, abaixo. */
+  --color-ink: #16181a;
+  --color-support: #5b6167;
+  --color-primary: #e8882a;
+  /* O hover da acao: um amarelo dourado mais claro e mais vibrante que o laranja, derivado dele e
+     claramente diferente — o matiz sai de ~28 graus para ~42. Ele vale para o hover dos botoes de acao e dos cards
+     do blog, e nao para a faixa final, que continua so em laranja: por isso o veu dela nao usa mais este token. */
+  --color-primary-light: #f5a623;
+  /* O dourado escuro existe por medição, e nao por gosto: o dourado claro sobre o branco mede 1,86 e nao
+     identifica um desenho de 20 px. Este mede 3,89 sobre o branco e 3,61 sobre o fundo da pagina, que e o minimo
+     do Material para limite e icone. Ele vive nos icones da calculadora, que ficam sobre cartao branco; os icones
+     dos passos, das aspas e do bairro continuam no dourado claro, porque ali tem circulo escuro atras. */
+  --color-primary-dark: #b0740f;
+  /* Cor secundaria (#1E5FBF). O papel dela e medido: ela marca o que e TECNICO — icones, numeros
+     de dado, contorno de etiqueta, estado de controle — e a cor de acao fica reservada as duas acoes principais da
+     pagina (`Estimate my savings` e `Book the site visit`) e a faixa final. A variante clara existe porque a
+     abertura tem fundo escuro (foto com veu) e o azul cheio sobre ela mede 1,9 para 1: sobre superficie escura o
+     azul entra claro, e o numero medido esta no DESIGN.md. */
+  --color-secondary: #1e5fbf;
+  --color-savings: #1f7a4d;
+  --color-canvas: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-outline: #7f8081;
+  --text-display: 3.5rem;
+  --text-number: 3rem;
+  --text-title: 2.5rem;
+  --text-lead: 1.25rem;
+  --text-body: 1rem;
+  --text-label: 0.875rem;
+  --tracking-display: -0.03em;
+  --tracking-title: -0.02em;
+  --font-weight-display: 600;
+  --font-weight-number: 500;
+  --font-weight-title: 500;
+  --font-weight-lead: 500;
+  --font-weight-body: 400;
+  --font-weight-label: 500;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+  --radius-4xl: 999px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 64px;
+  --spacing-touch: 48px;
+}
+
+/* O export do DESIGN.md nao leva a altura de linha de cada degrau, entao ela entra aqui, uma vez, com o
+   valor que esta la. Os titulos sao comprimidos de proposito, no sistema do Zapier (0,95 no H1 e 1,06 no
+   titulo de secao), e o corpo segue folgado em 1,5: texto corrido de pergunta frequente no celular le
+   melhor assim, e esta e a divergencia declarada em relacao a referencia. */
+@theme {
+  --text-display--line-height: 0.95;
+  --text-number--line-height: 1;
+  --text-title--line-height: 1.06;
+  --text-lead--line-height: 1.3;
+  --text-body--line-height: 1.5;
+  --text-label--line-height: 1.43;
+}
+
+/* Classes de janela do Material, no lugar dos breakpoints padrao do Tailwind (640, 768, 1024, 1280).
+   Sao os quatro cortes permitidos: 600 compacto, 840 expandido, 1200 grande, 1600 extra grande. Assim
+   `md:` na pagina passa a ser 840 px, que e onde o conteudo de duas colunas realmente precisa de
+   espaco, em vez de 768 px escolhido por padrao de ferramenta.
+   `--container-measure` e a largura maxima de texto: 40 rem, que da de 65 a 75 caracteres em corpo de
+   16 px. Uma medida so para a pagina inteira, em vez de cada bloco escolher a sua. */
+@theme {
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 52.5rem;
+  --breakpoint-lg: 75rem;
+  --breakpoint-xl: 100rem;
+  --container-measure: 40rem;
+}
+
+/* Altura da barra de navegação do celular, medida no navegador: 58 px de vidro encostado na borda de baixo
+   (48 do alvo de toque mais o respiro de 4 px de cada lado, arredondado pelo que a fonte desenha). Ela existe
+   como token porque dois blocos precisam reservar esse espaço no FIM deles — a abertura e o simulador — e
+   número copiado em dois lugares diverge na primeira vez que a barra mudar. Não é valor de desenho novo: é a
+   medida da barra, e `tests/navegacao.spec.ts` confere que a reserva continua sendo pelo menos a altura dela. */
+@theme {
+  --spacing-barra: 58px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Ponte entre os dois: os nomes semânticos do shadcn passam a valer o token do DESIGN.md.
+   Nenhum hex nasce aqui, só referência. Borda é preta a 12% de alfa, como o DESIGN.md descreve,
+   em vez de virar um cinza novo na paleta.
+   --------------------------------------------------------------------------------------------- */
+:root {
+  --font-sans: var(--font-archivo), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-ink);
+  --secondary: var(--color-canvas);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-canvas);
+  --muted-foreground: var(--color-support);
+  --accent: var(--color-canvas);
+  --accent-foreground: var(--color-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: rgb(0 0 0 / 12%);
+  --input: rgb(0 0 0 / 12%);
+  --ring: var(--color-primary);
+  --chart-1: var(--color-primary);
+  --chart-2: var(--color-savings);
+  --chart-3: var(--color-support);
+  --chart-4: var(--color-ink);
+  --chart-5: var(--color-canvas);
+  --radius: 8px;
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-ink);
+  --sidebar-accent: var(--color-canvas);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: rgb(0 0 0 / 12%);
+  --sidebar-ring: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Degraus de tipo como utilitario proprio, e nao como par "text-<degrau> font-<degrau>".
+
+   Dois motivos, os dois achados medindo. O primeiro: o `cn` da base usa tailwind-merge, que nao
+   conhece degrau customizado e classifica `text-lead` como classe de cor ou de alinhamento. Numa
+   lista que tambem tem `text-left` e `text-ink`, ele descartava o tamanho em silencio: a pergunta do
+   FAQ saia com 16 px quando o codigo pedia 22. O segundo: tamanho e peso eram duas classes que
+   podiam se perder uma da outra, e foi assim que o H1 saiu com peso 400 sem ninguem ver.
+
+   Cada utilitario abaixo aplica tamanho, altura de linha e peso juntos, entao nao existe par para
+   desencontrar. Para peso diferente do degrau, por `font-*` depois, que a ultima classe vence.
+   --------------------------------------------------------------------------------------------- */
+@utility type-display {
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--tracking-display);
+}
+@utility type-number {
+  font-size: var(--text-number);
+  line-height: var(--text-number--line-height);
+  font-weight: var(--font-weight-number);
+}
+@utility type-title {
+  font-size: var(--text-title);
+  line-height: var(--text-title--line-height);
+  font-weight: var(--font-weight-title);
+  letter-spacing: var(--tracking-title);
+}
+@utility type-lead {
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+  font-weight: var(--font-weight-lead);
+}
+@utility type-body {
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  font-weight: var(--font-weight-body);
+}
+@utility type-label {
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: var(--font-weight-label);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  /* Margem de rolagem das seções. Do tamanho médio para cima (600 px, que é o mesmo corte em que a barra
+     sobe para o topo) ela fica fixa com 56 px, então mirar a seção deixaria o título escondido atrás
+     dela. No celular a barra vive no rodapé e basta o degrau de container.
+     Vale só para `section[id]` de propósito: o destino do topo da página é uma âncora sem altura no
+     começo do documento, e com margem o navegador pararia antes do topo, que era o defeito relatado. */
+  section[id] {
+    scroll-margin-top: var(--spacing-lg);
+  }
+  @media (min-width: 37.5rem) {
+    section[id] {
+      scroll-margin-top: calc(var(--spacing-xxl) + var(--spacing-lg));
+    }
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  /* Rolagem suave nas âncoras do menu. Tinha sido recusada quando a âncora era pura e sem enfeite;
+     volta agora que a pagina tem movimento. O bloco global de `prefers-reduced-motion` devolve o salto
+     seco para quem pediu menos movimento. */
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  /* Ponteiro em tudo que e clicavel. O Tailwind v4 tirou o `cursor: pointer` que o v3 punha em button,
+     entao o gatilho do acordeao e os botoes ficavam com a seta padrao e nao pareciam clicaveis. Fica na
+     base, e nao item por item, para controle novo ja nascer certo. Desabilitado segue com a seta. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+  /* O acordeão abre e fecha com animação, e quem pediu menos movimento no sistema não deve receber
+     nenhuma. Regra da própria biblioteca de acessibilidade, e o Material também manda respeitar. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  /* O valor em dinheiro é o único em verde, e é onde o olho precisa parar primeiro. */
+  .savings {
+    color: var(--color-savings);
+  }
+  /* Componente `microcopy` do DESIGN.md: o texto de apoio sob um controle, em corpo pequeno e
+     cinza de apoio. Existe como classe para o par tipografia+cor nao ser redigitado em cada uso. */
+  .microcopy {
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-support);
+  }
+}
+
+
+/* Entrada das seções na rolagem. Curva de saída exponencial, sem quique, e só opacidade e deslocamento: animar
+   largura, altura ou topo obriga o navegador a refazer o layout a cada quadro. Quem pediu menos movimento no
+   sistema não recebe animação nenhuma, e o componente resolve isso antes de chegar aqui. */
+@theme {
+  --aparencia-duracao: 420ms;
+  --aparencia-curva: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer utilities {
+  .vai-entrar {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .entrou {
+    opacity: 1;
+    transform: none;
+    animation: aparecer var(--aparencia-duracao) var(--aparencia-curva) both;
+  }
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vai-entrar,
+    .entrou {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Enfeite e movimento. A página estava parada. Tudo aqui anima só opacidade,
+   deslocamento e escala — nunca largura, altura ou topo, que obrigam o navegador a refazer o
+   layout a cada quadro. Quem pediu menos movimento no sistema já é atendido pelo bloco global de
+   `prefers-reduced-motion` no topo desta folha, que zera animação e transição.
+   --------------------------------------------------------------------------------------------- */
+@layer utilities {
+  /* Entrada da abertura: roda no carregamento, sem depender de JavaScript, e a espera de cada peça
+     vem de `animationDelay` no próprio elemento. */
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .entrada {
+    animation: entrar var(--aparencia-duracao) var(--aparencia-curva) both;
+  }
+
+  /* Cartão que entra junto com a seção, com espera própria para dar escalonamento. Vive dentro do
+     `.vai-entrar` que já existe, então não cria estado novo de visibilidade. */
+  .ecoar {
+    opacity: 0;
+  }
+  .entrou .ecoar {
+    animation: aparecer var(--aparencia-duracao) var(--aparencia-curva) both;
+  }
+
+  /* O número que mudou no simulador: pulso de opacidade e escala, para a pessoa ver QUAL número respondeu
+     ao que ela mexeu. */
+  @keyframes pulsar {
+    0% {
+      opacity: 1;
+      transform: none;
+    }
+    40% {
+      opacity: 0.45;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .pulsou {
+    animation: pulsar 420ms var(--aparencia-curva) both;
+  }
+
+  /* Cartão que sobe no ponteiro, só onde existe ponteiro de verdade. */
+  .sobe {
+    transition:
+      transform 200ms var(--aparencia-curva),
+      box-shadow 200ms var(--aparencia-curva);
+  }
+  @media (hover: hover) {
+    .sobe:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px color-mix(in oklab, var(--color-ink) 12%, transparent);
+    }
+  }
+
+  /* Planos de fundo: o bloco de tinta e o bloco de ação deixam de ser cor chapada. As paradas saem de
+     token, nunca de hex. */
+  .veu-acao {
+    background-image: linear-gradient(
+      160deg,
+      var(--color-primary) 45%,
+      color-mix(in oklab, var(--color-primary) 82%, var(--color-ink)) 100%
+    );
+  }
+
+  /* O fundo da abertura e uma FOTO, no lugar do efeito de grade e sol que estava aqui: os dois instaladores no
+     telhado, com o ceu claro em cima e o telhado escuro embaixo — a foto ja tem a luz que o veu amarelo imitava.
+     O `background-position` fica um pouco acima do centro (42%) para o quadro pegar os dois corpos e o comeco do
+     telhado, e nao so o telhado. O `bg-ink` do painel continua: ele pinta ATRAS da imagem, entao e o fundo de
+     reserva se a imagem nao carregar, e o texto claro nunca cai sobre branco.
+     O arquivo e servido do proprio dominio, como as outras fotos, e nao pelo otimizador do Next. */
+  .fundo-abertura {
+    background-image: url("/fotos/instaladores-no-telhado.avif");
+    background-size: cover;
+    background-position: center 42%;
+    background-repeat: no-repeat;
+  }
+  /* O fundo do fecho é a quarta foto do conjunto: os painéis no deserto, que fecham a página com o produto instalado.
+     Mesmo desenho da abertura — foto no painel e o véu de tinta por cima —, e o `bg-primary` da faixa continua sendo
+     a cor de base, atrás da foto, para a faixa não ficar sem fundo se o arquivo não carregar. */
+  .fundo-fecho {
+    background-image: url("/fotos/paineis-no-deserto.avif");
+    background-size: cover;
+    background-position: center 45%;
+    background-repeat: no-repeat;
+  }
+  /* O véu do fecho: as MESMAS paradas da abertura, com o alfa mais leve, e o valor saiu de medição, não de gosto.
+     A foto dos painéis no deserto atrás do véu da abertura entregava o texto com 7,09 (título) e 7,90 (parágrafo) no
+     desktop e 6,41 e 8,46 no celular, mas o pixel atrás do título media rgb(97,81,62) — o deserto aparecia apagado.
+     Com 0,70 / 0,52 / 0,46 o mesmo pixel mede rgb(116,95,71) e o texto fica em 5,58 / 7,19 / 5,59 no desktop e
+     4,91 / 7,79 / 6,52 no celular, todos acima dos 4,5 exigidos. Um degrau abaixo (0,62 / 0,45 / 0,40) o rótulo cai
+     para 4,47 no desktop e o título para 3,97 no celular, então 0,70 é o piso. */
+  .veu-foto-fecho {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-ink) 70%, transparent) 0%,
+      color-mix(in oklab, var(--color-ink) 52%, transparent) 42%,
+      color-mix(in oklab, var(--color-ink) 46%, transparent) 100%
+    );
+  }
+  /* O veu da foto, escuro COMECANDO EM CIMA, que e onde a foto e clara: o ceu ocupa a faixa de cima do quadro, e e
+     onde a marca e a sobrancelha caem no celular. O alfa nao foi escolhido no olho: o texto da abertura e claro
+     (`canvas`, luminancia 0,90) e precisa de 4,5 para 1; sobre o telhado (0,03) qualquer alfa passa, e sobre o ceu
+     (0,72) so passa a partir de ~78 por cento de tinta. O veu afrouxa para baixo porque embaixo ja e telhado
+     escuro, e assim a foto continua aparecendo onde ela tem contraste para aparecer. */
+  .veu-foto {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-ink) 80%, transparent) 0%,
+      color-mix(in oklab, var(--color-ink) 60%, transparent) 42%,
+      color-mix(in oklab, var(--color-ink) 55%, transparent) 100%
+    );
+  }
+  /* A faixa curta do blog — o cabeçalho do índice — usa um véu mais fechado que a abertura. Ela é baixa, então o
+     texto ocupa a faixa inteira, inclusive a parte de cima, que é onde a foto é clara: com o véu da abertura o
+     título media 4,70 no celular, e 4,70 é margem fina demais para um texto que ainda pode crescer. Com este véu
+     ele mede 8,34, e a foto continua aparecendo no que sobra de folga. */
+  .veu-foto-faixa {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-ink) 88%, transparent) 0%,
+      color-mix(in oklab, var(--color-ink) 74%, transparent) 55%,
+      color-mix(in oklab, var(--color-ink) 68%, transparent) 100%
+    );
+  }
+
+}
+

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Trava antes do commit: segredo e lint.
+#
+# Por que aqui e não só na integração contínua: segredo commitado continua no histórico depois de
+# removido do arquivo, e limpar histórico é caro. Barrar no commit é a única hora em que o custo é zero.
+# O lint entra junto porque é rápido e evita commit que a integração vai reprovar dois minutos depois.
+#
+# Ativação, uma vez por clone: git config core.hooksPath .githooks
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks git --staged --no-banner --redact; then
+    echo
+    echo "commit barrado: o gitleaks achou segredo no que está preparado para commitar."
+    echo "Remova o segredo do arquivo, ou marque a linha como falsa com o comentário de isenção do gitleaks."
+    exit 1
+  fi
+else
+  echo "aviso: gitleaks não instalado, então este commit não foi conferido (brew install gitleaks)"
+fi
+
+pnpm lint

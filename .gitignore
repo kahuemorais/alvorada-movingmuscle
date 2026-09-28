@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+.env*
+*.log
+.vercel
+.hermes/
+
+# Artefatos da medida de navegação: rastro de falha, relatório e cache do Playwright.
+# Entram na árvore a cada execução e não são conteúdo do projeto.
+test-results/
+playwright-report/
+.playwright/
