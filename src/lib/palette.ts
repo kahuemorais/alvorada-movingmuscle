@@ -1,15 +1,15 @@
-// A paleta do DESIGN.md escrita em TypeScript, para quem não consegue ler variável de CSS.
+// The DESIGN.md palette written in TypeScript, for whoever cannot read a CSS variable.
 //
-// O gerador da imagem de compartilhamento desenha com satori, que não conhece `var(--color-*)`, então
-// antes estas seis cores viviam repetidas em hexadecimal dentro do arquivo da imagem. Duas fontes para o
-// mesmo valor divergem no primeiro dia em que alguém mexe numa: agora o hexadecimal mora aqui, e o
-// `scripts/audit-design.mjs` reprova o build se este arquivo e o DESIGN.md não disserem a mesma coisa.
+// The share image generator draws with satori, which does not know `var(--color-*)`, so
+// before, these six colors lived repeated in hexadecimal inside the image file. Two sources for the
+// same value diverge on the first day someone touches one of them: now the hexadecimal lives here, and
+// `scripts/audit-design.mjs` fails the build if this file and DESIGN.md do not say the same thing.
 //
-// O nome aqui é camelCase porque identificador de TypeScript não aceita hífen; o verificador converte
-// para kebab-case ao comparar com o DESIGN.md, então a comparação continua sendo uma a uma.
-// Quem desenha em HTML continua usando as classes semânticas (`bg-canvas`, `text-ink`), que saem do
-// `@theme` do globals.css. Este arquivo existe só para o caso de satori.
-export const paleta = {
+// The name here is camelCase because a TypeScript identifier does not accept a hyphen; the checker converts
+// to kebab-case when comparing with DESIGN.md, so the comparison stays one to one.
+// Whoever draws in HTML still uses the semantic classes (`bg-canvas`, `text-ink`), which come from the
+// `@theme` of globals.css. This file exists only for the satori case.
+export const palette = {
   ink: "#16181A",
   support: "#5B6167",
   primary: "#E8882A",

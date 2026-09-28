@@ -1,27 +1,27 @@
 import { ImageResponse } from "next/og";
 import { getCity } from "@/lib/city";
 import { usd } from "@/lib/format";
-import { paleta } from "@/lib/palette";
+import { palette } from "@/lib/palette";
 import { simulate } from "@/lib/solar";
 
-// Card de compartilhamento: quase ninguem decide sozinho, e o endereco e enviado por mensagem para quem
-// decide junto. Entao o card mostra os dois numeros que
-// essa pessoa vai olhar antes de abrir o link, paineis e economia, no ponto de partida do simulador.
+// Share card: almost nobody decides alone, and the address is sent by message to whoever
+// decides together. So the card shows the two numbers that
+// that person will look at before opening the link, panels and savings, at the starting point of the simulator.
 //
-// Sem fonte propria: o ImageResponse usa a fonte do sistema, e carregar um .ttf so para o card
-// custaria mais peso do que o ganho de consistencia tipografica aqui.
+// No font of its own: ImageResponse uses the system font, and loading a .ttf just for the card
+// would cost more weight than the typographic consistency gained here.
 export const alt = "Solar estimate for a city served by Brightfield Solar";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-// O card e o mesmo para toda visita daquela cidade, entao ele e gerado no build junto com a pagina,
-// em vez de virar funcao que responde sob demanda (o que adicionaria partida fria justo quando o
-// rastreador do mensageiro busca a imagem).
+// The card is the same for every visit of that city, so it is generated at build time together with the page,
+// instead of becoming a function that answers on demand (which would add a cold start right when the
+// messenger crawler fetches the image).
 export const dynamic = "force-static";
 
 export default async function Image({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;
-  const dados = getCity(city);
-  const resultado = simulate(dados, { bill: 220, coverage: 80 });
+  const data = getCity(city);
+  const result = simulate(data, { bill: 220, coverage: 80 });
 
   return new ImageResponse(
     (
@@ -33,36 +33,36 @@ export default async function Image({ params }: { params: Promise<{ city: string
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: paleta.canvas,
-          color: paleta.ink,
+          background: palette.canvas,
+          color: palette.ink,
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 24, letterSpacing: 1, color: paleta.support, textTransform: "uppercase" }}>
+          <div style={{ fontSize: 24, letterSpacing: 1, color: palette.support, textTransform: "uppercase" }}>
             Brightfield Solar
           </div>
-          {/* Uma string interpolada, e nao tres nos filhos: cada div do satori precisa declarar
-              display quando tem mais de um filho, e o texto do titulo tem cidade e estado. */}
+          {/* One interpolated string, and not three child nodes: every satori div has to declare
+              display when it has more than one child, and the title text carries city and state. */}
           <div style={{ fontSize: 57, fontWeight: 700, lineHeight: 1.05, marginTop: 24, maxWidth: 940 }}>
-            {`Solar in ${dados.city}, ${dados.state}`}
+            {`Solar in ${data.city}, ${data.state}`}
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 64, alignItems: "flex-end" }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 24, color: paleta.support }}>Panels</div>
-            <div style={{ fontSize: 45, fontWeight: 700 }}>{String(resultado.panels)}</div>
+            <div style={{ fontSize: 24, color: palette.support }}>Panels</div>
+            <div style={{ fontSize: 45, fontWeight: 700 }}>{String(result.panels)}</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 24, color: paleta.support }}>Monthly savings</div>
-            <div style={{ fontSize: 45, fontWeight: 700, color: paleta.savings }}>
-              {usd(resultado.monthlySavings)}
+            <div style={{ fontSize: 24, color: palette.support }}>Monthly savings</div>
+            <div style={{ fontSize: 45, fontWeight: 700, color: palette.savings }}>
+              {usd(result.monthlySavings)}
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 24, color: paleta.support }}>Installs completed</div>
-            <div style={{ fontSize: 45, fontWeight: 700 }}>{String(dados.installsCompleted)}</div>
+            <div style={{ fontSize: 24, color: palette.support }}>Installs completed</div>
+            <div style={{ fontSize: 45, fontWeight: 700 }}>{String(data.installsCompleted)}</div>
           </div>
         </div>
       </div>

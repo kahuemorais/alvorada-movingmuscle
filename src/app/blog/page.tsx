@@ -1,39 +1,39 @@
 import type { Metadata } from "next";
 import { BlogCard } from "@/components/BlogCard";
 import SiteHeader from "@/components/SiteHeader";
-import { listarTextos, type BlogPost } from "@/lib/blog";
+import { listPosts, type BlogPost } from "@/lib/blog";
 import { listCitySlugs } from "@/lib/city";
-import { blogNoSite, cityPath, siteUrl } from "@/lib/urls";
+import { blogPageUrl, cityPath, siteUrl } from "@/lib/urls";
 
-// Índice do blog: a lista, e nada mais. Publicar o guia seguinte é soltar o arquivo em
-// src/content/blog e refazer o build, sem tocar aqui, que é a mesma escala da página de cidade.
+// Blog index: the list, and nothing more. Publishing the next guide is dropping the file into
+// src/content/blog and rebuilding, without touching here, which is the same scale as the city page.
 //
-// A ordem não é decisão desta página. `listarTextos` já devolve do mais novo para o mais antigo, com o
-// slug desempatando dois textos do mesmo dia, e reordenar aqui seria uma segunda verdade sobre a mesma
-// lista: foi assim que o canônico e o dado estruturado passaram a discordar no módulo de endereço.
+// The order is not a decision of this page. `listarTextos` already returns from the newest to the oldest, with the
+// slug breaking the tie between two texts of the same day, and reordering here would be a second truth about the same
+// list: that is how the canonical and the structured data came to disagree in the address module.
 
-// Data legível. O fuso entra explícito porque `new Date("2026-09-23")` é meia-noite em UTC: formatada no
-// fuso do visitante, ela volta um dia no oeste dos Estados Unidos, e a data impressa passa a discordar do
-// `datePublished` que o dado estruturado declara.
-// Título em 57 caracteres e descrição em 155, medidos: a kopy pede de 50 a 60 no título e de 150 a 160 na
-// descrição. Ficam em constante porque o dado estruturado declara os dois de novo, e texto escrito duas
-// vezes diverge na primeira revisão.
+// Readable date. The time zone comes in explicit because `new Date("2026-09-23")` is midnight in UTC: formatted in the
+// visitor's time zone, it goes back a day in the west of the United States, and the printed date comes to disagree with the
+// `datePublished` the structured data declares.
+// Title of 57 characters and description of 155, measured: the copy standard asks for 50 to 60 in the title and 150 to 160 in the
+// description. They stay in a constant because the structured data declares both again, and text written twice
+// diverges at the first revision.
 const TITULO = "Solar guides on estimates and payback | Brightfield Solar";
-const DESCRICAO =
+const DESCRIPTION =
   "Plain answers about reading a solar estimate, how many panels a roof holds, and what a utility rate does to payback, written by the crews who install them.";
 
 export const metadata: Metadata = {
   title: TITULO,
-  description: DESCRICAO,
-  alternates: { canonical: blogNoSite(siteUrl()) },
+  description: DESCRIPTION,
+  alternates: { canonical: blogPageUrl(siteUrl()) },
 };
 
-// Dado estruturado de coleção. O nó é `CollectionPage`, que é o que descreve uma página cujo conteúdo é
-// uma lista, e não `BlogPosting`, que descreve um texto e mora na página do texto: o índice não afirma
-// ser um guia, ele afirma listar guias. Cada guia entra em `hasPart` com título, endereço e as duas datas,
-// e o endereço sai de `blogNoSite`, o mesmo compositor do canônico, para os dois não divergirem de forma.
-function esquemaDaColecao(textos: BlogPost[], site: string) {
-  const url = blogNoSite(site);
+// Collection structured data. The node is `CollectionPage`, which is what describes a page whose content is
+// a list, and not `BlogPosting`, which describes a text and lives on the text page: the index does not claim
+// to be a guide, it claims to list guides. Each guide comes into `hasPart` with title, address and the two dates,
+// and the address comes from `blogNoSite`, the same composer as the canonical, so the two do not diverge in shape.
+function collectionSchema(texts: BlogPost[], site: string) {
+  const url = blogPageUrl(site);
 
   return {
     "@context": "https://schema.org",
@@ -41,55 +41,55 @@ function esquemaDaColecao(textos: BlogPost[], site: string) {
     "@id": `${url}#collection`,
     url,
     name: TITULO,
-    description: DESCRICAO,
+    description: DESCRIPTION,
     inLanguage: "en-us",
-    hasPart: textos.map((texto) => {
-      const endereco = blogNoSite(site, texto.slug);
+    hasPart: texts.map((text) => {
+      const address = blogPageUrl(site, text.slug);
       return {
         "@type": "WebPage",
-        "@id": `${endereco}#webpage`,
-        url: endereco,
-        name: texto.title,
-        description: texto.description,
-        datePublished: texto.publishedAt,
-        dateModified: texto.updatedAt,
+        "@id": `${address}#webpage`,
+        url: address,
+        name: text.title,
+        description: text.description,
+        datePublished: text.publishedAt,
+        dateModified: text.updatedAt,
       };
     }),
   };
 }
 
 export default function BlogIndexPage() {
-  const textos = listarTextos();
+  const texts = listPosts();
   const site = siteUrl();
 
-  // Base do cabeçalho: a primeira cidade publicada, e não um slug escrito no código. É o mesmo motivo da
-  // raiz do site, que usa essa lista como fonte, e é o que faz as quatro âncoras da barra apontarem para
-  // a página de cidade em vez de para uma seção que aqui não existe.
-  const [primeira] = listCitySlugs();
-  if (!primeira) throw new Error("nenhuma cidade publicada em src/data/cities");
-  const base = cityPath(primeira);
+  // Header base: the first published city, and not a slug written in the code. It is the same reason as the
+  // site root, which uses that list as source, and it is what makes the four anchors of the bar point to
+  // the city page instead of to a section that does not exist here.
+  const [first] = listCitySlugs();
+  if (!first) throw new Error("nenhuma city publicada em src/data/cities");
+  const base = cityPath(first);
 
   return (
     <>
-      {/* O mesmo cabeçalho da página de cidade, com a base do caminho dela: a barra é a mesma em
-          todo o site, e é ela que dá o caminho de volta a quem entrou no blog por busca. */}
+      {/* The same header as the city page, with the base of its path: the bar is the same across
+          the whole site, and it is what gives the way back to whoever entered the blog from search. */}
       <SiteHeader base={base} />
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-xl px-lg py-xxl pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] sm:pb-xxl">
-        {/* O JSON-LD entra como texto no HTML servido, e não montado no cliente: quem busca e quem
-            responde pergunta leem o HTML, não o que o React faria depois. O `<` escapado impede que um
-            título com essa forma feche a tag antes da hora. */}
+        {/* The JSON-LD comes in as text in the served HTML, and not built on the client: whoever searches and whoever
+            answers a question read the HTML, not what React would do afterwards. The escaped `<` prevents a
+            title with that shape from closing the tag early. */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(esquemaDaColecao(textos, site)).replace(/</g, "\\u003c") }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema(texts, site)).replace(/</g, "\\u003c") }}
         />
 
-        {/* O cabeçalho do índice usa a MESMA faixa da abertura da página de cidade: a foto dos instaladores com
-            o véu de tinta, que é o que dá à lista a cor e a imagem que ela não tinha. O texto aqui é claro como lá,
-            e o contraste é medido no mesmo lugar — sobre os pixels da foto com o véu, e não sobre uma cor de fundo
-            que não existe. O filete da sobrancelha sai em dourado porque é sobre a foto escura, e não sobre o fundo
-            claro das outras seções. */}
-        <header className="fundo-abertura relative isolate flex flex-col gap-md overflow-hidden rounded-xl bg-ink p-lg md:p-xl">
-          <div data-fundo="abertura" aria-hidden="true" className="veu-foto-faixa pointer-events-none absolute inset-0 z-0" />
+        {/* The index header uses the SAME band as the opening of the city page: the photo of the installers with
+            the ink veil, which is what gives the list the color and the image it did not have. The text here is light as it is there,
+            and the contrast is measured in the same place, over the pixels of the photo with the veil, and not over a background color
+            that does not exist. The eyebrow rule comes out in gold because it is over the dark photo, and not over the light
+            background of the other sections. */}
+        <header className="hero-background relative isolate flex flex-col gap-md overflow-hidden rounded-xl bg-ink p-lg md:p-xl">
+          <div data-background="hero" aria-hidden="true" className="band-photo-veil pointer-events-none absolute inset-0 z-0" />
           <div className="relative z-10 flex flex-col gap-md">
             <p className="flex items-center gap-sm type-label text-canvas">
               <span aria-hidden className="h-px w-xl bg-primary-light" />
@@ -104,10 +104,10 @@ export default function BlogIndexPage() {
         </header>
 
         <ul className="flex flex-col gap-md md:grid md:grid-cols-2 md:items-stretch">
-          {textos.map((texto, indice) => {
-            // O primeiro da lista é o guia mais novo, e é o único que ocupa as duas colunas: quem chegou de busca
-            // veio atrás dele, e a grade diz isso antes de o olho ler o título.
-            return <BlogCard key={texto.slug} texto={texto} destaque={indice === 0} />;
+          {texts.map((text, index) => {
+            // The first of the list is the newest guide, and it is the only one that takes the two columns: whoever arrived from
+            // search came for it, and the grid says that before the eye reads the title.
+            return <BlogCard key={text.slug} text={text} featured={index === 0} />;
           })}
         </ul>
       </main>

@@ -1,189 +1,189 @@
 import fs from "node:fs";
 import path from "node:path";
-import { descreverErros, esquemaTexto, type BlogPostFields } from "./schema";
+import { describeErrors, postSchema, type BlogPostFields } from "./schema";
 
-// A camada de conteúdo do blog, no mesmo desenho de `city.ts`: uma pasta, um arquivo por texto, validação
-// no carregamento e o miolo separado do caminho fixo para o teste poder apontar para pasta temporária.
+// The blog content layer, in the same design as `city.ts`: one folder, one file per text, validation
+// at load time and the core separated from the fixed path so the test can point at a temporary folder.
 //
-// Por que o texto é dado e não JSX: a regra do projeto é que valor que muda de um item para outro não
-// nasce no componente. Publicar o texto seguinte é soltar um arquivo na pasta, sem tocar em código, que é
-// a mesma escala que a página de cidade precisa com cento e vinte cidades.
+// Why the text is data and not JSX: the project rule is that a value that changes from one item to another does not
+// start life in the component. Publishing the next text is dropping a file into the folder, without touching code, which is
+// the same scale the city page needs with a hundred and twenty cities.
 //
-// O cabeçalho é JSON entre as cercas `---`, e não YAML. YAML pede dependência nova, e a dependência nova
-// entra na varredura de segurança que reprova o build. JSON é lido pelo próprio Node, não tem ambiguidade
-// de indentação e o erro dele é de sintaxe, que o build acusa no arquivo certo. O corpo abaixo da cerca
-// continua markdown comum.
+// The header is JSON between the `---` fences, and not YAML. YAML asks for a new dependency, and the new dependency
+// enters the security scan that fails the build. JSON is read by Node itself, has no ambiguity
+// of indentation and its error is a syntax error, which the build reports in the right file. The body below the fence
+// stays plain markdown.
 //
-// O corpo vira lista de blocos, e não HTML montado aqui: quem decide a aparência é o componente, com os
-// degraus de tipo e as cores do `@theme`, e a lista de blocos é o que permite isso sem `dangerouslySetInnerHTML`.
+// The body becomes a list of blocks, and not HTML built here: the component decides the appearance, with the
+// type steps and the colors from `@theme`, and the block list is what allows that without `dangerouslySetInnerHTML`.
 export type { BlogSource, BlogFaq } from "./schema";
 
 const DIR = path.join(process.cwd(), "src", "content", "blog");
-const EXTENSAO = ".md";
+const EXTENSION = ".md";
 
-// Forma do slug fechada no carregador, e não em quem chama, pelo mesmo motivo do carregador de cidade: o
-// valor vira nome de arquivo e endereço de página, então aceitar ponto, barra ou sublinhado é aceitar sair
-// da pasta de conteúdo.
-const FORMA_DO_SLUG = /^[a-z0-9-]+$/;
+// Slug shape closed in the loader, and not in whoever calls it, for the same reason as the city loader: the
+// value becomes a file name and a page address, so accepting dot, slash or underscore is accepting leaving
+// the content folder.
+const SLUG_FORM = /^[a-z0-9-]+$/;
 
-export type Bloco =
-  | { tipo: "titulo"; texto: string }
-  | { tipo: "paragrafo"; texto: string }
-  | { tipo: "lista"; itens: string[] };
+export type Block =
+  | { type: "title"; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] };
 
-// O texto publicado: o cabeçalho validado mais o corpo já em blocos.
-export type BlogPost = BlogPostFields & { blocos: Bloco[] };
+// The published text: the validated header plus the body already in blocks.
+export type BlogPost = BlogPostFields & { blocks: Block[] };
 
-// Tempo de leitura em minutos, CALCULADO do corpo do texto. Escrito à mão, o número envelhece na primeira
-// revisão do texto e ninguém lembra de recontar; calculado, ele acompanha o corpo sozinho. A conta separa
-// palavras por espaço em branco — título, parágrafo e item de lista — e usa 200 palavras por minuto, que é a
-// média de leitura em tela. O piso de um minuto existe porque "0 min read" não significa nada.
-const PALAVRAS_POR_MINUTO = 200;
+// Reading time in minutes, CALCULATED from the text body. Written by hand, the number ages at the first
+// revision of the text and nobody remembers to recount; calculated, it follows the body on its own. The calculation splits
+// words by whitespace (title, paragraph and list item) and uses 200 words per minute, which is the
+// average on-screen reading speed. The one-minute floor exists because "0 min read" means nothing.
+const WORDS_PER_MINUTE = 200;
 
-export function minutosDeLeitura(texto: BlogPost): number {
-  const palavras = texto.blocos
-    .map((bloco) => (bloco.tipo === "lista" ? bloco.itens.join(" ") : bloco.texto))
+export function readingMinutes(text: BlogPost): number {
+  const words = text.blocks
+    .map((block) => (block.type === "list" ? block.items.join(" ") : block.text))
     .join(" ")
     .split(/\s+/)
     .filter(Boolean).length;
-  return Math.max(1, Math.round(palavras / PALAVRAS_POR_MINUTO));
+  return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
 export function listBlogSlugs(): string[] {
   return fs
     .readdirSync(DIR)
-    .filter((arquivo) => arquivo.endsWith(EXTENSAO))
-    .map((arquivo) => arquivo.replace(/\.md$/, ""))
+    .filter((file) => file.endsWith(EXTENSION))
+    .map((file) => file.replace(/\.md$/, ""))
     .sort();
 }
 
-// Cabeçalho e corpo, separados pela segunda cerca. Não começar pela cerca, ou não ter a segunda, é defeito
-// do arquivo e a mensagem diz qual: texto sem cabeçalho validado não pode entrar na página.
-function separarCabecalho(bruto: string, arquivo: string): { cabecalho: string; corpo: string } {
-  const linhas = bruto.split("\n");
-  if (linhas[0]?.trim() !== "---") throw new Error(`texto sem cabecalho em ${arquivo}`);
-  const fim = linhas.findIndex((linha, i) => i > 0 && linha.trim() === "---");
-  if (fim === -1) throw new Error(`cabecalho sem cerca de fim em ${arquivo}`);
-  return { cabecalho: linhas.slice(1, fim).join("\n"), corpo: linhas.slice(fim + 1).join("\n").trim() };
+// Header and body, separated by the second fence. Not starting with the fence, or not having the second, is a defect
+// of the file and the message says which: text without a validated header cannot enter the page.
+function splitHeader(raw: string, file: string): { header: string; body: string } {
+  const lines = raw.split("\n");
+  if (lines[0]?.trim() !== "---") throw new Error(`text without a header in ${file}`);
+  const end = lines.findIndex((line, i) => i > 0 && line.trim() === "---");
+  if (end === -1) throw new Error(`header without a closing fence in ${file}`);
+  return { header: lines.slice(1, end).join("\n"), body: lines.slice(end + 1).join("\n").trim() };
 }
 
-// Markdown reduzido ao que o blog usa: título de seção, parágrafo e lista. A lista tem que ser a única
-// coisa de uma linha? Não: um traço no começo da linha abre item, e linha comum depois de lista fecha a
-// lista e vira parágrafo. Menos que isto é o suficiente, e mais que isto constrói um leitor de markdown
-// inteiro, que é onde a manutenção fica mais caro que a dependência que ele evita.
-export function emBlocos(corpo: string): Bloco[] {
-  const blocos: Bloco[] = [];
-  let paragrafo: string[] = [];
-  let itens: string[] = [];
+// Markdown reduced to what the blog uses: section title, paragraph and list. Does the list have to be the only
+// thing on one line? No: a dash at the start of the line opens an item, and a common line after a list closes the
+// list and becomes a paragraph. Less than this is enough, and more than this builds a markdown reader
+// in full, which is where maintenance costs more than the dependency it avoids.
+export function inBlocks(body: string): Block[] {
+  const blocks: Block[] = [];
+  let paragraph: string[] = [];
+  let items: string[] = [];
 
-  const fecharParagrafo = () => {
-    if (paragrafo.length) blocos.push({ tipo: "paragrafo", texto: paragrafo.join(" ") });
-    paragrafo = [];
+  const closeParagraph = () => {
+    if (paragraph.length) blocks.push({ type: "paragraph", text: paragraph.join(" ") });
+    paragraph = [];
   };
-  const fecharLista = () => {
-    if (itens.length) blocos.push({ tipo: "lista", itens });
-    itens = [];
+  const closeList = () => {
+    if (items.length) blocks.push({ type: "list", items });
+    items = [];
   };
 
-  for (const linha of corpo.split("\n")) {
-    const texto = linha.trim();
-    if (texto === "") {
-      fecharParagrafo();
-      fecharLista();
+  for (const line of body.split("\n")) {
+    const text = line.trim();
+    if (text === "") {
+      closeParagraph();
+      closeList();
       continue;
     }
-    if (texto.startsWith("## ")) {
-      fecharParagrafo();
-      fecharLista();
-      blocos.push({ tipo: "titulo", texto: texto.slice(3).trim() });
+    if (text.startsWith("## ")) {
+      closeParagraph();
+      closeList();
+      blocks.push({ type: "title", text: text.slice(3).trim() });
       continue;
     }
-    if (texto.startsWith("- ")) {
-      fecharParagrafo();
-      itens.push(texto.slice(2).trim());
+    if (text.startsWith("- ")) {
+      closeParagraph();
+      items.push(text.slice(2).trim());
       continue;
     }
-    fecharLista();
-    paragrafo.push(texto);
+    closeList();
+    paragraph.push(text);
   }
-  fecharParagrafo();
-  fecharLista();
-  return blocos;
+  closeParagraph();
+  closeList();
+  return blocks;
 }
 
-// Resumo do item da lista: a primeira frase do primeiro parágrafo, que é onde o padrão de escrita do blog
-// manda estar a resposta. O `description` só entra quando o corpo não tem parágrafo nenhum, para a lista
-// nunca mostrar resumo vazio.
-export function resumoDe(texto: BlogPost): string {
-  const primeiro = texto.blocos.find((bloco) => bloco.tipo === "paragrafo");
-  if (!primeiro || primeiro.tipo !== "paragrafo") return texto.description;
-  const fim = primeiro.texto.indexOf(". ");
-  return fim === -1 ? primeiro.texto : primeiro.texto.slice(0, fim + 1);
+// List item summary: the first sentence of the first paragraph, which is where the blog writing pattern
+// demands the answer be. The `description` only enters when the body has no paragraph at all, so the list
+// never shows an empty summary.
+export function summaryOf(text: BlogPost): string {
+  const first = text.blocks.find((block) => block.type === "paragraph");
+  if (!first || first.type !== "paragraph") return text.description;
+  const end = first.text.indexOf(". ");
+  return end === -1 ? first.text : first.text.slice(0, end + 1);
 }
 
-// Lê um texto já carregado em memória. Existe separado do disco porque o teste precisa exercitar cabeçalho
-// torto, falta de fonte e data fora de ordem sem escrever arquivo em src/content.
-export function interpretarTexto(bruto: string, arquivo: string): BlogPost {
-  const { cabecalho, corpo } = separarCabecalho(bruto, arquivo);
+// Reads a text already loaded in memory. It exists separate from disk because the test needs to exercise a crooked
+// header, a missing source and an out-of-order date without writing a file into src/content.
+export function parsePost(raw: string, file: string): BlogPost {
+  const { header, body } = splitHeader(raw, file);
 
-  let dados: unknown;
+  let data: unknown;
   try {
-    dados = JSON.parse(cabecalho);
+    data = JSON.parse(header);
   } catch {
-    // Sem o valor na mensagem, pelo mesmo motivo do esquema: o log do build aponta o arquivo, não despeja
-    // o conteúdo de um arquivo lido por engano.
-    throw new Error(`cabecalho fora do formato JSON em ${arquivo}`);
+    // Without the value in the message, for the same reason as the schema: the build log points at the file, it does not dump
+    // the content of a file read by mistake.
+    throw new Error(`header outside the JSON format in ${file}`);
   }
-  if (typeof dados !== "object" || dados === null || Array.isArray(dados)) {
-    throw new Error(`cabecalho precisa ser um objeto JSON em ${arquivo}`);
-  }
-
-  const resultado = esquemaTexto.safeParse({ ...(dados as Record<string, unknown>), body: corpo });
-  if (!resultado.success) {
-    throw new Error(`texto invalido em ${arquivo}: ${descreverErros(resultado.error)}`);
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw new Error(`header must be a JSON object in ${file}`);
   }
 
-  const texto = resultado.data;
-  // O nome do arquivo é o endereço da página, e o slug do cabeçalho é conferido contra ele. É isto que
-  // impede dois arquivos apontarem para o mesmo endereço: um deles, no mínimo, discorda do próprio nome.
-  const doArquivo = arquivo.replace(/\.md$/, "");
-  if (texto.slug !== doArquivo) {
-    throw new Error(`slug do cabecalho nao bate com o nome do arquivo em ${arquivo}`);
+  const result = postSchema.safeParse({ ...(data as Record<string, unknown>), body: body });
+  if (!result.success) {
+    throw new Error(`invalid text in ${file}: ${describeErrors(result.error)}`);
   }
 
-  return { ...texto, blocos: emBlocos(texto.body) };
+  const text = result.data;
+  // The file name is the page address, and the header slug is checked against it. This is what
+  // stops two files from pointing at the same address: at least one of them disagrees with its own name.
+  const fromFile = file.replace(/\.md$/, "");
+  if (text.slug !== fromFile) {
+    throw new Error(`header slug does not match the file name in ${file}`);
+  }
+
+  return { ...text, blocks: inBlocks(text.body) };
 }
 
-// Miolo separado de propósito, igual ao de cidade: recebe o diretório, para o teste apontar para pasta
-// temporária com um arquivo torto dentro sem escrever nada em src/content.
-export function carregarTextoDe(dir: string, slug: string): BlogPost {
-  if (!FORMA_DO_SLUG.test(slug)) throw new Error(`slug inválido: ${slug}`);
+// Core separated on purpose, as in the city one: it takes the directory, so the test can point at a temporary
+// folder with a crooked file inside without writing anything into src/content.
+export function loadPostFrom(dir: string, slug: string): BlogPost {
+  if (!SLUG_FORM.test(slug)) throw new Error(`invalid slug: ${slug}`);
 
-  const arquivo = `${slug}${EXTENSAO}`;
-  const caminho = path.join(dir, arquivo);
-  if (!fs.existsSync(caminho)) throw new Error(`texto sem arquivo: ${slug}`);
+  const file = `${slug}${EXTENSION}`;
+  const filePath = path.join(dir, file);
+  if (!fs.existsSync(filePath)) throw new Error(`text without a file: ${slug}`);
 
-  return interpretarTexto(fs.readFileSync(caminho, "utf8"), arquivo);
+  return parsePost(fs.readFileSync(filePath, "utf8"), file);
 }
 
-export function getTexto(slug: string): BlogPost {
-  return carregarTextoDe(DIR, slug);
+export function getPost(slug: string): BlogPost {
+  return loadPostFrom(DIR, slug);
 }
 
-// Caminho seguro para quem só desenha a página: slug que não existe ou tem forma inválida devolve nulo, e
-// quem chama decide o 404. Mesmo desenho do `buscarCidadeOpcional`.
-export function buscarTextoOpcional(slug: string): BlogPost | null {
+// Safe path for whoever only renders the page: a slug that does not exist or has an invalid shape returns null, and
+// the caller decides the 404. Same design as `findOptionalCity`.
+export function findOptionalPost(slug: string): BlogPost | null {
   try {
-    return getTexto(slug);
+    return getPost(slug);
   } catch {
     return null;
   }
 }
 
-// Lista do mais novo para o mais antigo, com o slug desempatando: dois textos publicados no mesmo dia
-// precisam sair sempre na mesma ordem, senão a página muda de conteúdo sem ninguém mudar o arquivo.
-export function listarTextos(): BlogPost[] {
+// List from newest to oldest, with the slug breaking ties: two texts published on the same day
+// must always come out in the same order, otherwise the page changes content without anyone changing the file.
+export function listPosts(): BlogPost[] {
   return listBlogSlugs()
-    .map((slug) => getTexto(slug))
+    .map((slug) => getPost(slug))
     .sort((a, b) => (a.publishedAt === b.publishedAt ? a.slug.localeCompare(b.slug) : b.publishedAt.localeCompare(a.publishedAt)));
 }

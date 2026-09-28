@@ -3,32 +3,32 @@ import { notFound } from "next/navigation";
 import { BlogCard } from "@/components/BlogCard";
 import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
-import { IconeTempo, IconeVoltar } from "@/components/icons";
+import { ClockIcon, ArrowUpIcon } from "@/components/icons";
 import {
-  buscarTextoOpcional,
+  findOptionalPost,
   listBlogSlugs,
-  listarTextos,
-  minutosDeLeitura,
-  type Bloco,
+  listPosts,
+  readingMinutes,
+  type Block,
   type BlogPost,
 } from "@/lib/blog";
 import { listCitySlugs } from "@/lib/city";
-import { blogNoSite, blogPath, blogUrl, cityPath, siteUrl } from "@/lib/urls";
+import { blogPageUrl, blogPath, blogUrl, cityPath, siteUrl } from "@/lib/urls";
 
-// Uma rota por texto: o parametro e o slug, e a lista de caminhos sai da pasta de conteudo, igual a
-// pagina de cidade sai da pasta de dados. Publicar o guia seguinte e soltar o arquivo em
-// src/content/blog e refazer o build, sem tocar em codigo.
+// One route per text: the parameter is the slug, and the list of paths comes from the content folder, just as the
+// city page comes from the data folder. Publishing the next guide is dropping the file into
+// src/content/blog and rebuilding, without touching code.
 export function generateStaticParams() {
   return listBlogSlugs().map((slug) => ({ slug }));
 }
 
-// A pagina so existe para slug que tem arquivo: qualquer outro caminho cai em 404 de verdade, em vez
-// de pagina vazia que o buscador indexa.
+// The page only exists for a slug that has a file: any other path falls into a real 404, instead
+// of an empty page that the search engine indexes.
 export const dynamicParams = false;
 
-// Data legivel. O fuso entra explicito pelo mesmo motivo do indice: `new Date("2026-09-23")` e
-// meia-noite em UTC, e formatada no fuso do visitante ela volta um dia no oeste dos Estados Unidos,
-// o que faria a data impressa discordar do `datePublished` que o dado estruturado declara.
+// Readable date. The time zone comes in explicit for the same reason as in the index: `new Date("2026-09-23")` is
+// midnight in UTC, and formatted in the visitor's time zone it goes back a day in the west of the United States,
+// which would make the printed date disagree with the `datePublished` the structured data declares.
 const FORMATO_DA_DATA = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 
 function dataLegivel(iso: string): string {
@@ -37,88 +37,88 @@ function dataLegivel(iso: string): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  // Caminho seguro, e nao o carregador direto: slug de forma invalida ou texto sem arquivo devolve
-  // nulo e a resposta e 404, em vez de erro de renderizacao.
-  const texto = buscarTextoOpcional(slug);
-  if (!texto) notFound();
-  // Sem barra no fim: e o endereco que a hospedagem serve, e canonico precisa ser o endereco servido,
-  // nao um que redireciona. O compositor e o mesmo do indice, para os dois nao divergirem de forma.
-  const url = blogUrl(texto.slug);
+  // Safe path, and not the direct loader: a malformed slug or a text with no file returns
+  // null and the response is 404, instead of a render error.
+  const text = findOptionalPost(slug);
+  if (!text) notFound();
+  // No trailing slash: this is the address the host serves, and canonical has to be the address served,
+  // not one that redirects. The composer is the same as in the index, so the two do not diverge in shape.
+  const url = blogUrl(text.slug);
 
-  // O sufixo da marca fecha o title em 51 caracteres para o texto de hoje, dentro da faixa de 50 a 60
-  // que a kopy pede, e a description vem do cabecalho ja medida entre 150 e 160.
+  // The brand suffix closes the title at 51 characters for today's text, inside the 50 to 60 range
+  // the copy standard asks for, and the description comes from the header, already measured between 150 and 160.
   return {
-    title: `${texto.title} | Brightfield Solar`,
-    description: texto.description,
+    title: `${text.title} | Brightfield Solar`,
+    description: text.description,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
       url,
       siteName: "Brightfield Solar",
-      title: texto.title,
-      description: texto.description,
-      publishedTime: texto.publishedAt,
-      modifiedTime: texto.updatedAt,
+      title: text.title,
+      description: text.description,
+      publishedTime: text.publishedAt,
+      modifiedTime: text.updatedAt,
     },
   };
 }
 
-type No = Record<string, unknown>;
+type Node = Record<string, unknown>;
 
-// Imagem declarada no `BlogPosting`. Ainda nao existe cartao de compartilhamento por texto, e inventar
-// endereco de imagem que nao responde e pior do que nao declarar: enquanto a rota propria nao existe,
-// a imagem declarada e a que o site ja serve, e o ajuste fica em um lugar so quando o cartao chegar.
+// Image declared in the `BlogPosting`. There is still no share card per text, and inventing an
+// image address that does not respond is worse than not declaring it: while the route of its own does not exist,
+// the declared image is the one the site already serves, and the adjustment stays in a single place when the card arrives.
 function imagemDoSite(site: string): string {
   return `${site}/icon.svg`;
 }
 
-// Nome do indice na trilha. E o mesmo rotulo do item de blog no menu, e nao uma segunda frase sobre a
-// mesma pagina: texto escrito duas vezes diverge na primeira revisao.
-const NOME_DO_INDICE = "Blog";
+// Name of the index in the breadcrumb. It is the same label as the blog item in the menu, and not a second phrase about the
+// same page: text written twice diverges at the first revision.
+const INDEX_NAME = "Blog";
 
-// Dado estruturado do texto, no mesmo desenho do indice: um grafo montado aqui e servido como texto no
-// HTML, e nao no cliente. O `url` do texto e o mesmo do canonico, pelo mesmo compositor, e o `isPartOf`
-// aponta para o no `#collection` que o indice declara, em vez de criar um no novo para a mesma lista.
-function esquemaDoTexto(texto: BlogPost, site: string): { "@context": string; "@graph": No[] } {
-  const url = blogNoSite(site, texto.slug);
-  const indice = blogNoSite(site);
+// Structured data of the text, in the same design as the index: a graph built here and served as text in the
+// HTML, and not on the client. The `url` of the text is the same as the canonical, through the same composer, and the `isPartOf`
+// points to the node `#collection` the index declares, instead of creating a new node for the same list.
+function postSchema(text: BlogPost, site: string): { "@context": string; "@graph": Node[] } {
+  const url = blogPageUrl(site, text.slug);
+  const index = blogPageUrl(site);
 
-  const grafo: No[] = [
+  const grafo: Node[] = [
     {
       "@type": "BlogPosting",
       "@id": `${url}#post`,
-      headline: texto.title,
-      description: texto.description,
+      headline: text.title,
+      description: text.description,
       url,
       image: [imagemDoSite(site)],
-      datePublished: texto.publishedAt,
-      dateModified: texto.updatedAt,
-      // Organizacao, e nao pessoa: o `author` do cabecalho do texto e a marca que assina a
-      // pagina. Quando um texto for assinado por alguem, o campo do cabecalho muda junto com isto.
-      author: { "@type": "Organization", name: texto.author },
+      datePublished: text.publishedAt,
+      dateModified: text.updatedAt,
+      // Organization, and not person: the `author` of the text header is the brand that signs the
+      // page. When a text is signed by someone, the header field changes together with this.
+      author: { "@type": "Organization", name: text.author },
       inLanguage: "en-us",
-      isPartOf: { "@type": "CollectionPage", "@id": `${indice}#collection`, url: indice },
+      isPartOf: { "@type": "CollectionPage", "@id": `${index}#collection`, url: index },
     },
     {
       "@type": "BreadcrumbList",
       "@id": `${url}#breadcrumb`,
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: NOME_DO_INDICE, item: indice },
-        { "@type": "ListItem", position: 2, name: texto.title, item: url },
+        { "@type": "ListItem", position: 1, name: INDEX_NAME, item: index },
+        { "@type": "ListItem", position: 2, name: text.title, item: url },
       ],
     },
   ];
 
-  // FAQPage so entra quando o cabecalho do texto declara perguntas, e a resposta e a do cabecalho,
-  // literal, que e a que o corpo ja afirma. Resumo escrito aqui seria afirmacao nova sem origem.
-  if (texto.faq?.length) {
+  // FAQPage only comes in when the text header declares questions, and the answer is the one from the header,
+  // literal, which is the one the body already states. A summary written here would be a new statement with no source.
+  if (text.faq?.length) {
     grafo.push({
       "@type": "FAQPage",
       "@id": `${url}#faq`,
-      mainEntity: texto.faq.map((item) => ({
+      mainEntity: text.faq.map((item) => ({
         "@type": "Question",
-        name: item.pergunta,
-        acceptedAnswer: { "@type": "Answer", text: item.resposta },
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
       })),
     });
   }
@@ -126,40 +126,40 @@ function esquemaDoTexto(texto: BlogPost, site: string): { "@context": string; "@
   return { "@context": "https://schema.org", "@graph": grafo };
 }
 
-// Corpo em blocos. Sao os tres unicos tipos que o leitor de markdown do `blog.ts` produz: titulo de
-// secao, paragrafo e lista. Tipo novo no leitor entra aqui junto, e nao antes: o `switch` sem saida
-// para um tipo inventado e o que garante que nada apareca vazio na pagina.
-function Blocos({ blocos }: { blocos: Bloco[] }) {
+// Body in blocks. They are the only three types the markdown reader of `blog.ts` produces: section
+// title, paragraph and list. A new type in the reader comes in here together, and not before: the `switch` with no exit
+// for an invented type is what guarantees that nothing appears empty on the page.
+function Blocks({ blocks }: { blocks: Block[] }) {
   return (
-    // Largura de leitura explicita, em valor e nao em degrau de container: os nossos degraus de espaco
-    // usam os mesmos nomes da escala de container do Tailwind, e `max-w-lg` resolve para 24 px.
+    // Explicit reading width, in a value and not in a container step: our space steps
+    // use the same names as the Tailwind container scale, and `max-w-lg` resolves to 24 px.
     <div className="flex max-w-[52rem] flex-col gap-lg">
-      {blocos.map((bloco, posicao) => {
-        if (bloco.tipo === "titulo") {
-          // A numeração sai da POSIÇÃO, e não de um contador que soma durante a renderização: em desenvolvimento
-          // o React renderiza duas vezes, e o contador viraria 2, 4, 6. O texto da seção é o que carrega o
-          // significado; o número é orientação, então ele é decorativo para o leitor de tela.
-          const numero = blocos.slice(0, posicao + 1).filter((b) => b.tipo === "titulo").length;
+      {blocks.map((block, position) => {
+        if (block.type === "title") {
+          // The numbering comes from the POSITION, and not from a counter that adds up during rendering: in development
+          // React renders twice, and the counter would become 2, 4, 6. The section text is what carries the
+          // meaning; the number is orientation, so it is decorative for the screen reader.
+          const number = blocks.slice(0, position + 1).filter((b) => b.type === "title").length;
           return (
-            <h2 key={`titulo-${posicao}`} className="flex items-start gap-sm type-title text-ink">
-              {/* O número saiu do círculo escuro com fonte dourada: pesado para uma numeração, e numeração é
-                  orientação, não destaque. Ficou claro com fundo de cartão, número em tinta e a borda
-                  de limite que os outros cartões já usam — o mesmo peso visual de um rótulo, e não de um selo. */}
+            <h2 key={`title-${position}`} className="flex items-start gap-sm type-title text-ink">
+              {/* The number left the dark circle with golden type: heavy for a numbering, and numbering is
+                  orientation, not emphasis. It became light with a card background, the number in ink and the
+                  outline border the other cards already use: the same visual weight of a label, and not of a badge. */}
               <span
                 aria-hidden="true"
                 className="mt-xs flex size-9 shrink-0 items-center justify-center rounded-full border border-outline bg-surface type-label text-ink"
               >
-                {numero}
+                {number}
               </span>
-              {bloco.texto}
+              {block.text}
             </h2>
           );
         }
-        if (bloco.tipo === "lista") {
+        if (block.type === "list") {
           return (
-            <ul key={`lista-${posicao}`} className="flex list-disc flex-col gap-sm pl-lg">
-              {bloco.itens.map((item, indice) => (
-                <li key={`item-${indice}`} className="type-body text-ink">
+            <ul key={`lista-${position}`} className="flex list-disc flex-col gap-sm pl-lg">
+              {block.items.map((item, index) => (
+                <li key={`item-${index}`} className="type-body text-ink">
                   {item}
                 </li>
               ))}
@@ -167,8 +167,8 @@ function Blocos({ blocos }: { blocos: Bloco[] }) {
           );
         }
         return (
-          <p key={`paragrafo-${posicao}`} className="type-body text-ink">
-            {bloco.texto}
+          <p key={`paragrafo-${position}`} className="type-body text-ink">
+            {block.text}
           </p>
         );
       })}
@@ -178,112 +178,112 @@ function Blocos({ blocos }: { blocos: Bloco[] }) {
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const texto = buscarTextoOpcional(slug);
-  // Três outros guias, dos mais recentes. A lista já vem ordenada, então não há reordenação aqui.
-  const outros = listarTextos()
+  const text = findOptionalPost(slug);
+  // Three other guides, from the most recent. The list already comes ordered, so there is no reordering here.
+  const outros = listPosts()
     .filter((outro) => outro.slug !== slug)
     .slice(0, 3);
 
-  if (!texto) notFound();
+  if (!text) notFound();
 
   const site = siteUrl();
-  // A data de revisao so entra quando ela existe de verdade. O campo e obrigatorio no esquema e repete
-  // a data de publicacao quando o texto nao foi revisto, entao imprimir sempre diria que todo guia foi
-  // revisto no dia em que saiu.
-  const revisado = texto.updatedAt !== texto.publishedAt;
+  // The revision date only comes in when it really exists. The field is required in the schema and repeats
+  // the publication date when the text was not revised, so printing it always would say that every guide was
+  // revised on the day it came out.
+  const revisado = text.updatedAt !== text.publishedAt;
 
-  // Base do cabecalho: a primeira cidade publicada, e nao um slug escrito no codigo, pelo mesmo motivo
-  // que a raiz do site usa essa lista. E o mesmo caminho que o fecho do texto usa para chegar ao
-  // simulador, composto uma vez so: duas composicoes do mesmo endereco divergem na primeira mudanca de
-  // cidade de entrada.
-  const [primeira] = listCitySlugs();
-  if (!primeira) throw new Error("nenhuma cidade publicada em src/data/cities");
-  const base = cityPath(primeira);
+  // Header base: the first published city, and not a slug written in the code, for the same reason
+  // the site root uses that list. It is the same path the close of the text uses to reach the
+  // simulator, composed only once: two compositions of the same address diverge at the first change of
+  // entry city.
+  const [first] = listCitySlugs();
+  if (!first) throw new Error("nenhuma city publicada em src/data/cities");
+  const base = cityPath(first);
   const calculadora = `${base}#simulator`;
 
   return (
     <>
-      {/* Ponto zero desta pagina, declarado aqui e nao no `main`: o `main` tem margem por ser alvo de
-          ancora de secao, e quem entra nele e alvo faz o navegador parar no comeco do bloco, abaixo do
-          topo. Esta ancora e um elemento sem altura, primeiro filho do documento, entao o salto vai a
-          posicao zero de verdade. O `#topo` da barra nao serve para isto: ele sai daqui com a base da
-          cidade na frente e leva ao topo da pagina de cidade. */}
-      <span id="topo" aria-hidden="true" />
-      {/* Mesmo cabecalho da pagina de cidade, com a base do caminho dela: e ele que da a volta ao
-          site inteiro, e sem ele quem entra no guia por busca so voltaria pelo botao do navegador. */}
+      {/* Zero point of this page, declared here and not in the `main`: the `main` has a margin because it is a
+          section anchor target, and whoever enters it as a target makes the browser stop at the start of the block, below the
+          top. This anchor is an element with no height, first child of the document, so the jump goes to
+          position zero for real. The `#topo` of the bar does not serve for this: it leaves here with the base of the
+          city in front and leads to the top of the city page. */}
+      <span id="top" aria-hidden="true" />
+      {/* Same header as the city page, with the base of its path: it is what gives a way back to the
+          whole site, and without it whoever enters the guide from search would only go back through the browser button. */}
       <SiteHeader base={base} />
-      {/* O respiro de baixo e o da pagina de cidade: no celular a barra fica encostada na borda e o
-          espaco dela precisa estar reservado, senao o fim do texto fica atras do vidro. Do tamanho
-          medio para cima a barra sobe para o topo e quem reserva o espaco e o respiro do bloco. */}
+      {/* The bottom padding is the one of the city page: on mobile the bar sits against the edge and its
+          space has to be reserved, otherwise the end of the text stays behind the glass. From the medium
+          size up the bar rises to the top and what reserves the space is the padding of the block. */}
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-xl px-lg py-xxl pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] sm:pb-xxl">
-        {/* O JSON-LD entra como texto no HTML servido, e nao montado no cliente: quem busca e quem
-            responde pergunta leem o HTML, nao o que o React faria depois. O `<` escapado impede que um
-            titulo com essa forma feche a tag antes da hora. */}
+        {/* The JSON-LD comes in as text in the served HTML, and not built on the client: whoever searches and whoever
+            answers a question read the HTML, not what React would do afterwards. The escaped `<` prevents a
+            title with that shape from closing the tag early. */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(esquemaDoTexto(texto, site)).replace(/</g, "\\u003c") }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(postSchema(text, site)).replace(/</g, "\\u003c") }}
         />
 
         <article className="flex flex-col gap-xl">
           <header className="flex flex-col gap-md">
-            {/* Volta ao indice no rotulo do menu, e nao em frase nova: quem chegou de busca precisa do
-                caminho de volta sem que a pagina invente um segundo nome para a mesma lista. */}
+            {/* Back to the index in the menu label, and not in a new phrase: whoever arrived from search needs the
+                way back without the page inventing a second name for the same list. */}
             <nav aria-label="Breadcrumb" className="microcopy">
               <a
                 href={blogPath()}
                 className="inline-flex min-h-touch items-center gap-xs underline decoration-outline underline-offset-4 transition-colors hover:decoration-primary-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
-                {/* O rótulo visível é Back, e não o nome do índice: quem chegou de busca quer voltar, e o
-                    destino já é o índice. A constante continua valendo para o dado estruturado, que precisa
-                    nomear a seção e não a ação. */}
-                <IconeVoltar />
+                {/* The visible label is Back, and not the name of the index: whoever arrived from search wants to go back, and the
+                    destination already is the index. The constant still holds for the structured data, which has to
+                    name the section and not the action. */}
+                <ArrowUpIcon />
                 Back
               </a>
             </nav>
 
-            <h1 className="type-display max-w-[52rem] text-ink">{texto.title}</h1>
-            <p className="type-body max-w-[52rem] text-support">{texto.description}</p>
+            <h1 className="type-display max-w-[52rem] text-ink">{text.title}</h1>
+            <p className="type-body max-w-[52rem] text-support">{text.description}</p>
 
             <p className="microcopy flex flex-wrap items-center gap-x-xs gap-y-0">
               <span className="inline-flex items-center gap-1">
-                <IconeTempo />
-                {minutosDeLeitura(texto)} min read
+                <ClockIcon />
+                {readingMinutes(text)} min read
               </span>
               <span aria-hidden>·</span>
-              <span>By {texto.author}</span>
+              <span>By {text.author}</span>
               <span aria-hidden>·</span>
               <span>
-                Published <time dateTime={texto.publishedAt}>{dataLegivel(texto.publishedAt)}</time>
+                Published <time dateTime={text.publishedAt}>{dataLegivel(text.publishedAt)}</time>
               </span>
               {revisado && (
                 <>
                   {" · Updated "}
-                  <time dateTime={texto.updatedAt}>{dataLegivel(texto.updatedAt)}</time>
+                  <time dateTime={text.updatedAt}>{dataLegivel(text.updatedAt)}</time>
                 </>
               )}
             </p>
           </header>
 
-          <Blocos blocos={texto.blocos} />
+          <Blocks blocks={text.blocks} />
 
-          {/* Fontes so quando existem: o esquema exige fonte para texto que cita numero, e o guia sem
-              numero nao tem fonte para listar. Titulo de secao entra como `h2` para a pagina ter uma
-              hierarquia so, e nao dois segundo nivel competindo. */}
-          {texto.sources.length > 0 && (
-            <section aria-labelledby="fontes-titulo" className="flex max-w-[52rem] flex-col gap-md">
-              <h2 id="fontes-titulo" className="type-lead text-ink">
+          {/* Sources only when they exist: the schema requires a source for text that cites a number, and the guide with no
+              number has no source to list. Section title comes in as `h2` so the page has a single
+              hierarchy, and not two second levels competing. */}
+          {text.sources.length > 0 && (
+            <section aria-labelledby="sources-title" className="flex max-w-[52rem] flex-col gap-md">
+              <h2 id="sources-title" className="type-lead text-ink">
                 Sources
               </h2>
               <ul className="flex flex-col gap-sm">
-                {texto.sources.map((fonte) => (
-                  <li key={fonte.url} className="type-body text-support">
+                {text.sources.map((source) => (
+                  <li key={source.url} className="type-body text-support">
                     <a
-                      href={fonte.url}
+                      href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline decoration-outline underline-offset-4 transition-colors hover:decoration-primary-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                     >
-                      {fonte.nome}
+                      {source.name}
                     </a>
                   </li>
                 ))}
@@ -291,8 +291,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </section>
           )}
 
-          {/* Fecho do texto: o guia explica a leitura da conta, e o proximo passo e a conta do proprio
-              telhado. O endereco sai de `cityPath`, o mesmo compositor do canonico de cidade. */}
+          {/* Close of the text: the guide explains how to read the bill, and the next step is the bill of your own
+              roof. The address comes from `cityPath`, the same composer as the city canonical. */}
           <section className="flex flex-col gap-md rounded-lg border border-primary bg-primary/25 px-lg py-md">
             <p className="flex items-center gap-sm type-label text-ink">
               <span aria-hidden className="h-px w-xl bg-primary-light" />
@@ -311,32 +311,32 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </a>
           </section>
 
-          {/* Volta ao topo. Fica no corpo e no fim do texto, e nao na barra: a barra do celular tem
-              cinco itens com largura igual e rotulo medido, e um sexto item aperta isso de novo; alem
-              disso voltar ao topo e gesto de fim de leitura, e nao destino de navegacao, que e o que
-              justifica ele aparecer so depois das fontes e do fecho. Ancora pura, sem JavaScript: o
-              alvo e o `#topo` desta pagina, e nao a base de cidade que a barra usa nos itens dela. */}
+          {/* Back to the top. It stays in the body and at the end of the text, and not in the bar: the mobile bar has
+              five items with equal width and a measured label, and a sixth item squeezes that again; besides,
+              going back to the top is an end-of-reading gesture, and not a navigation destination, which is what
+              justifies it appearing only after the sources and the close. Pure anchor, with no JavaScript: the
+              target is the `#topo` of this page, and not the city base the bar uses in its items. */}
           <a
-            href="#topo"
+            href="#top"
             className="type-label inline-flex min-h-touch items-center gap-xs self-start rounded-sm text-ink underline decoration-outline underline-offset-4 transition-colors hover:decoration-primary-light focus-visible:ring-2 focus-visible:ring-ink focus-visible:outline-none"
           >
-            <IconeVoltar />
+            <ArrowUpIcon />
             Back to top
           </a>
         </article>
-              {/* Fim do texto: três outros guias e o caminho para o índice. Os três são os mais recentes que não são
-            este, e não uma escolha por assunto, porque a lista já vem ordenada de uma fonte só e reordenar aqui
-            seria uma segunda verdade sobre a mesma lista. O botão existe porque quem chegou de busca e quer seguir
-            lendo precisa de caminho, e três cards não cobrem a lista. Sem linha divisória em cima: quem
-            separa é o respiro do bloco. */}
+              {/* End of the text: three other guides and the path to the index. The three are the most recent that are not
+            this one, and not a choice by subject, because the list already comes ordered from a single source and reordering here
+            would be a second truth about the same list. The button exists because whoever arrived from search and wants to keep
+            reading needs a path, and three cards do not cover the list. With no divider line above: what
+            separates is the padding of the block. */}
         {outros.length > 0 && (
-          <section aria-labelledby="outros-titulo" className="flex flex-col gap-lg pt-xl">
-            <h2 id="outros-titulo" className="type-lead text-ink">
+          <section aria-labelledby="others-title" className="flex flex-col gap-lg pt-xl">
+            <h2 id="others-title" className="type-lead text-ink">
               Keep reading
             </h2>
             <ul className="flex flex-col gap-md md:grid md:grid-cols-3 md:items-stretch">
               {outros.map((outro) => (
-                <BlogCard key={outro.slug} texto={outro} />
+                <BlogCard key={outro.slug} text={outro} />
               ))}
             </ul>
             <div className="flex justify-center">

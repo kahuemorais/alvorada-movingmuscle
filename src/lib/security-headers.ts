@@ -1,44 +1,44 @@
-// Cabeçalhos de segurança como dado, e não espalhados na configuração do Next.
+// Security headers as data, and not scattered across the Next configuration.
 //
-// Por que existe: a resposta saía sem nenhuma proteção, numa página que roda script de terceiro e
-// circula por anúncio, onde enquadramento e origem de script deixam de ser teoria. Como dado,
-// os cabeçalhos ficam testáveis, e `pnpm test` reprova se alguém afrouxar a política sem perceber.
+// Why it exists: the response came out with no protection at all, on a page that runs third-party script and
+// travels through ads, where framing and script origin stop being theory. As data,
+// the headers become testable, and `pnpm test` fails if someone loosens the policy without noticing.
 //
-// O que a política bloqueia: script de origem terceira que não seja o medidor, `eval`, plugin e objeto
-// embutido, sequestro de base para reescrever endereço relativo, enquadramento em outro site e envio de
-// formulário para fora.
+// What the policy blocks: third-party origin script that is not the meter, `eval`, plugin and embedded
+// object, base hijacking to rewrite a relative address, framing in another site and sending of
+// a form outwards.
 //
-// O que ela não bloqueia, e por quê, para não parecer descuido:
+// What it does not block, and why, so it does not look like carelessness:
 //
-//   script-src com 'unsafe-inline'  o Next injeta o script de hidratação em linha no HTML servido. Nonce
-//                                   exigiria renderização dinâmica, e a página é estática de propósito,
-//                                   por causa do custo e do cache; hash por build não serve, porque a
-//                                   configuração de cabeçalho é avaliada antes de existir HTML para medir.
-//   style-src com 'unsafe-inline'   o mesmo motivo, para o estilo crítico que o Next injeta.
+//   script-src with 'unsafe-inline' Next injects the hydration script inline in the served HTML. Nonce
+//                                   would require dynamic rendering, and the page is static on purpose,
+//                                   because of cost and caching; a per-build hash does not work, because the
+//                                   header configuration is evaluated before there is HTML to measure.
+//   style-src with 'unsafe-inline'  the same reason, for the critical style Next injects.
 //
-// As duas exceções são o custo conhecido de página estática no Next. Se um dia a página passar a ser
-// renderizada a cada requisição, o caminho é nonce por requisição, que é o que a documentação da versão
-// descreve (01-app/02-guides/content-security-policy.md).
-export type Cabecalho = { key: string; value: string };
+// The two exceptions are the known cost of a static page in Next. If one day the page becomes
+// rendered on every request, the path is a per-request nonce, which is what the documentation of the version
+// describes (01-app/02-guides/content-security-policy.md).
+export type Header = { key: string; value: string };
 
-function politica(ambiente: string) {
-  const desenvolvimento = ambiente === "development";
+function policy(ambiente: string) {
+  const isDevelopment = ambiente === "development";
   return [
     "default-src 'self'",
-    // O medidor da Vercel carrega `/_vercel/insights/script.js`, de mesma origem, quando é produção; o
-    // endereço `va.vercel-scripts.com` só aparece no modo de depuração, e fica liberado para o
-    // desenvolvimento não quebrar sem aviso.
+    // The Vercel meter loads `/_vercel/insights/script.js`, from the same origin, when it is production; the
+    // address `va.vercel-scripts.com` only appears in debug mode, and stays allowed so
+    // development does not break without warning.
     //
-    // `'unsafe-eval'` SÓ em desenvolvimento, e por um motivo que não é preguiça: o React em modo de
-    // desenvolvimento usa `eval()` para reconstruir pilha de chamada e para o recarregamento rápido, e sem
-    // isso o console acusa erro a cada carregamento, e foi assim que este defeito apareceu. Em produção
-    // nada disso roda, e a política continua fechada contra `eval`; o teste deste arquivo reprova quem
-    // levar a exceção para o lado de produção.
-    `script-src 'self' 'unsafe-inline'${desenvolvimento ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
+    // `'unsafe-eval'` ONLY in development, and for a reason that is not laziness: React in
+    // development mode uses `eval()` to rebuild the call stack and for fast refresh, and without
+    // it the console reports an error on every load, and that is how this defect appeared. In production
+    // none of that runs, and the policy stays closed against `eval`; the test of this file fails whoever
+    // takes the exception to the production side.
+    `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self'",
-    // O envio do medidor também passa pela mesma origem em produção.
+    // The send of the meter also goes through the same origin in production.
     "connect-src 'self' https://va.vercel-scripts.com",
     "object-src 'none'",
     "base-uri 'none'",
@@ -48,12 +48,12 @@ function politica(ambiente: string) {
   ].join("; ");
 }
 
-// O ambiente entra por parâmetro para o teste poder exercitar os dois lados: o de produção, que não pode
-// ter `unsafe-eval`, e o de desenvolvimento, que precisa dele. Sem o parâmetro, a função lê o ambiente em
-// que está rodando, que é o que a configuração do Next faz.
-export function cabecalhosSeguranca(ambiente: string = process.env.NODE_ENV ?? "production"): Cabecalho[] {
+// The environment enters as a parameter so the test can exercise both sides: the production one, which cannot
+// have `unsafe-eval`, and the development one, which needs it. Without the parameter, the function reads the environment it
+// is running in, which is what the Next configuration does.
+export function securityHeaders(ambiente: string = process.env.NODE_ENV ?? "production"): Header[] {
   return [
-    { key: "Content-Security-Policy", value: politica(ambiente) },
+    { key: "Content-Security-Policy", value: policy(ambiente) },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     { key: "X-Frame-Options", value: "DENY" },

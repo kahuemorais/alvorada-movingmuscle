@@ -1,20 +1,20 @@
 import type { NextConfig } from "next";
-import { cabecalhosSeguranca } from "./src/lib/security-headers";
+import { securityHeaders } from "./src/lib/security-headers";
 
 const nextConfig: NextConfig = {
-  // Sem `trailingSlash`, e nao por descuido. A primeira versao tinha `trailingSlash: true` porque o
-  // canonical e o Open Graph declaravam a URL com barra, e no build local isso funcionava. No
-  // dominio publicado nao: a Vercel normaliza a URL sem barra antes de o Next ver a requisicao, entao
-  // /phoenix-az/ respondia 308 para /phoenix-az e /phoenix-az respondia 404, ou seja, a pagina da
-  // cidade nao abria por caminho nenhum. Agora o endereco servido, o canonical e o Open Graph sao
-  // todos sem barra, que e o padrao do Next e o que a hospedagem serve.
+  // No `trailingSlash`, and not by oversight. The first version had `trailingSlash: true` because the
+  // canonical and the Open Graph declared the URL with a trailing slash, and in the local build that
+  // worked. On the published domain it did not: Vercel normalizes the URL without the slash before Next
+  // sees the request, so /phoenix-az/ answered 308 to /phoenix-az and /phoenix-az answered 404, meaning
+  // the city page did not open through any path. Now the served address, the canonical and the Open Graph
+  // are all without the slash, which is the Next default and what the host serves.
   poweredByHeader: false,
 
-  // Cabeçalhos de segurança em toda rota. Os valores moram em `src/lib/security-headers.ts`, e não aqui,
-  // porque lá eles são dado testável: `pnpm test` reprova se alguém afrouxar a política sem perceber. Os
-  // motivos das duas exceções de `unsafe-inline` estão escritos no próprio módulo.
+  // Security headers on every route. The values live in `src/lib/security-headers.ts`, not here, because
+  // there they are testable data: `pnpm test` fails if someone loosens the policy without noticing. The
+  // reasons for the two `unsafe-inline` exceptions are written in the module itself.
   async headers() {
-    return [{ source: "/(.*)", headers: cabecalhosSeguranca() }];
+    return [{ source: "/(.*)", headers: securityHeaders() }];
   },
 };
 

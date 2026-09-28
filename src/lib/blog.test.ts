@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { listarTextos, minutosDeLeitura } from "./blog";
+import { listPosts, readingMinutes } from "./blog";
 
-// O tempo de leitura é CALCULADO do corpo, e o teste existe para provar isso: um número escrito à mão passaria
-// por qualquer verificação de faixa (todo texto tem entre um e trinta minutos), e só a comparação entre textos
-// diferentes denuncia que ele não vem do corpo. Foi por isso que a asserção de variedade entrou junto com a de
-// faixa: a primeira não distingue constante de conta, a segunda sim.
-describe("tempo de leitura", () => {
-  const textos = listarTextos();
+// Reading time is CALCULATED from the body, and the test exists to prove that: a hand-written number would pass
+// any range check (every text is between one and thirty minutes), and only the comparison between different
+// texts reveals that it does not come from the body. That is why the variety assertion came in together with the
+// range one: the first does not distinguish a constant from a computation, the second does.
+describe("reading time", () => {
+  const texts = listPosts();
 
-  it("dá um número inteiro de minutos para todo texto publicado", () => {
-    expect(textos.length).toBeGreaterThan(0);
-    for (const texto of textos) {
-      const minutos = minutosDeLeitura(texto);
-      expect(Number.isInteger(minutos), `${texto.slug} devolveu ${minutos}`).toBe(true);
-      expect(minutos, `${texto.slug} devolveu ${minutos}`).toBeGreaterThanOrEqual(1);
-      expect(minutos, `${texto.slug} devolveu ${minutos}`).toBeLessThanOrEqual(30);
+  it("gives a whole number of minutes for every published text", () => {
+    expect(texts.length).toBeGreaterThan(0);
+    for (const text of texts) {
+      const minutes = readingMinutes(text);
+      expect(Number.isInteger(minutes), `${text.slug} returned ${minutes}`).toBe(true);
+      expect(minutes, `${text.slug} returned ${minutes}`).toBeGreaterThanOrEqual(1);
+      expect(minutes, `${text.slug} returned ${minutes}`).toBeLessThanOrEqual(30);
     }
   });
 
-  it("cresce com o corpo, e não é o mesmo número em todo texto", () => {
-    const minutos = textos.map((texto) => minutosDeLeitura(texto));
-    // A variedade é a prova de que a conta olha o corpo: constante não varia.
-    expect(new Set(minutos).size).toBeGreaterThan(1);
+  it("grows with the body, and is not the same number in every text", () => {
+    const minutes = texts.map((text) => readingMinutes(text));
+    // Variety is the proof that the computation looks at the body: a constant does not vary.
+    expect(new Set(minutes).size).toBeGreaterThan(1);
   });
 });

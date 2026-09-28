@@ -1,37 +1,39 @@
 # Brightfield Solar
 
-Registro: **marca**. O desenho aqui é o produto: a página é a peça de venda, e a decisão visual conta tanto
-quanto o funcionamento.
+Register: **brand**. The design here is the product: the page is the sales piece, and the visual decision
+counts as much as the behavior.
 
-## Quem lê
+## Who reads it
 
-Dono de casa no vale do Sol, Arizona, 35 a 65 anos, no celular, no meio do dia, muitas vezes ao lado da
-conta de luz aberta. Ele já recebeu ligação de vendedor de painel e desconfia. A decisão dele é uma só:
-pedir ou não uma visita técnica. Não é comprar um sistema naquele momento.
+A homeowner in the Valley of the Sun, Arizona, 35 to 65 years old, on a phone, in the middle of the day,
+often with the power bill open next to them. They have already had a call from a panel salesperson and they
+are wary. Their decision is a single one: to ask for a site visit or not. It is not buying a system right
+then.
 
-## O que a página vende
+## What the page sells
 
-Uma visita técnica gratuita, com o número já calculado. O sistema é o assunto, a visita é a venda.
+A free site visit, with the number already calculated. The system is the subject, the visit is the sale.
 
-## Tom
+## Tone
 
-Direto e técnico, sem entusiasmo de propaganda. Fala de número, prazo e consequência. Não usa exclamação,
-não usa travessão, não elogia a própria empresa. Números vêm do arquivo da cidade, nunca escritos no
-componente.
+Direct and technical, with no advertising enthusiasm. It speaks of number, timeline and consequence. It
+uses no exclamation mark, no em dash, and it does not praise its own company. Numbers come from the city
+file, never written inside a component.
 
-## O que esta marca não é
+## What this brand is not
 
-- Não é verde-clichê de energia limpa. A cor de ação é o sol, âmbar, e o verde é de economia, não de causa.
-- Não é agressiva na venda. Sem contagem regressiva, sem escassez inventada, sem promessa de retorno
-  garantido.
-- Não é uma página institucional com missão e valores.
+- It is not the green cliché of clean energy. The action color is the sun, amber, and green is savings, not
+  cause.
+- It is not aggressive in the sale. No countdown, no invented scarcity, no promise of guaranteed return.
+- It is not an institutional page with mission and values.
 
-## Princípios de decisão
+## Decision principles
 
-1. O número que a pessoa vê é o argumento. A página conduz ao controle, mostra o resultado e pede a visita
-   enquanto o número está na tela.
-2. Nada que apareça na tela pode contradizer o documento do cliente. Divergência se declara, não se esconde.
-3. Enfeite que não ajuda a entender ou a decidir sai. O peso da página é orçamento, não consequência.
-4. Movimento existe para mostrar relação de causa e efeito, não para decorar. Quem pediu menos movimento no
-   sistema recebe menos movimento.
-5. Nenhum dado de visitante sai da página sem que ele peça a visita.
+1. The number the visitor sees is the argument. The page leads to the control, shows the result and asks for
+   the visit while the number is on screen.
+2. Nothing on screen may contradict the customer document. A divergence is declared, not hidden.
+3. Decoration that does not help to understand or to decide is out. The weight of the page is budget, not
+   consequence.
+4. Motion exists to show cause and effect, not to decorate. Whoever asked for less motion in the system gets
+   less motion.
+5. No visitor data leaves the page before the visitor asks for the visit.

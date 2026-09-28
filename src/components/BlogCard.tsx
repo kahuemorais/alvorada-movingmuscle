@@ -1,63 +1,63 @@
-import { IconeTempo } from "@/components/icons";
-import { minutosDeLeitura, type BlogPost } from "@/lib/blog";
+import { ClockIcon } from "@/components/icons";
+import { readingMinutes, type BlogPost } from "@/lib/blog";
 import { blogPath } from "@/lib/urls";
 
-// Data legível. O fuso entra explícito porque `new Date("2026-09-23")` é meia-noite em UTC: formatada no fuso do
-// visitante, ela volta um dia no oeste dos Estados Unidos, e a data impressa passa a discordar do `datePublished`
-// que o dado estruturado declara.
+// Readable date. The time zone comes in explicit because `new Date("2026-09-23")` is midnight in UTC: formatted in the visitor's
+// time zone, it goes back a day in the west of the United States, and the printed date comes to disagree with the `datePublished`
+// the structured data declares.
 const FORMATO_DA_DATA = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 
 function dataLegivel(iso: string): string {
   return FORMATO_DA_DATA.format(new Date(`${iso}T00:00:00Z`));
 }
 
-// O card de texto do blog, usado no índice e no fim de cada texto. Existe para não haver duas verdades sobre a mesma
-// peça: o card precisa ser clicável por inteiro e mudar a borda no hover, e isso tem que valer nos dois lugares.
+// The text card of the blog, used in the index and at the end of each text. It exists so there are not two truths about the same
+// piece: the card has to be clickable as a whole and change the border on hover, and that has to hold in both places.
 //
-// O link continua só no título, e o card inteiro vira área de clique pelo padrão de link esticado: o `before` do
-// próprio link cobre o card, com z-index para ficar acima do conteúdo, senão o clique no rodapé do card bate no texto
-// de data. O foco de teclado segue no link de verdade, que é o que leitor de tela e a tecla Tab enxergam.
-export function BlogCard({ texto, destaque = false }: { texto: BlogPost; destaque?: boolean }) {
-  // A data de revisão só entra quando ela existe de verdade. O campo é obrigatório no esquema e repete a data de
-  // publicação quando o texto não foi revisto.
-  const revisado = texto.updatedAt !== texto.publishedAt;
-  // O tempo de leitura vem do corpo do texto, e não do cabeçalho: é o único dado desta linha que não
-  // envelhece sozinho se alguém editar o texto.
-  const minutos = minutosDeLeitura(texto);
+// The link stays only in the title, and the whole card becomes a click area through the stretched link pattern: the `before` of the
+// link itself covers the card, with z-index to stay above the content, otherwise the click on the footer of the card hits the date
+// text. The keyboard focus stays on the real link, which is what the screen reader and the Tab key see.
+export function BlogCard({ text, featured = false }: { text: BlogPost; featured?: boolean }) {
+  // The revision date only comes in when it really exists. The field is required in the schema and repeats the
+  // publication date when the text was not revised.
+  const revisado = text.updatedAt !== text.publishedAt;
+  // The reading time comes from the body of the text, and not from the header: it is the only datum of this line that does not
+  // age on its own if someone edits the text.
+  const minutes = readingMinutes(text);
 
   return (
-    // O cartão em destaque ocupa as duas colunas no tamanho médio: hierarquia sem inventar cor nem tamanho
-    // de fonte novo — o guia mais novo é o que a maioria veio ler, e a grade diz isso antes do texto.
+    // The featured card takes the two columns at the medium size: hierarchy without inventing a color or a new
+    // font size: the newest guide is what most came to read, and the grid says that before the text.
     <li
       className={`group relative rounded-lg border border-outline bg-surface px-lg py-md transition-colors hover:border-primary-light focus-within:border-primary${
-        destaque ? " md:col-span-2" : ""
+        featured ? " md:col-span-2" : ""
       }`}
     >
       <article className="flex flex-col gap-sm">
         <h2 className="type-lead text-ink">
           <a
-            href={blogPath(texto.slug)}
+            href={blogPath(text.slug)}
             className="underline decoration-outline underline-offset-4 transition-colors before:absolute before:inset-0 before:z-10 before:content-[''] group-hover:decoration-primary-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
-            {texto.title}
+            {text.title}
           </a>
         </h2>
 
-        <p className="type-body max-w-[34rem] text-support">{texto.description}</p>
+        <p className="type-body max-w-[34rem] text-support">{text.description}</p>
 
         <p className="microcopy flex flex-wrap items-center gap-x-xs gap-y-0">
           <span className="inline-flex items-center gap-1">
-            <IconeTempo />
-            {minutos} min read
+            <ClockIcon />
+            {minutes} min read
           </span>
           <span aria-hidden>·</span>
           <span>
-            Published <time dateTime={texto.publishedAt}>{dataLegivel(texto.publishedAt)}</time>
+            Published <time dateTime={text.publishedAt}>{dataLegivel(text.publishedAt)}</time>
           </span>
           {revisado && (
             <>
               {" · Updated "}
-              <time dateTime={texto.updatedAt}>{dataLegivel(texto.updatedAt)}</time>
+              <time dateTime={text.updatedAt}>{dataLegivel(text.updatedAt)}</time>
             </>
           )}
         </p>

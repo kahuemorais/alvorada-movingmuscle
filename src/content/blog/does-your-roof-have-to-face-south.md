@@ -8,11 +8,11 @@
   "author": "Brightfield Solar",
   "sources": [
     {
-      "nome": "JRC PVGIS, Photovoltaic Geographical Information System",
+      "name": "JRC PVGIS, Photovoltaic Geographical Information System",
       "url": "https://re.jrc.ec.europa.eu/pvg_tools/en/"
     },
     {
-      "nome": "U.S. Department of Energy, Homeowner's Guide to Solar",
+      "name": "U.S. Department of Energy, Homeowner's Guide to Solar",
       "url": "https://www.energy.gov/eere/solar/homeowners-guide-going-solar"
     }
   ]

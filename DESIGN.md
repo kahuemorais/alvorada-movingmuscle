@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Brightfield Solar
-description: Sol do deserto em fundo quente, com a economia sempre em verde, no esqueleto do Zapier.
+description: Desert sun on a warm background, with the savings always in green, on the skeleton of Zapier.
 colors:
   ink: "#16181A"
   support: "#5B6167"
@@ -98,432 +98,432 @@ components:
 
 ## Overview
 
-Página de aterrissagem de campanha para quem está no quintal olhando o próprio telhado, no
-celular. Fundo quente e claro, contraste alto, nada decorativo: cada bloco ou mostra número, ou
-explica o número.
+Campaign landing page for someone standing in the backyard looking at their own roof, on the
+phone. Warm and light background, high contrast, nothing decorative: every block either shows a
+number, or explains the number.
 
-O esqueleto vem do sistema do Zapier, escolhido por ser o mais denso em chamada para ação e o mais próximo
-em temperatura da marca.
-A paleta é da Brightfield e não muda: o que veio do Zapier foi tipo, canto, profundidade e ritmo.
+The skeleton comes from the Zapier system, chosen for being the densest in call to action and the closest
+in temperature to the brand.
+The palette is Brightfield's and does not change: what came from Zapier was type, corner, depth and rhythm.
 
-## De onde vem este desenho
+## Where this design comes from
 
-O que veio do Zapier, e por quê:
+What came from Zapier, and why:
 
-- **Tipo comprimido no topo.** A abertura usa linha de 0,95 com entrelinha negativa, que dá o bloco
-  compacto de quem não precisa gritar. O peso desce de 700 para 600: com a Archivo, grotesco de traço
-  robusto, o 500 do original fica fraco no celular, e 600 é o peso que o próprio Zapier usa no texto de
-  botão grande.
-- **Número grande e leve.** O valor em dinheiro é o contador de estatística deles: 48 px de peso 500, no
-  lugar de 36 px de peso 700. Algarismo tabular junto, porque os quatro números mudam ao vivo enquanto a
-  pessoa mexe no controle.
-- **Canto apertado.** A escala cai de 8, 12, 16 e 28 para 4, 6, 8 e 14. É o traço que mais muda a cara da
-  página, e é barato: botão 8, cartão 14, campo e etiqueta 4 a 6.
-- **Borda no lugar de sombra.** Já era assim aqui, e continua: profundidade vem de borda e de tom de
-  fundo, nunca de sombra.
+- **Type compressed at the top.** The opening uses a line height of 0,95 with negative leading, which gives the
+  compact block of someone who does not need to shout. The weight drops from 700 to 600: with Archivo, a grotesque
+  with a sturdy stroke, the 500 of the original reads weak on the phone, and 600 is the weight Zapier itself uses in the
+  large button text.
+- **Large and light number.** The money value is their statistic counter: 48 px at weight 500, in
+  place of 36 px at weight 700. Tabular figures along with it, because the four numbers change live while the
+  person moves the control.
+- **Tight corner.** The scale drops from 8, 12, 16 and 28 to 4, 6, 8 and 14. It is the stroke that most changes the
+  face of the page, and it is cheap: button 8, card 14, field and label 4 to 6.
+- **Border in place of shadow.** It was already like this here, and it continues: depth comes from border and from
+  background tone, never from shadow.
 
-O que ficou de fora, com motivo:
+What stayed out, with the reason:
 
-- **A paleta deles.** Laranja `#ff4f00` sobre creme `#fffefb` é bonito e não é a nossa marca.
-- **Entrelinha curta no corpo.** O Zapier usa 1,20 a 1,25 no corpo porque escreve texto curto e funcional;
-  aqui as perguntas frequentes são texto corrido no celular, e 1,5 lê melhor. Divergência declarada.
-- **Alternância de seção clara e escura.** Eles trocam o ambiente da página no meio; aqui a página inteira
-  é a mesma luz, e o contraste fica para o cartão de resultado.
-- **Alvo de toque de 44 px.** O deles é 44; aqui é 48, que é a regra do projeto e é melhor no polegar.
-- **Texto em caixa alta com espaçamento.** Existe no Zapier para rótulo de categoria. Entra só onde há
-  categoria de verdade, não em todo rótulo.
+- **Their palette.** Orange `#ff4f00` over cream `#fffefb` is beautiful and is not our brand.
+- **Short leading in the body.** Zapier uses 1,20 to 1,25 in the body because it writes short and functional text;
+  here the questions are running text on the phone, and 1,5 reads better. Declared divergence.
+- **Alternation of light and dark section.** They switch the environment of the page halfway; here the whole page
+  is the same light, and the contrast stays for the result card.
+- **Touch target of 44 px.** Theirs is 44; here it is 48, which is the project rule and is better for the thumb.
+- **Text in uppercase with tracking.** It exists in Zapier for a category label. It comes in only where there is a
+  real category, not in every label.
 
-Os tokens deste desenho vivem no `@theme` de `src/app/globals.css`, que é gerado deste arquivo, e em
-`src/lib/palette.ts`, que é conferido contra este arquivo por `scripts/audit-design.mjs`. Os números de
-contraste e os mínimos de cada uso estão neste arquivo, seção Colors, e a execução que reprova o que cai
-abaixo do mínimo do Material é `pnpm design`.
+The tokens of this design live in the `@theme` of `src/app/globals.css`, which is generated from this file, and in
+`src/lib/palette.ts`, which is checked against this file by `scripts/audit-design.mjs`. The contrast numbers
+and the minimums of each use are in this file, section Colors, and the run that rejects whatever falls
+below the Material minimum is `pnpm design`.
 
 ## Colors
 
-- **primary (#E8882A):** o sol, e a cor de AÇÃO. Ela fica nas duas ações principais da página — `Estimate my
-  savings` e `Book the site visit` —, na faixa final, que fica só em laranja, nas **tintas de
-  destaque** dos dois blocos com trabalho de decisão (a chamada do meio, no simulador, e o bloco dos bairros) e na
-  **opção escolhida**
-  dos controles do simulador, e no acordeão do FAQ — a seta e a borda do item aberto. O azul chegou a tomar esses
-  lugares e saiu deles: fundo de bloco grande não é lugar de cor de destaque, opção escolhida continua
-  sendo laranja, e o acordeão lê melhor no laranja do que no azul, tanto no hover quanto aberto. **A faixa do fecho
-  passou a ter a foto dos painéis no deserto por cima da cor de ação, com o mesmo véu da abertura**, e o laranja
-  continua sendo o que a faixa é: a cor de base (é ela que aparece se a foto não carregar, junto com o gradiente do
-  `veu-acao`) e a cor do botão de ligar, que com o véu escuro voltou a ser o claro de ação, com o texto em tinta.
-- **primary-dark (#B0740F):** o dourado escuro, e ele existe por medição, não por gosto: o dourado claro sobre o
-  branco mede 1,86 e não identifica um desenho de 20 px. Ele mede **3,92** sobre o branco e **3,63** sobre o fundo da
-  página, que é o mínimo do Material para ícone. Vive nos ícones da calculadora, que ficam sobre cartão branco; os
-  ícones com **círculo escuro** atrás — três passos, localização dos bairros, aspas do depoimento e o capacete das
-  equipes — continuam no dourado claro, que sobre a tinta mede 8,78.
-- **secondary (#1E5FBF):** o azul, e ele é **acento, nunca fundo de bloco**. **A página não usa mais
-  esta cor**: a última aparição era o círculo de iniciais das equipes, que passou para tinta, e o token fica no tema
-  porque as variantes `secondary` dos componentes do shadcn continuam
-  escritas (`ui/button.tsx`, `ui/badge.tsx`), sem consumidor na página. O caminho até aqui foi todo de remoção: o azul saiu do menu (o hover voltou a ser só o fundo), da abertura inteira, dos ícones
-  (que passaram a ser preenchidos e dourados), do rótulo dos três passos (que voltou a tinta), do foco do campo de
-  conta (que voltou à cor de ação, porque azul não é cor de controle aqui), do filete do box de números e, por último,
-  das equipes. Mede
-  **5,64** sobre o fundo da página e **6,10** sobre o branco, então serviria para texto — ao contrário do âmbar —, e
-  é isso que está no `DESIGN.md` como referência de contraste, não como uso. A variante clara (`secondary-light`)
-  existiu para ler sobre a foto
-  escura da abertura, e saiu quando o branco voltou lá: token sem uso não fica no tema.
-- **primary-light (#F5A623):** o amarelo dourado, derivado do âmbar: mais claro e mais vibrante
-  que ele, e claramente outro tom — o matiz sai de ~28 para ~42 graus. O hexadecimal é o do dourado, o mesmo
-  que a página consome. Ele tem dois papéis, e por isso o nome fala da cor e não de um uso só: é o **hover** dos
-  botões de ação e dos cards do blog, e é a cor dos **ícones preenchidos** dos três passos, das aspas dos depoimentos
-  e do ícone de localização dos bairros. O par dele com a tinta mede **8,78** nos dois sentidos. Ele não entra no véu
-  da faixa final: o fecho fica só em laranja, e o véu escurece o próprio âmbar por `color-mix`,
-  sem token novo. O token existe desde antes, por um motivo que continua valendo: o hover era o âmbar com opacidade,
-  e opacidade nenhum verificador consegue medir.
-- **savings (#1F7A4D):** exclusiva do dinheiro economizado. Verde aqui é o que a pessoa deixa de pagar.
-- **ink e support:** texto e texto de apoio. O cinza de apoio só aparece em corpo pequeno, nunca em número.
-- **canvas e surface:** fundo da página e fundo de cartão. Cartão é branco sobre o fundo quente, e é essa
-  diferença de dois tons que separa o resultado do simulador do resto da página sem precisar de sombra.
-- **outline (#7F8081):** cinza de limite, e existe por medição. Com `ink` a 15 por cento a borda media
-  1,37 para 1 contra o branco, e o Material pede 3 para 1 em limite de componente, que é o que faz um
-  campo ou um item clicável ser percebido como clicável. Com este token mede 3,96 sobre o branco e 3,66
-  sobre o fundo da página. Borda de agrupamento, como a do cartão, continua clara de propósito: ela não
-  precisa ser percebida, o conteúdo é que agrupa.
+- **primary (#E8882A):** the sun, and the color of ACTION. It sits in the two main actions of the page, `Estimate my
+  savings` and `Book the site visit`, in the final band, which stays in orange only, in the **highlight
+  inks** of the two blocks with decision work (the middle call, in the simulator, and the neighborhoods block) and in the
+  **chosen option**
+  of the simulator controls, and in the FAQ accordion: the arrow and the border of the open item. Blue came to take those
+  places and left them: the background of a large block is not a place for a highlight color, the chosen option keeps
+  being orange, and the accordion reads better in orange than in blue, both on hover and open. **The band of the close
+  came to have the photo of the panels in the desert over the action color, with the same veil as the opening**, and orange
+  keeps being what the band is: the base color (it is what appears if the photo does not load, together with the gradient of
+  `action-veil`) and the color of the call button, which with the dark veil went back to being the light one of the action color, with the text in ink.
+- **primary-dark (#B0740F):** the dark gold, and it exists by measurement, not by taste: the light gold over
+  white measures 1,86 and does not identify a 20 px drawing. It measures **3,92** over white and **3,63** over the page
+  background, which is the Material minimum for an icon. It lives in the calculator icons, which sit over a white card; the
+  icons with a **dark circle** behind them (three steps, neighborhood location, testimonial quotes and the crew
+  hard hat) stay in the light gold, which over ink measures 8,78.
+- **secondary (#1E5FBF):** the blue, and it is **accent, never the background of a block**. **The page no longer uses
+  this color**: the last appearance was the circle of initials of the crews, which moved to ink, and the token stays in the theme
+  because the `secondary` variants of the shadcn components are still
+  written (`ui/button.tsx`, `ui/badge.tsx`), with no consumer on the page. The path to here was all removal: blue left the menu (the hover went back to being the background only), the whole opening, the icons
+  (which became filled and gold), the label of the three steps (which went back to ink), the focus of the bill
+  field (which went back to the action color, because blue is not a control color here), the hairline of the number box and, last,
+  the crews. It measures
+  **5,64** over the page background and **6,10** over white, so it would serve for text, unlike the amber, and
+  that is what is in `DESIGN.md` as a contrast reference, not as a use. The light variant (`secondary-light`)
+  existed to read over the dark
+  photo of the opening, and left when white came back there: an unused token does not stay in the theme.
+- **primary-light (#F5A623):** the golden yellow, derived from the amber: lighter and more vibrant
+  than it, and clearly another tone, the hue goes from ~28 to ~42 degrees. The hex is the one of the gold, the same
+  the page consumes. It has two roles, and that is why the name speaks of the color and not of a single use: it is the **hover** of the
+  action buttons and of the blog cards, and it is the color of the **filled icons** of the three steps, of the testimonial quotes
+  and of the neighborhood location icon. Its pair with ink measures **8,78** in both directions. It does not come into the veil
+  of the final band: the close stays in orange only, and the veil darkens the amber itself by `color-mix`,
+  with no new token. The token exists from before, for a reason that keeps holding: the hover was the amber with opacity,
+  and opacity no checker can measure.
+- **savings (#1F7A4D):** exclusive to the money saved. Green here is what the person stops paying.
+- **ink and support:** text and support text. The support gray appears only in a small body, never in a number.
+- **canvas and surface:** page background and card background. The card is white over the warm background, and it is that
+  difference of two tones that separates the simulator result from the rest of the page without needing a shadow.
+- **outline (#7F8081):** boundary gray, and it exists by measurement. With `ink` at 15 percent the border measured
+  1,37 to 1 against white, and Material asks for 3 to 1 in a component boundary, which is what makes a
+  field or a clickable item perceived as clickable. With this token it measures 3,96 over white and 3,66
+  over the page background. A grouping border, like the one of the card, stays light on purpose: it does not
+  need to be perceived, the content is what groups.
 
-O contraste de todo par de cor usado está em `pnpm design`, que reprova quando algum par cai abaixo do
-mínimo do Material. Os números de hoje: tinta sobre o fundo 16,47, tinta sobre o branco 17,80, apoio
-sobre o branco 6,27, economia sobre o branco 5,32, tinta sobre a cor de ação 6,77, limite sobre o branco
-3,96, tinta sobre o dourado `primary-light` 8,78 (e o mesmo 8,78 no dourado sobre a tinta, que é o caso do ícone no
-círculo escuro), `primary-dark` sobre o branco 3,92 e sobre o fundo 3,63, e os da cor nova — azul sobre o fundo 5,64, azul sobre o branco 6,10 e
-tinta clara sobre azul 5,64. A cor de ação sobre o branco mede 2,63, e por isso ela não serve como texto: onde aparece é ícone
-decorativo, fundo com tinta por cima, ou borda de estado escolhido, que tem o texto e o rádio como
-segundo sinal.
+The contrast of every color pair used is in `pnpm design`, which fails when some pair falls below the
+Material minimum. The numbers of today: ink over the background 16,47, ink over white 17,80, support
+over white 6,27, savings over white 5,32, ink over the action color 6,77, boundary over white
+3,96, ink over the gold `primary-light` 8,78 (and the same 8,78 in the gold over ink, which is the case of the icon in the
+dark circle), `primary-dark` over white 3,92 and over the background 3,63, and the ones of the new color: blue over the background 5,64, blue over white 6,10 and
+light ink over blue 5,64. The action color over white measures 2,63, and that is why it does not serve as text: where it appears it is a decorative
+icon, a background with ink over it, or the border of a chosen state, which has the text and the radio as a
+second signal.
 
 ## Typography
 
-Archivo em tudo, porque a página vive no celular, e a família é a mesma registrada na seção Tipografia,
-no fim deste arquivo: Inter é fonte gasta, e Archivo é
-grotesco robusto, de numeral tabular, que é o que alinha os números da página. Uma família só, e três
-pesos: 400 no corpo, 500 nos rótulos, títulos e números, 600 no H1. O display é reservado ao H1, com entrelinha apertada de propósito,
-e o número de resultado usa o degrau `number`, nunca o de corpo, para o valor ser lido de relance e sem
-trocar de largura enquanto muda.
+Archivo in everything, because the page lives on the phone, and the family is the same one registered in the `Typeface`
+section, at the end of this file: Inter is a spent font, and Archivo is a
+sturdy grotesque, with tabular figures, which is what aligns the numbers of the page. One family only, and three
+weights: 400 in the body, 500 in the labels, titles and numbers, 600 in the H1. The display is reserved for the H1, with tight leading on purpose,
+and the result number uses the `number` step, never the body one, so the value is read at a glance and without
+changing width while it changes.
 
-**A medida de 40 rem é a do texto corrido, e o título tem a dele.** O headline da abertura precisa de 54 rem para
-fechar em duas linhas no desktop: com os 40 rem do corpo ele ocupava três, medido, e três linhas num display é excesso
-visual. O texto corrido continua com 40 rem, e as duas medidas convivem porque têm trabalhos diferentes: uma governa
-leitura, a outra governa quebra de linha de display. **Os títulos de seção usam a mesma medida de 54 rem** no desktop
-(`md:max-w-[54rem]`), e a coluna do título do FAQ cresceu de 16 para 22 rem: em 16 rem o título de quatro palavras
-quebrava em quatro linhas, e o título que quebra demais não se lê como título.
+**The 40 rem measure is the one of running text, and the title has its own.** The headline of the opening needs 54 rem to
+close in two lines on the desktop: with the 40 rem of the body it took three, measured, and three lines in a display is visual
+excess. The running text stays with 40 rem, and the two measures live together because they have different jobs: one governs
+reading, the other governs the line break of a display. **The section titles use the same 54 rem measure** on the desktop
+(`md:max-w-[54rem]`), and the title column of the FAQ grew from 16 to 22 rem: at 16 rem the title of four words
+broke in four lines, and a title that breaks too much does not read as a title.
 
-**No celular o título desce um degrau de tipo, e é o que decide a altura da abertura.** A 56 px, na coluna de 345 px,
-o headline de 70 caracteres quebrava em sete linhas (372 px de bloco) e levava o painel a 953 px, mais alto que uma
-tela de 900. Com o degrau `title` (40 px) ele quebra em cinco linhas e o bloco cai para 212 px. O degrau é declarado
-no componente (`type-title md:type-display`), então os dois tamanhos continuam saindo da escala deste documento, e a
-medida de navegador guarda os dois lados.
+**On the phone the title drops one type step, and that is what decides the height of the opening.** At 56 px, in the column of 345 px,
+the headline of 70 characters broke in seven lines (372 px of block) and took the panel to 953 px, taller than a
+screen of 900. With the `title` step (40 px) it breaks in five lines and the block falls to 212 px. The step is declared
+in the component (`type-title md:type-display`), so both sizes keep coming from the scale of this document, and the
+browser measure keeps both sides.
 
 ## Layout
 
-Escala de espaço na grade de 4 px, com os degraus 4, 8, 16, 24, 32 e 64, mais 48 para o alvo de toque.
-Cada bloco respira no degrau de 64. Nenhuma margem inventada por bloco, e nada abaixo de 4 px fora de
-borda de 1 px.
+Spacing scale on the 4 px grid, with the steps 4, 8, 16, 24, 32 and 64, plus 48 for the touch target.
+Every block breathes on the 64 step. No margin invented per block, and nothing below 4 px outside of a
+1 px border.
 
 ## Shapes
 
-Escala de canto apertada, herdada do Zapier: 4, 6, 8 e 14. O que é de ação usa 8, o cartão usa 14, e campo
-e etiqueta usam 4 a 6. Ficou mais reto que a escala do Material que estava aqui antes, e é de propósito: o
-canto apertado é o que dá o ar de ferramenta quente, e é o traço que mais se nota de longe. Círculo
-aparece só onde o objeto é redondo, que é botão de rádio, avatar e item da barra de navegação.
+Tight corner scale, inherited from Zapier: 4, 6, 8 and 14. What is action uses 8, the card uses 14, and field
+and label use 4 to 6. It came out straighter than the Material scale that was here before, and that is on purpose: the
+tight corner is what gives the air of a warm tool, and it is the stroke noticed from far away. Circle
+appears only where the object is round, which is radio button, avatar and navigation bar item.
 
-A pílula é exceção declarada, com motivo: a forma "full" existe para item de barra de navegação, e é usada
-nos itens da barra. A barra em si não é pílula: ela encosta na borda de baixo no celular, ocupa a largura
-toda e tem canto reto, e no tamanho médio para cima cola no topo, também reta. Isso já foi pílula flutuante
-e foi removido.
+The pill is a declared exception, with a reason: the "full" shape exists for navigation bar item, and it is used
+in the items of the bar. The bar itself is not a pill: it touches the bottom edge on the phone, takes the whole
+width and has a straight corner, and from the medium size up it glues to the top, also straight. That was once a floating
+pill and was removed.
 
-Borda que carrega significado usa o token `outline`, com 3,96 para 1 contra o branco: é o caso de campo
-de formulário, controle de escolha e item clicável. Borda de agrupamento, como a do cartão, fica clara de
-propósito. Separação vem de tom de fundo e de borda, nunca de sombra, e a página não usa nenhuma sombra.
+A border that carries meaning uses the `outline` token, at 3,96 to 1 against white: that is the case of a form
+field, a choice control and a clickable item. A grouping border, like the one of the card, stays light on
+purpose. Separation comes from background tone and from border, never from shadow, and the page uses no shadow at all.
 
 ## Components
 
-- `microcopy` é o texto de apoio sob um controle: explica de onde vem o número, em corpo pequeno.
-- A chamada principal é o `Button` do shadcn no tamanho grande, com 56 px de altura, canto de 8 px e tinta
-  escura sobre o âmbar, e não branco: branco sobre esse âmbar fica em 2,6:1 e reprova em contraste. Os 56 px
-  vêm da referência, que usa botão grande mais alto que o mínimo de toque, e ficam acima dos 48 px que a
-  regra do projeto exige.
-- O resultado do simulador é o `Card` branco sobre o fundo quente, com canto de 8 px, que é o canto de
-  cartão destacado da referência.
-- **O resultado é um extrato com a economia no posto de cartaz, e não quatro números do mesmo tamanho.** A economia
-  manda: é o único valor no degrau `number` (48 px, em `savings`), com o rótulo e a frase de contexto que diz em quanto
-  a conta fica (conta menos economia, aritmética da própria simulação). O filete âmbar que atravessava a coluna acima do
-  rótulo **saiu**: com ele o bloco tinha duas aberturas — o
-  filete e o rótulo — e o valor perdia o posto de começo do cartaz. Abaixo, painéis em
-  uma linha de extrato (rótulo em `label` de um lado, valor em `lead` de 20 px do outro) e, numa linha de dois, **custo
-  depois do crédito federal e anos de retorno lado a lado**. Antes os quatro estavam no mesmo degrau
-  e nada dizia qual era a resposta da pergunta que a pessoa fez.
-- **A explicação do valor e o aviso de estimativa são UM bloco só** (`How this estimate is built`,
-  `#como-calculamos`), logo abaixo do forro do simulador, e ele é **linha numerada, não parágrafo**: cada uma das
-  seis contas é uma linha com o número em etiqueta de contorno sobre o fundo da página (numeração é orientação, não
-  destaque, como no blog), o termo em tinta no degrau `label` e a frase em apoio no corpo, em duas colunas no
-  desktop e uma no celular. Cada valor sai de `simulate()` ou do arquivo da cidade, então nenhum é número novo, e é
-  onde a regra do mínimo de painéis fica visível sempre, e não apenas quando ela entra. O bloco entra na rolagem
-  como as outras seções (`Aparecer`) e as seis linhas chegam escalonadas de 60 em 60 ms, o mesmo recurso dos
-  cartões dos três passos: esta parte tinha de ser mais bonita e mais
-  dinâmica. O bloco passou por quatro arranjos: começou dentro do cartão do resultado (os três
-  blocos ficavam grudados), passou a dois cards abaixo dele (ainda era conteúdo demais), virou um só com a lista em
-  duas colunas, e terminou em linhas numeradas com entrada escalonada.
-- **O aviso de estimativa é a segunda parte desse bloco** (`Estimate, not a proposal`, `#aviso-estimativa`), no
-  corpo de 16 px, e não `microcopy`: ele era 14 px no pé do cartão do resultado, pequeno demais para o que
-  decide se a pessoa confia no número. Ficaram duas linhas, e o que saiu foi o que as
-  contas acima já dizem: a tarifa e as horas de sol estão na conta 1 e na 3, e o crédito federal está na 5. O que
-  ele diz, e as contas não dizem, é o que o aviso existe para dizer: aqueles são os números de referência da
-  cidade e não os da casa de quem lê, produção varia com sombra, inclinação, modelo do painel e tempo, e o número
-  que vale é o que o técnico confirma depois de medir o telhado.
-- **O destaque usa dólar redondo, e a conta detalhada guarda o centavo.** `usdRedondo` em `src/lib/format.ts`
-  é só de apresentação: o cartão do resultado, o rodapé dele, a chamada do meio, o piso de preço que o mínimo
-  impõe e a conta típica dos perfis mostram `$179` e `$14,726`, porque número redondo lê como ferramenta; a lista
-  das seis contas e o aviso de excedente mostram `$179.01` e `$14,726.25`, porque é ali que a pessoa confere a
-  aritmética. `simulate()` continua devolvendo o centavo nos dois casos, e não muda.
-- **O atalho de perfil de residência não é formulário.** Os quatro cartões perderam a bolinha de rádio e passaram
-  a ser botões com `aria-pressed` (`data-perfil` como gancho), marcados pela borda e pelo anel da cor de ação, o
-  mesmo recurso que os atalhos Half, Most e All já usam um degrau acima. O cartão com rádio
-  lia como formulário, e o estado escolhido estava fraco. O nome acessível e o estado continuam anunciados; o
-  `radio-group.tsx` do shadcn continua na pasta `ui/`, sem consumidor, como o `separator.tsx` que já estava lá.
-  **E os quatro cartões abrem a coluna, acima do campo da conta**: quem chega não sabe
-  a própria conta de cor, então o caminho mais rápido é o primeiro. A ordem da coluna é: perfis, campo da conta
-  (editável, com o passo de cada lado) e a cobertura logo abaixo. Escolher um cartão troca a CONTA e nada mais — a
-  cobertura escolhida fica onde está, e a conta do perfil entra até com a cobertura em 100%, porque conta e cobertura
-  são decisões independentes. Duas medidas guardam isso: a ordem na tela, nas duas larguras, e a cobertura preservada
-  ao trocar de cartão. **No carregamento um cartão já vem marcado**: o estado inicial é a tabela de referência ($220 com
-  80%), e $220 é a conta típica da "Three-bedroom house, no pool" — a marcação é derivada desse estado, então o mesmo
-  cartão se acende num link compartilhado com $220 / 80% e nenhum se acende quando o link traz outro estado.
-- **A chamada do meio pede a visita, e não uma estimativa.** O rótulo é `Book the site visit`, e não
-  `Get my roof estimate`, porque o `Estimate my savings` do topo já pede a conta: dois botões falando de
-  estimativa em pontos diferentes da página disputam o mesmo papel. A seta continua sendo a de descer, que é
-  para onde o link leva (`#agendar`, nesta mesma página).
-- **O telefone da abertura é texto, e não link sublinhado.** O sublinhado ao lado de um botão de 56 px dava dois
-  pesos ao mesmo bloco de ação. O ícone do telefone continua sendo a pista de que ele é clicável, e o foco de
-  teclado continua com contorno visível.
-- A economia mensal é o único número em verde da página, em `type-number`, e o verde só aparece quando é
-  dinheiro que a pessoa deixa de pagar.
-- A navegação é a barra de `SiteHeader`: vidro, destinos com ícone sobre o rótulo e a chamada para agendar
-  fechando a barra, sem nenhum item com fundo próprio. São cinco itens, e o do blog é o único que não é âncora
-  desta página: ele leva para outra página do site (`src/components/SiteHeader.tsx:28-34`).
-- Rótulo de categoria, para separar grupos dentro de um bloco, é `h3` em caixa alta com 0,5 px de
-  espaçamento de letra, no degrau `label` e na cor de apoio. É o recurso de rótulo da referência do Zapier,
-  usado só onde existe categoria de verdade (a prova social tem duas: o que os vizinhos dizem e quem fez o
-  trabalho). Em caixa alta, o rótulo nunca é texto corrido.
-- **O filete da sobrancelha tem a cor do próprio rótulo, e não a cor secundária.** O
-  traço antes de `The calculator` e `Your estimate` sai na cor do rótulo, e não no azul. O filete é
-  enfeite de hierarquia do rótulo, então ele acompanha o rótulo — na cor de apoio quando o rótulo é a cor de
-  apoio (`bg-support`), e em tinta a 60% quando o rótulo é tinta, que é o caso das duas sobrancelhas sobre faixa
-  colorida (a do bloco do meio e a do fecho). O azul continua no `secondary` para o que ele marca de fato: o
-  filete do box de números, o círculo de iniciais das equipes e o contorno da etiqueta de bairro. No blog o
-  filete da faixa da foto continua dourado, porque ali o rótulo é claro sobre a foto escura e a cor do rótulo não
-  teria contraste. A medida vive em `tests/acabamento.spec.ts`.
-- O valor dentro de campo de formulário usa o degrau `lead`, e não o `number`: o `number` é para número de
-  resultado, que fica fora de caixa, e dentro de campo ele passa da altura da caixa e corta o valor. Foi
-  defeito observado depois da troca de escala de tipo.
+- `microcopy` is the support text under a control: it explains where the number comes from, in a small body.
+- The main call is the shadcn `Button` in the large size, with 56 px of height, a corner of 8 px and dark
+  ink over the amber, and not white: white over that amber sits at 2,6:1 and fails contrast. The 56 px
+  come from the reference, which uses a large button taller than the touch minimum, and they stay above the 48 px the
+  project rule demands.
+- The simulator result is the white `Card` over the warm background, with a corner of 8 px, which is the corner of the
+  featured card in the reference.
+- **The result is a statement with the savings in the poster slot, and not four numbers of the same size.** The savings
+  rule: it is the only value on the `number` step (48 px, in `savings`), with the label and the context sentence that says how
+  much the bill comes to (bill minus savings, arithmetic of the simulation itself). The amber hairline that crossed the column above the
+  label **left**: with it the block had two openings, the
+  hairline and the label, and the value lost the poster start slot. Below, panels in
+  a statement line (label on `label` on one side, value on `lead` of 20 px on the other) and, in a line of two, **cost
+  after the federal credit and years of payback side by side**. Before, the four were on the same step
+  and nothing said which one was the answer to the question the person asked.
+- **The explanation of the value and the estimate warning are ONE block only** (`How this estimate is built`,
+  `#how-we-calculate`), right below the simulator lining, and it is a **numbered row, not a paragraph**: each one of the
+  six bills is a row with the number in an outline label over the page background (numbering is orientation, not
+  highlight, as in the blog), the term in ink on the `label` step and the sentence in support in the body, in two columns on the
+  desktop and one on the phone. Every value comes out of `simulate()` or of the city file, so none is a new number, and it is
+  where the rule of the minimum of panels stays visible always, and not only when it comes in. The block enters the scroll
+  like the other sections (`Aparecer`) and the six rows arrive staggered 60 in 60 ms, the same resource of the
+  cards of the three steps: this part had to be prettier and more
+  dynamic. The block went through four arrangements: it started inside the result card (the three
+  blocks stayed glued together), moved to two cards below it (it was still too much content), became one only with the list in
+  two columns, and ended in numbered rows with a staggered entry.
+- **The estimate warning is the second part of that block** (`Estimate, not a proposal`, `#estimate-warning`), in the
+  body of 16 px, and not `microcopy`: it was 14 px at the foot of the result card, too small for what
+  decides whether the person trusts the number. Two rows stayed, and what left was what the
+  bills above already say: the rate and the sun hours are in bill 1 and in 3, and the federal credit is in 5. What
+  it says, and the bills do not say, is what the warning exists to say: those are the reference numbers of the
+  city and not the ones of the house of whoever reads, production varies with shade, tilt, panel model and weather, and the number
+  that counts is the one the technician confirms after measuring the roof.
+- **The highlight uses a round dollar, and the detailed bill keeps the cent.** `usdRedondo` in `src/lib/format.ts`
+  is presentation only: the result card, its footer, the middle call, the price floor that the minimum
+  imposes and the typical bill of the profiles show `$179` and `$14,726`, because a round number reads as a tool; the list
+  of the six bills and the surplus warning show `$179.01` and `$14,726.25`, because that is where the person checks the
+  arithmetic. `simulate()` keeps returning the cent in both cases, and does not change.
+- **The household profile shortcut is not a form.** The four cards lost the radio dot and became
+  buttons with `aria-pressed` (`data-profile` as the hook), marked by the border and by the ring of the action color, the
+  same resource the Half, Most and All shortcuts already use one step above. The card with a radio
+  read as a form, and the chosen state was weak. The accessible name and the state stay announced; the
+  `radio-group.tsx` of shadcn stays in the `ui/` folder, with no consumer, like the `separator.tsx` that was already there.
+  **And the four cards open the column, above the bill field**: whoever arrives does not know
+  their own bill by heart, so the fastest path is the first one. The order of the column is: profiles, bill field
+  (editable, with the step on each side) and the coverage right below. Choosing a card changes the BILL and nothing else: the
+  chosen coverage stays where it is, and the bill of the profile comes in even with the coverage at 100%, because bill and coverage
+  are independent decisions. Two measures keep that: the order on screen, in both widths, and the coverage preserved
+  when the card changes. **On load one card already comes marked**: the initial state is the reference table ($220 with
+  80%), and $220 is the typical bill of the "Three-bedroom house, no pool", the marking is derived from that state, so the same
+  card lights up in a shared link with $220 / 80% and none lights up when the link brings another state.
+- **The middle call asks for the visit, and not for an estimate.** The label is `Book the site visit`, and not
+  `Get my roof estimate`, because the `Estimate my savings` at the top already asks for the bill: two buttons speaking of
+  estimate at different points of the page dispute the same role. The arrow keeps being the down one, which is
+  where the link leads (`#book`, in this same page).
+- **The phone of the opening is text, and not an underlined link.** The underline next to a button of 56 px gave two
+  weights to the same action block. The phone icon keeps being the hint that it is clickable, and the keyboard
+  focus keeps a visible outline.
+- The monthly saving is the only green number on the page, on `type-number`, and green appears only when it is
+  money that the person stops paying.
+- The navigation is the `SiteHeader` bar: glass, destinations with an icon over the label and the call to book
+  closing the bar, with no item with a background of its own. There are five items, and the blog one is the only one that is not an anchor
+  of this page: it leads to another page of the site (`src/components/SiteHeader.tsx:28-34`).
+- A category label, to separate groups inside a block, is an `h3` in uppercase with 0,5 px of
+  letter spacing, on the `label` step and in the support color. It is the label resource of the Zapier reference,
+  used only where a real category exists (the social proof has two: what the neighbors say and who did the
+  work). In uppercase, the label is never running text.
+- **The eyebrow hairline takes the color of the label itself, and not the secondary color.** The
+  stroke before `The calculator` and `Your estimate` comes out in the label color, and not in blue. The hairline is
+  a hierarchy ornament of the label, so it follows the label: the support color when the label is the support
+  color (`bg-support`), and ink at 60% when the label is ink, which is the case of the two eyebrows over a colored
+  band (the one of the middle block and the one of the closing). Blue stays in `secondary` for what it really marks: the
+  hairline of the number box, the initials circle of the crews and the outline of the neighborhood tag. In the blog the
+  hairline of the photo band stays gold, because there the label is light over the dark photo and the label color would
+  have no contrast. The measure lives in `tests/finish.spec.ts`.
+- The value inside a form field uses the `lead` step, and not the `number`: the `number` is for a result
+  number, which sits outside a box, and inside a field it goes past the height of the box and clips the value. It was
+  a defect observed after the type scale change.
 
 ## Do's and Don'ts
 
-- Do: um CTA por bloco de decisão, sempre com o mesmo peso visual e a mesma altura de toque.
-- Do: entrelinha apertada em título, e entrelinha folgada em texto corrido. São públicos diferentes.
-- Do: o verde só quando é dinheiro que a pessoa deixa de pagar.
-- Don't: usar o âmbar em texto sobre fundo claro, porque o contraste cai abaixo do mínimo.
-- Don't: sombra pesada, gradiente com cor solta ou ilustração decorativa. O gradiente que existe é o véu dos
-  dois blocos coloridos, com as duas paradas saindo de token, e ele está registrado abaixo.
-- Don't: importar o laranja do Zapier, nem o creme dele. A referência é o esqueleto, não a cor.
+- Do: one CTA per decision block, always with the same visual weight and the same touch height.
+- Do: tight leading in a title, and loose leading in running text. They are different audiences.
+- Do: green only when it is money that the person stops paying.
+- Don't: use the amber in text over a light background, because the contrast falls below the minimum.
+- Don't: heavy shadow, gradient with a loose color or decorative illustration. The gradient that exists is the veil of the
+  two colored blocks, with both stops coming from tokens, and it is registered below.
+- Don't: import the orange of Zapier, nor its cream. The reference is the skeleton, not the color.
 
-- A abertura é uma **coluna centrada** sobre o painel de tinta (`src/components/Hero.tsx`), e não duas peças
-  lado a lado: a marca (no celular), a sobrancelha em chip, o título, a promessa, a ação e a faixa de números,
-  todos centrados, com `md:min-h-` e `md:justify-center` no desktop. Ela **pega a largura toda da janela**, e por
-  isso é renderizada antes do `main`, fora do contêiner de 64 rem: bloco de largura cheia, sem borda e sem canto.
-  Não tem imagem — a que ficava em faixa abaixo do painel saiu, e a foto do serviço da página
-  vive na prova social, onde ela prova o que a seção diz. O texto fica sobre cor sólida, que é verificável, e o
-  teste de contraste amostra os pixels à direita do título dentro do painel.
-- **O fundo da abertura é uma foto, no lugar do efeito.** A imagem — dois instaladores no telhado,
-  céu claro em cima e telhado escuro embaixo — aposentou a grade fina e o véu amarelo: a foto já tem a luz que
-  o véu imitava. O arquivo é `public/fotos/instaladores-no-telhado.avif`, 2048 por 1365, 100 kB, servido do próprio
-  domínio e não pelo otimizador do Next, como as outras fotos. Ele é a LCP da página, e o peso medido ficou em
-  **363 kB** no desktop e **330 kB** no celular. A imagem vem de banco público (Unsplash) e a licença de uso é o
-  mesmo ponto pendente das outras.
-- **O véu da foto não é enfeite, é o que garante o contraste.** Ele começa escuro EM CIMA, que é onde a foto é clara:
-  no celular a marca e a sobrancelha caem justamente na faixa do céu. O alfa é medido — o texto da abertura é claro
-  (`canvas`, luminância 0,90) e precisa de 4,5 para 1; sobre o telhado (0,03) qualquer alfa passa, e sobre o céu
-  (0,72) só passa a partir de ~78% de tinta. Medido com a foto no ar: título **5,36**, frase **10,60** e sobrancelha
-  **10,38** no desktop; no celular, **10,12**, **11,67** e **10,17**. A margem menor é a do título, e é ela que
-  denuncia primeiro se a foto for trocada por uma mais clara.
-- No tamanho médio para cima a abertura começa logo abaixo da barra fixa, e não atrás dela: `md:mt-[3.5rem]` na
-  caixa da abertura reserva a altura da barra (`src/app/[city]/page.tsx`), e a medida confere a folga. Os cantos
-  são retos nos dois tamanhos, porque o bloco não tem canto nem borda.
-- **As faixas de fundo, na largura da janela.** Mais presença visual sem linguagem nova, e a resposta foi
-  alternar o fundo das seções: abertura (painel de tinta com foto) e depois, na ordem, `#simulator` no fundo da página
-  (`canvas`), `#steps` em `surface` — a faixa branca inteira —, `#proof` de volta no `canvas`, `#faq` na cor de ação a
-  12% e `#agendar` na cor de ação cheia. O fundo é da `<section>`, que passa a pegar a largura da janela, e o conteúdo
-  vive num invólucro de 64 rem por dentro dela (`mx-auto max-w-5xl px-lg`), que é o arranjo que a abertura já usava:
-  com o respiro lateral no invólucro, e não na faixa, os itens da barra continuam alinhados com a coluna de conteúdo. As
-  faixas encostam uma na outra — o `gap-xxl` do `main` saiu e o respiro passou a ser `py-xxl` de cada faixa —, porque
-  faixa com vão do fundo entre elas lê como bloco solto. O fecho perdeu o canto arredondado junto, pela regra que a
-  abertura já seguia: bloco com canto sangrando nas duas pontas lê como defeito de recorte. A faixa dos passos ganhou
-  as fotos dentro dos três cartões e a das equipes, a foto acima dos cartões; a do fecho ganhou a foto no fundo, com o
-  véu da abertura e o texto em claro. A medida em
-  `tests/visual.spec.ts` guarda a ordem, a cor de cada faixa, o encosto entre elas e o contraste de todo texto contra o
-  fundo que está atrás dele (composto pelos ancestrais, porque a faixa de 12% tem alfa e os cartões brancos ficam por
-  cima dela; texto sobre foto fica de fora dessa conta e é medido no pixel, como o da abertura e o do fecho).
-- **A faixa de números da abertura conta do piso, e não de zero.** Ela contava de zero até o valor, e imprimir a faixa
-  quadro a quadro mostrou o defeito: 24 valores distintos para três números, com a nota de 4,8 aparecendo como `0.3` no
-  começo. Número que o servidor entrega certo e regride na tela lê como dado errado. A correção foi manter a
-  contagem começando em 90% do valor (`PISO`, em `src/components/Contador.tsx`): 1.656 até 1.840, 4,3 até 4,8, 11 até
-  12, sempre subindo e nunca passando pelo zero. O `tests/movimento.spec.ts` guarda as três metades disso: nenhum quadro
-  abaixo do piso, a contagem nunca descendo e o último quadro igual ao valor do arquivo da cidade.
-- **No celular a barra é reservada no FIM de dois blocos, e não só no fim do documento.** A barra vive colada na
-  borda de baixo, então ela cobre a faixa de baixo da janela em qualquer posição de rolagem: medido antes da
-  correção, a faixa de números da abertura ficava 33 px atrás dela numa janela de 667 px de altura, a linha de
-  procedência 3 px atrás numa de 852, e o campo da conta caía na mesma faixa quando o navegador o trazia para a
-  área visível. A abertura e o `#simulator`
-  passam a reservar a altura da barra mais `env(safe-area-inset-bottom)` no `padding-bottom`, com a altura da
-  barra saindo do token `--spacing-barra` (58 px, medido no navegador) em vez de número copiado em dois arquivos.
-  A reserva vale só abaixo de 600 px, que é onde a barra mora embaixo: do tamanho médio para cima ela sobe para o
-  topo e quem reserva o espaço dela é a margem da abertura. Depois da mudança, com a página aberta ou no destino
-  da âncora `#simulator`, a ação da abertura e o campo da conta ficam acima da barra nas duas janelas medidas
-  (393 por 852 e 375 por 667).
-- **No celular a marca é clara, e a faixa de números ocupa uma linha.** O ícone da marca ia na cor de ação sobre
-  um chip da própria cor de ação, e com o sol batendo em cima ele sumia: no celular ele passa a ser tinta clara
-  sobre chip claro a 10% (a marca lê 6,21 para 1 sobre a faixa amarela, medido). E os três números ficam em grade
-  de três colunas, e não em `flex-wrap`: com vão de 24 px os rótulos somavam mais que os 345 px úteis do painel e o
-  terceiro caía para a linha de baixo.
-- **A faixa de números diz de onde vem.** A regra é prova social que se possa conferir, sem contexto
-  inventado, então o que entrou foi procedência, e não número novo: uma linha embaixo da faixa
-  (`From Brightfield's own jobs with Arizona Public Service in the Phoenix–Mesa–Chandler area`) montada com os dois
-  campos que já existem no arquivo da cidade, e o rótulo da nota passou a ser `Average customer rating`, que nomeia
-  de quem é a nota. Não entram data de coleta, percentual de satisfação nem contagem de famílias, porque nada disso
-  existe no dado. O respiro entre as peças da abertura também caiu de 24 para 16 px **só no celular** (`md:gap-xl`
-  mantém os 32 px do desktop): com seis peças, o vão de 24 px somava 120 px de ar num painel que já era mais alto
-  que a tela.
-- **O bloco dos bairros usa o mesmo destaque da chamada do meio** — tinta da cor de ação a 25% com borda da mesma
-  cor —, com o título um degrau acima do rótulo (`type-lead`) e a contagem de bairros ao lado dele. **A lista é grade
-  com pino dourado, e não fila de chips**: cada bairro é um item de grade (duas colunas no celular,
-  três no desktop) com o `IconeBairro`, o mesmo pino do título do bloco, em `primary-dark`. O dourado claro mede 1,86
-  para 1 sobre o fundo claro e não identifica um desenho de 16 px; o dourado escuro mede 3,92, que é o mínimo do
-  Material para ícone, e é a solução que os ícones da calculadora já usavam. O bloco do meio e este são os dois únicos
-  com esse destaque na página, e os dois têm trabalho de decisão — um pede a visita, o outro prova presença local.
-- **Os ícones são PREENCHIDOS.** O peso cheio fica no lugar do traço fino, com o tamanho e a posição de
-  cada um intactos — quem decide isso continua sendo o `className` de 16, 20, 24 ou 28 px em `src/components/icons.tsx`.
-  Duas exceções, e as duas têm motivo escrito no arquivo: o **telefone dentro de botão ou link** continua vazado
-  (`IconeTelefoneVazado`), porque glifo cheio em botão estreito vira mancha; e a
-  **marca do cabeçalho** continua vazada, porque não é ícone de interface e sim o desenho da identidade, que não
-  engorda. A citação subiu um degrau de tamanho (28 px) junto com o peso, por "mais peso visual".
-  E o dourado ganhou **fundo escuro circular** (`rounded-full bg-ink`): dourado sobre fundo claro
-  media 1,86 e não dava para identificar o desenho. O preto #1A1A1A é a tinta que a página já tem
-  (#16181A, quatro pontos de diferença no canal vermelho), então vale o token em vez de um segundo quase-preto no
-  tema — o par dourado-sobre-tinta mede 8,78. Vale nos três passos, no ícone de localização e nas aspas; nos ícones
-  do **menu** não há fundo nenhum: eles são escuros em repouso e dourados só sob o cursor. E onde o ícone fica sobre
-  cartão branco sem círculo — os da calculadora — o dourado claro foi trocado pelo **dourado escuro**, que é o que
-  mede 3,92 ali: o pouco contraste na tela pede correção de cor, e não de fundo.
-- **O blog usa a linguagem da página de cidade, e não uma nova.** O índice abriu com mais enfeite: a
-  **faixa da foto** da abertura, filete **dourado** na sobrancelha (dourado porque ali o fundo é a
-  foto escura, e não o fundo claro das seções) e o **primeiro cartão ocupando as duas colunas** — hierarquia pela
-  grade, sem inventar cor nem tamanho de fonte novo. Cada cartão ganhou o **tempo de leitura**, que é **calculado do
-  corpo do texto** a 200 palavras por minuto: escrito à mão ele envelhece na primeira revisão, e ninguém lembra de
-  recontar. No texto, as seções passaram a ser **numeradas**, e o box do fim entrou na tinta peach com o filete
-  dourado. O número chegou em círculo escuro com fonte dourada, na linguagem dos três passos, e o número pesava demais:
-  numeração é orientação, não destaque. Ficou **fundo de cartão, número em tinta e a borda de limite** que os outros
-  cartões já usam — o peso de um rótulo, e não de um selo. A numeração sai da posição do bloco, e não de um
-  contador que soma durante a renderização — em desenvolvimento o React renderiza duas vezes, e o contador viraria
+- The opening is a **centered column** over the ink panel (`src/components/Hero.tsx`), and not two pieces
+  side by side: the brand (on the phone), the eyebrow in a chip, the title, the promise, the action and the band of numbers,
+  all centered, with `md:min-h-` and `md:justify-center` on the desktop. It **takes the whole width of the window**, and that is why
+  it is rendered before the `main`, outside the 64 rem container: a full width block, with no border and no corner.
+  It has no image: the one that sat in a band below the panel left, and the photo of the service of the page
+  lives in the social proof, where it proves what the section says. The text sits over a solid color, which is verifiable, and the
+  contrast test samples the pixels to the right of the title inside the panel.
+- **The background of the opening is a photo, in the place of the effect.** The image, two installers on the roof,
+  light sky above and dark roof below, retired the fine grid and the yellow veil: the photo already has the light that
+  the veil imitated. The file is `public/fotos/installers-on-roof.avif`, 2048 by 1365, 100 kB, served from its own
+  domain and not by the Next optimizer, like the other photos. It is the LCP of the page, and the measured weight stayed at
+  **363 kB** on the desktop and **330 kB** on the phone. The image comes from a public bank (Unsplash) and the license of use is the
+  same pending point as the others.
+- **The veil of the photo is not an ornament, it is what guarantees the contrast.** It starts dark AT THE TOP, which is where the photo is light:
+  on the phone the brand and the eyebrow fall exactly in the band of the sky. The alpha is measured: the text of the opening is light
+  (`canvas`, luminance 0,90) and needs 4,5 to 1; over the roof (0,03) any alpha passes, and over the sky
+  (0,72) it passes only from ~78% of ink. Measured with the photo live: title **5,36**, sentence **10,60** and eyebrow
+  **10,38** on the desktop; on the phone, **10,12**, **11,67** and **10,17**. The smallest margin is the one of the title, and it is the one that
+  reports first if the photo is swapped for a lighter one.
+- From the medium size up the opening starts right below the fixed bar, and not behind it: `md:mt-[3.5rem]` on the
+  box of the opening reserves the height of the bar (`src/app/[city]/page.tsx`), and the measure checks the slack. The corners
+  are straight in both sizes, because the block has no corner nor border.
+- **The background bands, at the width of the window.** More visual presence with no new language, and the answer was to
+  alternate the background of the sections: opening (ink panel with photo) and then, in order, `#simulator` on the page background
+  (`canvas`), `#steps` in `surface` (the whole white band), `#proof` back on the `canvas`, `#faq` in the action color at
+  12% and `#book` in the full action color. The background is of the `<section>`, which now takes the width of the window, and the content
+  lives in a 64 rem wrapper inside it (`mx-auto max-w-5xl px-lg`), which is the arrangement the opening already used:
+  with the side breathing room on the wrapper, and not on the band, the items of the bar stay aligned with the content column. The
+  bands touch one another: the `gap-xxl` of the `main` left and the breathing room became the `py-xxl` of each band, because
+  a band with a gap of the background between them reads as a loose block. The closing lost the rounded corner along with it, by the rule the
+  opening already followed: a block with a corner bleeding at both ends reads as a clipping defect. The band of the steps gained
+  the photos inside the three cards and the one of the crews, the photo above the cards; the one of the closing gained the photo in the background, with the
+  veil of the opening and the text in light. The measure in
+  `tests/visual.spec.ts` guards the order, the color of each band, the touching between them and the contrast of every text against the
+  background that is behind it (composed by the ancestors, because the band of 12% has alpha and the white cards sit above
+  it; text over photo stays out of that count and is measured on the pixel, like the one of the opening and the one of the closing).
+- **The band of numbers of the opening counts from the floor, and not from zero.** It counted from zero to the value, and printing the band
+  frame by frame showed the defect: 24 distinct values for three numbers, with the rating of 4,8 appearing as `0.3` at the
+  start. A number the server delivers right and that regresses on the screen reads as wrong data. The fix was to keep the
+  count starting at 90% of the value (`floor`, in `src/components/Counter.tsx`): 1.656 to 1.840, 4,3 to 4,8, 11 to
+  12, always rising and never going through zero. The `tests/motion.spec.ts` guards the three halves of that: no frame
+  below the floor, the count never descending and the last frame equal to the value of the city file.
+- **On the phone the bar is reserved at the END of two blocks, and not only at the end of the document.** The bar lives glued to the
+  bottom edge, so it covers the bottom band of the window at any scroll position: measured before the
+  fix, the band of numbers of the opening sat 33 px behind it in a window of 667 px of height, the line of
+  provenance 3 px behind in a window of 852, and the bill field fell in the same band when the browser brought it into the
+  visible area. The opening and the `#simulator`
+  now reserve the height of the bar plus `env(safe-area-inset-bottom)` in the `padding-bottom`, with the height of the
+  bar coming from the `--spacing-bar` variable (58 px, measured in the browser) instead of a number copied into two files.
+  The reservation holds only below 600 px, which is where the bar lives at the bottom: from the medium size up it rises to the
+  top and whoever reserves its space is the margin of the opening. After the change, with the page open or at the anchor
+  destination `#simulator`, the action of the opening and the bill field stay above the bar in both measured windows
+  (393 by 852 and 375 by 667).
+- **On the phone the brand is light, and the band of numbers takes one line.** The icon of the brand went in the action color over
+  a chip of the action color itself, and with the sun hitting it from above it vanished: on the phone it becomes light ink
+  over a light chip at 10% (the brand reads 6,21 to 1 over the yellow band, measured). And the three numbers sit in a grid
+  of three columns, and not in `flex-wrap`: with a gap of 24 px the labels added up to more than the 345 useful px of the panel and the
+  third one fell to the line below.
+- **The band of numbers says where it comes from.** The rule is social proof that can be checked, with no invented
+  context, so what came in was provenance, and not a new number: a line below the band
+  (`From Brightfield's own jobs with Arizona Public Service in the Phoenix, Mesa and Chandler area`) built from the two
+  fields that already exist in the city file, and the label of the rating became `Average customer rating`, which names
+  whose the rating is. Collection date, satisfaction percentage and family count do not enter, because none of that
+  exists in the data. The breathing room between the pieces of the opening also dropped from 24 to 16 px **on the phone only** (`md:gap-xl`
+  keeps the 32 px of the desktop): with six pieces, the gap of 24 px added up to 120 px of air in a panel that was already taller
+  than the screen.
+- **The block of the neighborhoods uses the same highlight of the middle call**, ink of the action color at 25% with a border of the same
+  color, with the title one step above the label (`type-lead`) and the count of neighborhoods beside it. **The list is a grid
+  with a gold pin, and not a row of chips**: each neighborhood is a grid item (two columns on the phone,
+  three on the desktop) with the `NeighborhoodIcon`, the same pin of the title of the block, in `primary-dark`. The light gold measures 1,86
+  to 1 over the light background and does not identify a 16 px drawing; the dark gold measures 3,92, which is the minimum of
+  Material for an icon, and it is the solution the calculator icons already used. The middle block and this one are the only two
+  with that highlight on the page, and both have decision work: one asks for the visit, the other proves local presence.
+- **The icons are FILLED.** The full weight takes the place of the thin stroke, with the size and the position of
+  each one intact: whoever decides that is still the `className` of 16, 20, 24 or 28 px in `src/components/icons.tsx`.
+  Two exceptions, and both have the reason written in the file: the **phone inside a button or link** stays outlined
+  (`OutlinePhoneIcon`), because a full glyph in a narrow button becomes a smudge; and the
+  **brand of the header** stays outlined, because it is not an interface icon but the drawing of the identity, which does not
+  get fatter. The quote rose one size step (28 px) along with the weight, for "more visual weight".
+  And the gold gained a **dark circular background** (`rounded-full bg-ink`): gold over a light background
+  measured 1,86 and did not allow identifying the drawing. The black #1A1A1A is the ink the page already has
+  (#16181A, four points of difference in the red channel), so the declared value is worth it instead of a second near-black in
+  the theme: the gold-over-ink pair measures 8,78. It holds in the three steps, in the location icon and in the quotes; in the icons
+  of the **menu** there is no background at all: they are dark at rest and gold only under the cursor. And where the icon sits over
+  a white card with no circle, the ones of the calculator, the light gold was swapped for the **dark gold**, which is what
+  measures 3,92 there: the little contrast on the screen asks for a color correction, and not a background one.
+- **The blog uses the language of the city page, and not a new one.** The index opened with more ornament: the
+  **photo band** of the opening, a **gold** hairline on the eyebrow (gold because there the background is the
+  dark photo, and not the light background of the sections) and the **first card taking the two columns**, hierarchy by the
+  grid, with no invented color and no new font size. Each card gained the **reading time**, which is **calculated from the
+  body of the text** at 200 words per minute: written by hand it goes stale in the first revision, and nobody remembers to
+  recount. In the text, the sections became **numbered**, and the box at the end came in the peach ink with the gold
+  hairline. The number arrived in a dark circle with a gold font, in the language of the three steps, and the number weighed too much:
+  numbering is orientation, not highlight. It became **card background, number in ink and the boundary border** that the other
+  cards already use, the weight of a label, and not of a seal. The numbering comes out of the position of the block, and not of a
+  counter that adds up during the render; in development React renders twice, and the counter would become
   2, 4, 6.
-- **A marca no celular vive dentro da abertura.** A linha de identidade continua existindo no blog; na página de
-  cidade ela não é renderizada (`marcaNoHero` em `src/components/SiteHeader.tsx`), e a marca entra como primeira
-  peça da coluna da abertura. Do tamanho médio para cima quem carrega a marca é a barra do topo: uma marca por
-  tamanho de tela, e a medida guarda as duas metades disso.
-- **A cor secundária é o azul `#1e5fbf`, e o papel dela é medido.** Ver a entrada dela na lista de cores acima: ela
-  é acento, nunca fundo de bloco, e o alcance dela foi aparado em três passos — saiu do menu, saiu da abertura e
-  devolveu o acordeão ao laranja.
-- **Os véus em gradiente, e o teto medido de cada um.** São quatro, todos em `src/app/globals.css` (seção de
-  enfeite), todos com as paradas saindo de token — `ink`, `primary` — e nenhum componente escreve
-  hexadecimal: o **véu da foto** da abertura (`veu-foto`, escuro em cima, com o teto medido acima), o véu da faixa
-  de ação do fecho (`veu-acao`), que é a base da faixa, e o véu da foto do fecho (`veu-foto-fecho`, com o alfa
-  próprio medido abaixo). **A marca d'água do sol e o brilho de canto do fecho
-  (`brilho-sol`) saíram**: com a foto no fundo da faixa, os dois enfeites de tinta ficavam
-  competindo com ela no mesmo canto. A grade fina e o véu amarelo da
-  abertura saíram quando a foto entrou, e o `globals.css` não guarda utilitário sem uso. O quarto é o **véu da faixa
-  curta** (`veu-foto-faixa`), e ele existe por medição: o cabeçalho do blog usa a mesma foto em faixa baixa, então o
-  texto pega a parte clara do quadro — com o véu da abertura o título media 4,70 no celular, e 4,70 é margem fina
-  demais. Com o véu próprio ele mede 8,34, e a foto continua aparecendo. **O fecho entrou no mesmo desenho**: a foto
-  dos painéis no deserto é o fundo da faixa (`.fundo-fecho`), o `veu-foto` cobre, e o texto da faixa passou de tinta
-  para claro, que é o par que o véu existe para garantir. No fecho o véu é mais leve (`.veu-foto-fecho`, 0,70 / 0,52 /
-  0,46 em vez de 0,80 / 0,60 / 0,55) por medição: com o véu da abertura o deserto aparecia apagado atrás do texto, e a foto
-  tem de aparecer; com o alfa mais leve o texto fica entre 4,9 e 7,8 nos dois tamanhos, e um degrau
-  abaixo disso o rótulo cai para 4,47 no desktop. Ali o contraste e a presença da foto também são medidos sobre os
-  pixels, na sonda `o texto do fecho tem contraste medido sobre os pixels da foto`.
-- **O teto do amarelo é medido, não escolhido no olho.** O texto do painel é claro (`canvas`, luminância 0,90):
-  amarelo puro à mostra (`primary`, #e8882a, luminância 0,38) deixa esse texto em 2,2 para 1 e reprova os 4,5
-  exigidos. A 55% sobre a tinta o pixel pinta por volta de #81532c e o mesmo texto mede 6,04 para 1 — medido no
-  pixel atrás dos três números da abertura: **6,04 / 5,98 / 7,45**. O amarelo forte vive no pé do painel, e subir
-  essa mistura é rodar antes o teste de contraste sobre pixels (`tests/visual.spec.ts`) e a conferência da faixa de
-  números. A descrição anterior, de que não havia gradiente nenhum na página, valia para o desenho antigo.
-- **A página usa sete fotos, e todas são arquivo estático, não o otimizador do Next.** O mapa completo, arquivo a arquivo:
-  `instaladores-no-telhado.avif` no fundo da abertura, `tecnico-no-telhado.avif` no passo 1,
-  `trilho-no-telhado.avif` no passo 2, `paineis-no-campo.avif` no passo 3, `casa-phoenix.avif` no bloco dos bairros,
-  `equipe-na-calcada.avif` acima dos cartões de equipe e `paineis-no-deserto.avif` no fundo do fecho. **A casa chegou a
-  ficar também dentro do depoimento em destaque e saiu**: foto sobre a lavagem âmbar do destaque
-  (tinta da cor de ação a 25%) some com o telhado, e a regra ficou "uma casa, um lugar". **Com a foto fora, a
-  lavagem do destaque saiu também**: ela era mancha sem trabalho, e quem distingue o cartão agora é a borda na cor de
-  ação com a marca de citação dentro. As fotos dos três passos entram com `md:aspect-auto md:max-h-[11rem]` (o
-  `aspect-[4/3]` fica no celular, onde o cartão é a coluna inteira) e a da equipe com `md:max-h-[16rem]`: sem o teto, as três fotos dos passos levavam a seção a uns 2.400 px no celular e a da equipe ficava larga
-  demais no desktop. As cinco de conteúdo usam
-  `loading="lazy"`; as duas de fundo (abertura e
-  fecho) são `background-image` em `src/app/globals.css` e são o que a faixa mostra por trás do véu. O motivo de não
-  passarem pelo otimizador está escrito no componente: os arquivos já estão em AVIF e otimizados, e o otimizador
-  exigiria dependência nova de imagem no projeto sem ganho real de bytes. As fotos são de banco de imagem e a licença
-  de uso continua pendente de confirmação. A medida de `tests/visual.spec.ts`
-  guarda o mapa inteiro: cada arquivo no seu lugar, as duas de fundo lidas do CSS, e toda imagem com dimensão
-  declarada, texto alternativo em inglês e 200 na requisição.
-- A entrada das seções na rolagem anima opacidade e deslocamento, com curva de saída exponencial e sem quique,
-  nunca largura, altura ou topo. Quem pediu menos movimento no sistema recebe a seção visível, sem animação.
-- **O movimento do enfeite, com a medida de cada um.** A abertura entra em seis peças — a marca (no celular), a
-  sobrancelha, o título, a promessa, a ação e a faixa de números — com espera escalonada de 60 ms (`entrada`, em
-  `src/components/Hero.tsx`); os cartões de passos, de depoimentos e de equipe entram junto com
-  a seção, 60 ms entre um e outro (`ecoar`); o número que muda no simulador dá um pulso de opacidade e escala, para
-  a pessoa ver qual dos quatro respondeu ao que ela mexeu (`pulsou`, em `src/components/Simulator.tsx`); e as âncoras
-  do menu rolam suave. **A trilha dos três passos saiu**: era a linha abaixo do título, com o
-  trecho na cor de ação que crescia da esquerda para a direita (`trilha`, escala e nunca largura), e ela dizia
-  "isto é uma sequência" — o que os três cartões numerados já dizem. Com ela saiu a regra do `globals.css`, porque
-  utilitário sem uso não fica no arquivo. Medido no navegador: a caixa
-  da seção não muda de tamanho durante a entrada (976 por 357 px antes, durante e depois), e com movimento reduzido
-  a seção já vem visível, sem animação, com
-  `scroll-behavior: auto`. O peso transferido ficou em 381 kB no desktop, contra 380 kB antes do enfeite; mais enfeite visual levou o peso
-  a **503 kB** (a foto dos passos, 120 kB) e o conjunto de fotos a **725 kB** no desktop e no
-  celular, com as quatro fotos novas — trilho, casa, equipe e deserto, 224 kB no total — e as duas de fundo (abertura
-  e fecho) sempre no caminho crítico.
-- **A faixa de números da abertura conta do piso, e não de zero.** A regra, o valor do piso e as três metades da
-  medida estão na seção de Layout acima, junto com os números medidos quadro a quadro
-  (`src/components/Contador.tsx`, `tests/movimento.spec.ts`).
+- **The brand on the phone lives inside the opening.** The identity line keeps existing in the blog; on the city
+  page it is not rendered (`brandInHero` in `src/components/SiteHeader.tsx`), and the brand comes in as the first
+  piece of the column of the opening. From the medium size up, whoever carries the brand is the bar at the top: one brand per
+  screen size, and the measure guards the two halves of that.
+- **The secondary color is the blue `#1e5fbf`, and its role is measured.** See its entry in the list of colors above: it
+  is an accent, never the background of a block, and its reach was trimmed in three steps: it left the menu, it left the opening and
+  gave the accordion back to orange.
+- **The gradient veils, and the measured ceiling of each one.** There are four, all in `src/app/globals.css` (ornament
+  section), all with the stops coming from tokens (`ink`, `primary`) and no component writes a
+  hexadecimal value: the **photo veil** of the opening (`photo-veil`, dark at the top, with the ceiling measured above), the veil of the action band
+  of the closing (`action-veil`), which is the base of the band, and the photo veil of the closing (`closing-photo-veil`, with its own
+  alpha measured below). **The sun watermark and the corner glow of the closing
+  (`sun-glow`) left**: with the photo in the background of the band, the two ink ornaments were left
+  competing with it in the same corner. The fine grid and the yellow veil of the
+  opening left when the photo came in, and the `globals.css` keeps no unused utility. The fourth one is the **veil of the short band**
+  (`band-photo-veil`), and it exists by measurement: the header of the blog uses the same photo in a low band, so the
+  text catches the light part of the frame; with the veil of the opening the title measured 4,70 on the phone, and 4,70 is a margin that is too
+  thin. With its own veil it measures 8,34, and the photo keeps showing. **The closing came into the same drawing**: the photo
+  of the panels in the desert is the background of the band (`.closing-background`), the `photo-veil` covers it, and the text of the band went from ink
+  to light, which is the pair the veil exists to guarantee. In the closing the veil is lighter (`.closing-photo-veil`, 0,70 / 0,52 /
+  0,46 instead of 0,80 / 0,60 / 0,55) by measurement: with the veil of the opening the desert appeared washed out behind the text, and the photo
+  has to show; with the lighter alpha the text stays between 4,9 and 7,8 in both sizes, and one step
+  below that the label falls to 4,47 on the desktop. There the contrast and the presence of the photo are also measured over the
+  pixels, in the probe `the closing text has contrast measured over the pixels of the photo`.
+- **The ceiling of the yellow is measured, not chosen by eye.** The text of the panel is light (`canvas`, luminance 0,90):
+  pure yellow on show (`primary`, #e8882a, luminance 0,38) leaves that text at 2,2 to 1 and fails the 4,5
+  demanded. At 55% over the ink the pixel paints around #81532c and the same text measures 6,04 to 1, measured on the
+  pixel behind the three numbers of the opening: **6,04 / 5,98 / 7,45**. The strong yellow lives at the foot of the panel, and raising
+  that mix means running the pixel contrast test first (`tests/visual.spec.ts`) and the check of the band of
+  numbers. The previous description, that there was no gradient at all on the page, held for the old drawing.
+- **The page uses seven photos, and all of them are a static file, not the Next optimizer.** The complete map, file by file:
+  `installers-on-roof.avif` in the background of the opening, `technician-on-roof.avif` in step 1,
+  `rail-on-roof.avif` in step 2, `panels-in-field.avif` in step 3, `house-phoenix.avif` in the block of the neighborhoods,
+  `crew-on-sidewalk.avif` above the crew cards and `panels-in-desert.avif` in the background of the closing. **The house came to
+  sit also inside the featured testimonial and left**: a photo over the amber wash of the highlight
+  (ink of the action color at 25%) disappears together with the roof, and the rule became "one house, one place". **With the photo out, the
+  wash of the highlight left too**: it was a stain with no work, and whoever distinguishes the card now is the border in the action
+  color with the quote mark inside. The photos of the three steps come in with `md:aspect-auto md:max-h-[11rem]` (the
+  `aspect-[4/3]` stays on the phone, where the card is the whole column) and the one of the crew with `md:max-h-[16rem]`: with no ceiling, the three photos of the steps took the section to some 2.400 px on the phone and the one of the crew became too wide
+  on the desktop. The five of content use
+  `loading="lazy"`; the two of background (opening and
+  closing) are `background-image` in `src/app/globals.css` and are what the band shows behind the veil. The reason why they do not
+  go through the optimizer is written in the component: the files are already in AVIF and optimized, and the optimizer
+  would demand a new image dependency in the project with no real gain in bytes. The photos come from an image bank and the license
+  of use keeps pending confirmation. The measure of `tests/visual.spec.ts`
+  guards the whole map: each file in its place, the two of background read from the CSS, and every image with a declared
+  dimension, alt text in English and a 200 in the request.
+- The entry of the sections on scroll animates opacity and offset, with an exponential exit curve and with no bounce,
+  never width, height or top. Whoever asked for less motion in the system gets the section visible, with no animation.
+- **The motion of the ornament, with the measure of each one.** The opening enters in six pieces (the brand on the phone, the
+  eyebrow, the title, the promise, the action and the band of numbers) with a staggered wait of 60 ms (`enter`, in
+  `src/components/Hero.tsx`); the cards of steps, of testimonials and of crew enter together with
+  the section, 60 ms between one and the next (`stagger`); the number that changes in the simulator gives a pulse of opacity and scale, for
+  the person to see which of the four answered what they moved (`pulsed`, in `src/components/Simulator.tsx`); and the anchors
+  of the menu scroll smooth. **The trail of the three steps left**: it was the line below the title, with the
+  stretch in the action color that grew from the left to the right (a scale and never a width), and it said
+  "this is a sequence", which the three numbered cards already say. With it the rule of the `globals.css` left, because
+  an unused utility does not stay in the file. Measured in the browser: the box
+  of the section does not change size during the entry (976 by 357 px before, during and after), and with reduced motion
+  the section already comes visible, with no animation, with
+  `scroll-behavior: auto`. The transferred weight stayed at 381 kB on the desktop, against 380 kB before the ornament; more visual ornament took the weight
+  to **503 kB** (the photo of the steps, 120 kB) and the set of photos to **725 kB** on the desktop and on the
+  phone, with the four new photos (rail, house, crew and desert, 224 kB in total) and the two of background (opening
+  and closing) always on the critical path.
+- **The band of numbers of the opening counts from the floor, and not from zero.** The rule, the value of the floor and the three halves of the
+  measure are in the Layout section above, together with the numbers measured frame by frame
+  (`src/components/Counter.tsx`, `tests/motion.spec.ts`).
 
-## Tipografia
+## Typeface
 
-A família é **Archivo**, e não Inter. Motivo: Inter, Roboto, Geist,
-Plus Jakarta e Space Grotesk são fontes gastas, justamente porque todo gerador de interface converge para elas,
-e um site que quer passar solidez técnica não pode ter a mesma letra de tudo que existe. Archivo é grotesco
-robusto, com numeral tabular, que é o que uma página cheia de quilowatt, dólar e prazo precisa para os números
-alinharem na coluna. A hierarquia sai de tamanho e peso, não de família diferente no título.
+The family is **Archivo**, and not Inter. Reason: Inter, Roboto, Geist,
+Plus Jakarta and Space Grotesk are spent fonts, precisely because every interface generator converges on them,
+and a site that wants to convey technical solidity cannot carry the same lettering of everything that exists. Archivo is a sturdy
+grotesque, with tabular figures, which is what a page full of kilowatt, dollar and deadline needs for the numbers to
+line up in the column. The hierarchy comes out of size and weight, not of a different family in the title.
 
 ## Blog
 
-O blog é a segunda superfície do site, e reusa a mesma barra, os mesmos tokens e os mesmos degraus: o índice
-fica em `/blog/` e cada guia em `/blog/<slug>/`, os dois gerados no build a partir de `src/content/blog/`
-(`src/app/blog/page.tsx`, `src/app/blog/[slug]/page.tsx`). Não existe cor, canto nem tamanho novo: o que o blog
-acrescenta é arranjo de lista e de texto.
+The blog is the second surface of the site, and reuses the same bar, the same tokens and the same steps: the index
+lives at `/blog/` and each guide at `/blog/<slug>/`, both generated in the build from `src/content/blog/`
+(`src/app/blog/page.tsx`, `src/app/blog/[slug]/page.tsx`). There is no new color, corner or size: what the blog
+adds is an arrangement of list and of text.
 
-- **O card do guia** é `BlogCard`, usado no índice e no fecho de cada texto, para não haver duas verdades sobre
-  a mesma peça (`src/components/BlogCard.tsx:25`): item de lista com canto de 8 px (`rounded-lg`), borda
-  `outline`, fundo `surface` e respiro `px-lg py-md`.
-- **A borda é o único estado do card.** Ela troca para a cor de ação no passar do mouse e no foco de teclado
-  (`hover:border-primary focus-within:border-primary`), e o card não ganha sombra: sombra não existe na página.
-- **O card inteiro é clicável, e quem recebe o foco é o link de verdade.** O link vive no título e se estica
-  sobre o card pelo `before` com `inset-0` e `z-index` acima do conteúdo, senão o clique no rodapé do card
-  bateria no texto de data. O leitor de tela e a tecla Tab encontram um link só, com contorno visível
-  (`src/components/BlogCard.tsx:28-33`).
-- **A grade do índice** é uma coluna no celular e duas no tamanho médio para cima (`md:grid-cols-2
-  md:items-stretch`, `src/app/blog/page.tsx:94`), com os cards da mesma linha esticados na mesma altura.
-- **O fecho do guia** traz três outros guias na mesma grade, em três colunas no tamanho médio para cima
-  (`md:grid-cols-3`, um por linha no celular), e o botão `See all guides`, centralizado, porque três cards não
-  cobrem a lista (`src/app/blog/[slug]/page.tsx:300-316`).
-- **O título do guia** usa `type-display` com 34 rem de medida e o resumo usa `type-body` em `support`, o mesmo
-  par do cabeçalho do índice: as duas páginas do blog não divergem de hierarquia.
-- **Fonte externa sai com `target="_blank"` e `rel="noopener noreferrer"`**
-  (`src/app/blog/[slug]/page.tsx:253-258`): link que abre fora da aba não devolve a aba anterior sem o
-  `noopener`, e o `noreferrer` impede que a origem da visita vá junto para quem foi citado.
+- **The card of the guide** is `BlogCard`, used in the index and in the closing of each text, so there are not two truths about
+  the same piece (`src/components/BlogCard.tsx:25`): a list item with a corner of 8 px (`rounded-lg`), border
+  `outline`, background `surface` and breathing room `px-lg py-md`.
+- **The border is the only state of the card.** It switches to the action color on mouse hover and on keyboard focus
+  (`hover:border-primary focus-within:border-primary`), and the card gains no shadow: shadow does not exist on the page.
+- **The whole card is clickable, and what takes focus is the real link.** The link lives in the title and
+  stretches over the card through the `before` pseudo-element with `inset-0` and a `z-index` above the
+  content, otherwise a click on the card footer would land on the date text. The screen reader and the Tab
+  key find a single link, with a visible outline (`src/components/BlogCard.tsx:28-33`).
+- **The index grid** is one column on mobile and two from the medium size up (`md:grid-cols-2
+  md:items-stretch`, `src/app/blog/page.tsx:94`), with the cards of the same row stretched to the same height.
+- **The closing of a guide** brings three other guides in the same grid, in three columns from the medium
+  size up (`md:grid-cols-3`, one per row on mobile), and the `See all guides` button, centered, because three
+  cards do not cover the list (`src/app/blog/[slug]/page.tsx:300-316`).
+- **The guide title** uses `type-display` with a 34 rem measure and the summary uses `type-body` in
+  `support`, the same pair as the index header: the two blog pages do not diverge in hierarchy.
+- **An external source leaves with `target="_blank"` and `rel="noopener noreferrer"`**
+  (`src/app/blog/[slug]/page.tsx:253-258`): a link that opens outside the tab does not give the previous tab
+  back without `noopener`, and `noreferrer` keeps the visit origin from travelling along to whoever was cited.

@@ -1,18 +1,18 @@
-// Eventos de simulacao. A pergunta que eles respondem: na segunda-feira, quem cuida das campanhas
-// precisa saber quais anuncios geraram simulacoes de economia, para decidir o que pausar e o que
-// ampliar. Pageview nao responde isso, entao a pagina manda um evento com a origem da campanha
-// junto dos numeros simulados.
+// Simulation events. The question they answer: on Monday, whoever runs the campaigns
+// needs to know which ads generated savings simulations, to decide what to pause and what to
+// scale up. A pageview does not answer that, so the page sends an event with the campaign origin
+// together with the simulated numbers.
 //
-// A origem e lida da URL na primeira visita e guardada na sessao, porque metade do trafego vem de
-// campanha e a pessoa costuma rolar a pagina e mexer no simulador depois: sem guardar, o evento
-// chegaria sem a tag que o time precisa.
+// The origin is read from the URL on the first visit and stored in the session, because half of the traffic comes
+// from a campaign and the person usually scrolls the page and touches the simulator later: without storing, the event
+// would arrive without the tag the team needs.
 import { track } from "@vercel/analytics";
 import type { SimInput, SimResult } from "./solar";
 
-const CHAVE = "brightfield-campanha";
+const KEY = "brightfield-campaign";
 
-// Os parametros que os anuncios carregam. utm_* e o padrao, gclid e do Google e fbclid do Meta.
-const PARAMETROS = [
+// The parameters the ads carry. utm_* is the standard, gclid is from Google and fbclid from Meta.
+const PARAMETERS = [
   "utm_source",
   "utm_medium",
   "utm_campaign",
@@ -25,36 +25,36 @@ const PARAMETROS = [
 export type Tags = Record<string, string>;
 export type Store = { getItem(k: string): string | null; setItem(k: string, v: string): void };
 
-function armazem(): Store | null {
+function store(): Store | null {
   try {
     return typeof window === "undefined" ? null : window.sessionStorage;
   } catch {
-    // sessao bloqueada por privacidade: o evento ainda funciona, so sem a tag
+    // session blocked by privacy: the event still works, just without the tag
     return null;
   }
 }
 
-// Le as tags da busca; se nao vier nada, devolve o que ja estava guardado na sessao.
-export function campaignTags(search: string, store: Store | null = armazem()): Tags {
+// Reads the tags from the search; if nothing comes in, returns what was already stored in the session.
+export function campaignTags(search: string, storage: Store | null = store()): Tags {
   const params = new URLSearchParams(search);
-  const daUrl: Tags = {};
-  for (const nome of PARAMETROS) {
-    const valor = params.get(nome);
-    if (valor) daUrl[nome] = valor;
+  const fromUrl: Tags = {};
+  for (const name of PARAMETERS) {
+    const value = params.get(name);
+    if (value) fromUrl[name] = value;
   }
 
-  if (Object.keys(daUrl).length > 0) {
+  if (Object.keys(fromUrl).length > 0) {
     try {
-      store?.setItem(CHAVE, JSON.stringify(daUrl));
+      storage?.setItem(KEY, JSON.stringify(fromUrl));
     } catch {
-      // sem armazenamento, a tag vale so para esta pagina
+      // with no storage, the tag is valid only for this page
     }
-    return daUrl;
+    return fromUrl;
   }
 
   try {
-    const guardado = store?.getItem(CHAVE);
-    return guardado ? (JSON.parse(guardado) as Tags) : {};
+    const stored = storage?.getItem(KEY);
+    return stored ? (JSON.parse(stored) as Tags) : {};
   } catch {
     return {};
   }
@@ -75,13 +75,13 @@ export type EventoSimulacao = {
   } & Record<string, string | number | boolean>;
 };
 
-// O que vai no evento de simulacao concluida. Separado da chamada de rede para poder ser conferido
-// por teste, e nao so por olhada no painel.
+// What goes into the completed simulation event. Separated from the network call so it can be checked
+// by test, and not only by a look at the dashboard.
 export function simulationPayload(
   result: SimResult,
   input: SimInput,
   tags: Tags,
-  perfil: string | null,
+  profile: string | null,
 ): EventoSimulacao {
   return {
     name: "simulation_completed",
@@ -95,21 +95,21 @@ export function simulationPayload(
       payback_years: result.paybackYears,
       min_panels_applied: result.flags.minPanelsApplied,
       savings_capped: result.flags.savingsCapped,
-      profile: perfil ?? "none",
+      profile: profile ?? "none",
     },
   };
 }
 
-export function trackSimulationStarted(search: string, perfil: string | null) {
-  track("simulation_started", { ...campaignTags(search), profile: perfil ?? "none" });
+export function trackSimulationStarted(search: string, profile: string | null) {
+  track("simulation_started", { ...campaignTags(search), profile: profile ?? "none" });
 }
 
 export function trackSimulationCompleted(
   result: SimResult,
   input: SimInput,
   search: string,
-  perfil: string | null,
+  profile: string | null,
 ) {
-  const { name, data } = simulationPayload(result, input, campaignTags(search), perfil);
+  const { name, data } = simulationPayload(result, input, campaignTags(search), profile);
   track(name, data);
 }

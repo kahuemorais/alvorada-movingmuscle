@@ -1,57 +1,57 @@
 import { describe, expect, it } from "vitest";
-import { anos, nota, num, porcento, porcentoCheio, usd } from "./format";
+import { years, note, num, percent, percentFull, usd } from "./format";
 
-describe("formatacao", () => {
-  it("formata moeda dos Estados Unidos", () => {
+describe("formatting", () => {
+  it("formats United States currency", () => {
     expect(usd(14726.25)).toBe("$14,726.25");
   });
-  it("formata o retorno em anos com uma casa", () => {
-    expect(anos(6.9)).toBe("6.9 years");
+  it("formats the payback in years with one decimal", () => {
+    expect(years(6.9)).toBe("6.9 years");
   });
-  it("separa milhar", () => {
+  it("separates thousands", () => {
     expect(num(1840)).toBe("1,840");
   });
-  it("formata cobertura em porcento", () => {
-    expect(porcento(80)).toBe("80%");
+  it("formats coverage as percent", () => {
+    expect(percent(80)).toBe("80%");
   });
 
-  // Uma cidade com tarifa zero faz a conta virar infinito e a tela mostra
-  // "∞ $∞ $NaN NaN years". O esquema da cidade já barra esse dado na entrada; esta guarda é a segunda
-  // camada, para o número quebrado falhar o build em vez de aparecer para o visitante.
-  it("recusa número não finito, em vez de imprimir NaN ou infinito", () => {
-    expect(() => usd(Number.NaN)).toThrow(/não finito/);
-    expect(() => num(Number.POSITIVE_INFINITY)).toThrow(/não finito/);
-    expect(() => anos(Number.NaN)).toThrow(/não finito/);
-    expect(() => porcento(Number.NEGATIVE_INFINITY)).toThrow(/não finito/);
+  // A city with a zero rate makes the calculation go to infinity and the screen shows
+  // "∞ $∞ $NaN NaN years". The city schema already blocks that data on the way in; this guard is the second
+  // layer, so a broken number fails the build instead of showing up to the visitor.
+  it("refuses a non-finite number, instead of printing NaN or infinity", () => {
+    expect(() => usd(Number.NaN)).toThrow(/not finite/);
+    expect(() => num(Number.POSITIVE_INFINITY)).toThrow(/not finite/);
+    expect(() => years(Number.NaN)).toThrow(/not finite/);
+    expect(() => percent(Number.NEGATIVE_INFINITY)).toThrow(/not finite/);
   });
 
-  // A alíquota do incentivo federal vem do arquivo da cidade, e o rótulo precisa dela em porcento. Estava
-  // escrita à mão no componente e na descrição de metadados: se o dado mudar, o rótulo mente.
-  // A nota da equipe vem do dado como 5 ou como 4.9. Impressa crua, a nota 5 aparece como "5", e a pessoa
-  // lê duas escalas diferentes na mesma linha (5 e 4.9). Uma casa decimal sempre resolve.
-  it("formata a nota da equipe com uma casa decimal", () => {
-    expect(nota(5)).toBe("5.0");
-    expect(nota(4.9)).toBe("4.9");
-    expect(nota(4.95)).toBe("5.0");
+  // The federal incentive rate comes from the city file, and the label needs it as a percentage. It was
+  // written by hand in the component and in the metadata description: if the data changes, the label lies.
+  // The crew rating comes from the data as 5 or as 4.9. Printed raw, the rating 5 shows as "5", and the person
+  // reads two different scales on the same line (5 and 4.9). One decimal place always solves it.
+  it("formats the crew note with one decimal place", () => {
+    expect(note(5)).toBe("5.0");
+    expect(note(4.9)).toBe("4.9");
+    expect(note(4.95)).toBe("5.0");
   });
 
-  it("recusa nota não finita", () => {
-    expect(() => nota(Number.NaN)).toThrow(/não finito/);
+  it("refuses a non-finite note", () => {
+    expect(() => note(Number.NaN)).toThrow(/not finite/);
   });
 
-  it("formata a fração da alíquota como porcento inteiro", () => {
-    expect(porcentoCheio(0.3)).toBe("30%");
-    expect(porcentoCheio(0.25)).toBe("25%");
-    expect(porcentoCheio(0.075)).toBe("8%");
-    expect(porcentoCheio(1)).toBe("100%");
+  it("formats the rate fraction as a whole percent", () => {
+    expect(percentFull(0.3)).toBe("30%");
+    expect(percentFull(0.25)).toBe("25%");
+    expect(percentFull(0.075)).toBe("8%");
+    expect(percentFull(1)).toBe("100%");
   });
 
-  it("recusa fração não finita, como os outros formatadores", () => {
-    expect(() => porcentoCheio(Number.NaN)).toThrow(/não finito/);
+  it("refuses a non-finite fraction, like the other formatters", () => {
+    expect(() => percentFull(Number.NaN)).toThrow(/not finite/);
   });
 
-  it("diz quem recebeu o valor quebrado, para o build apontar o lugar", () => {
+  it("says who received the broken value, so the build points at the place", () => {
     expect(() => usd(Number.NaN)).toThrow(/usd/);
-    expect(() => anos(Number.NaN)).toThrow(/anos/);
+    expect(() => years(Number.NaN)).toThrow(/years/);
   });
 });

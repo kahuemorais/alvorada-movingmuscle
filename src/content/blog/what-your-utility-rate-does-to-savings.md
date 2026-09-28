@@ -8,11 +8,11 @@
   "author": "Brightfield Solar",
   "sources": [
     {
-      "nome": "U.S. Energy Information Administration, Prices and factors affecting prices",
+      "name": "U.S. Energy Information Administration, Prices and factors affecting prices",
       "url": "https://www.eia.gov/energyexplained/electricity/prices-and-factors-affecting-prices.php"
     },
     {
-      "nome": "U.S. Energy Information Administration, Electricity Data Browser",
+      "name": "U.S. Energy Information Administration, Electricity Data Browser",
       "url": "https://www.eia.gov/electricity/data/browser/"
     }
   ]

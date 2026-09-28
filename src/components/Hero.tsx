@@ -1,161 +1,161 @@
 import { Button } from "@/components/ui/button";
-import { Contador } from "@/components/Contador";
+import { Counter } from "@/components/Counter";
 import type { City } from "@/lib/city";
-import { IconeDescer, IconeMarca, IconeTelefoneVazado } from "@/components/icons";
+import { ArrowDownIcon, BrandIcon, OutlinePhoneIcon } from "@/components/icons";
 
-// Primeiro bloco: proposta e uma unica acao. A promessa do topo tem que ser a mesma coisa que a
-// pagina entrega logo abaixo, que e a conta, entao o CTA leva direto ao simulador.
+// First block: proposal and a single action. The promise of the top has to be the same thing the
+// page delivers right below, which is the bill, so the CTA leads straight to the simulator.
 //
-// Composicao: coluna centrada sobre o painel de tinta. Antes eram duas pecas lado a lado
-// (texto de um lado, foto na outra metade), e depois uma coluna com a foto em faixa abaixo; a faixa saiu
-// porque atrapalhava o desenho novo. A abertura hoje e SO o painel: sobrancelha em chip,
-// titulo, promessa, acao e a faixa de numeros, centrados. O que a referencia externa trouxe foi a ORGANIZACAO
-// — coluna centrada, sobrancelha em chip, grade fina e brilho no fundo — e nao a pele dela: gradiente no
-// titulo, degraus de tipo do Tailwind, hex solto e `-z-10` ficaram de fora.
+// Composition: a centered column over the ink panel. Before it was two pieces side by side
+// (text on one side, photo in the other half), and later a column with the photo in a band below; the band left
+// because it got in the way of the new design. The opening today is ONLY the panel: eyebrow in a chip,
+// title, promise, action and the number band, centered. What the external reference brought was the ORGANIZATION
+// (centered column, eyebrow in a chip, thin grid and glow in the background), and not its skin: gradient in the
+// title, Tailwind type steps, loose hex and `-z-10` stayed out.
 //
-// O fundo passou por tres desenhos, e o atual e uma foto no lugar do efeito. A imagem entrou
-// (dois instaladores no telhado, ceu claro em cima e telhado escuro embaixo), e ela aposentou a
-// grade fina e o veu amarelo — a foto ja tem a luz que o veu imitava. O que sobra e o veu de tinta (`.veu-foto`),
-// que nao e enfeite: e o que garante o contraste do texto claro, e o alfa dele e medido, nao escolhido no olho.
+// The background went through three designs, and the current one is a photo in place of the effect. The image came in
+// (two installers on the roof, light sky above and dark roof below), and it retired the
+// thin grid and the yellow veil: the photo already has the light the veil imitated. What is left is the ink veil (`.photo-veil`),
+// which is not an ornament: it is what guarantees the contrast of the light text, and its alpha is measured, not chosen by eye.
 //
-// O fundo decorativo mora DENTRO do painel, e nao como primeiro filho da secao: o teste de contraste amostra
-// o primeiro `> div` da abertura, e ali a amostra tem que ser tinta, nao o desenho.
+// The decorative background lives INSIDE the panel, and not as the first child of the section: the contrast test samples
+// the first `> div` of the opening, and there the sample has to be ink, not the drawing.
 //
-// A regra da casa continua valendo: o texto vive sobre cor solida, que e verificavel no pixel, e nada anima
-// largura, altura ou topo. A foto do servico da pagina vive na prova social, onde ela prova o que a secao diz.
+// The rule of the house still holds: the text lives over a solid color, which is verifiable in the pixel, and nothing animates
+// width, height or top. The service photo of the page lives in the social proof, where it proves what the section says.
 //
-// Sem borda e sem canto: a abertura pega a largura toda da janela desde que saiu do conteiner de 64 rem do
-// `main`, e caixa com borda e canto arredondado sangrando nas duas pontas le como defeito de recorte.
+// No border and no corner: the opening takes the full width of the window since it left the 64 rem container of
+// `main`, and a box with a border and a rounded corner bleeding at both ends reads as a cutting defect.
 //
-// `overflow-hidden` continua: a foto do fundo e recortada pelo painel, e nada decorativo pode vazar para fora da
-// abertura: foi assim que um halo virou degrade solto em cima do bloco.
+// `overflow-hidden` stays: the background photo is cropped by the panel, and nothing decorative may leak outside the
+// opening: that is how a halo became a loose gradient over the block.
 export default function Hero({ city }: { city: City }) {
   return (
     <section aria-labelledby="hero-title" className="w-full overflow-hidden">
-      {/* `bg-ink` fica: ele pinta atras da foto, entao e o fundo de reserva se a imagem nao carregar. */}
-      {/* A altura minima do desktop subiu de 34 para 42 rem: o painel antigo nunca chegava aos 34,
-          porque o conteudo o ultrapassava, e a abertura acabava com a altura do conteudo (~561 px numa tela de 900).
-          42 rem dao 672 px, e como o conteudo tem ~497, o `justify-center` passa a ter folga para distribuir em cima e
-          embaixo — que e o que faz a abertura parecer abertura, e nao uma faixa. */}
-      {/* A reserva de baixo no compacto é a altura da barra MAIS o respiro que o painel já tinha (`p-lg`), e não
-          só a barra: com a reserva do tamanho exato do vidro, a faixa dos três números e a linha da distribuidora
-          ficavam atrás dela (medido em 393x852: procedência 797 contra topo da barra 787). O `sm:pb-lg` e o
-          `md:p-xl md:pb-xl` do desktop seguem como estavam. */}
-      <div className="fundo-abertura relative isolate flex flex-col items-center gap-lg bg-ink p-lg pb-[calc(var(--spacing-barra)_+_var(--spacing-lg)_+_env(safe-area-inset-bottom))] text-center sm:pb-lg md:min-h-[42rem] md:justify-center md:p-xl md:pb-xl">
-        {/* A unica camada decorativa agora e o veu: a foto vive no fundo do painel, e o veu por cima dela. */}
+      {/* `bg-ink` stays: it paints behind the photo, so it is the fallback background if the image does not load. */}
+      {/* The minimum height of the desktop rose from 34 to 42 rem: the old panel never reached 34,
+          because the content went over it, and the opening ended up with the height of the content (~561 px on a 900 screen).
+          42 rem give 672 px, and since the content has ~497, `justify-center` now has room to distribute above and
+          below, which is what makes the opening look like an opening, and not a band. */}
+      {/* The bottom reservation in the compact size is the height of the bar PLUS the padding the panel already had (`p-lg`), and not
+          only the bar: with a reservation of the exact size of the glass, the band of the three numbers and the utility line
+          stayed behind it (measured at 393x852: procedure 797 against the top of the bar 787). The `sm:pb-lg` and the
+          `md:p-xl md:pb-xl` of the desktop follow as they were. */}
+      <div className="hero-background relative isolate flex flex-col items-center gap-lg bg-ink p-lg pb-[calc(var(--spacing-bar)_+_var(--spacing-lg)_+_env(safe-area-inset-bottom))] text-center sm:pb-lg md:min-h-[42rem] md:justify-center md:p-xl md:pb-xl">
+        {/* The only decorative layer now is the veil: the photo lives in the background of the panel, and the veil over it. */}
         <div
-          data-fundo="abertura"
+          data-background="hero"
           aria-hidden="true"
-          className="veu-foto pointer-events-none absolute inset-0 z-0"
+          className="photo-veil pointer-events-none absolute inset-0 z-0"
         />
 
-        {/* O respiro entre as pecas e MENOR no celular, e isso e desenho, nao descuido: com sete linhas de titulo e
-            cinco de promessa, o vao de 24 px entre as seis pecas somava 120 px de ar num painel que ja e mais alto que
-            uma tela (medido: 953 px de painel em 900 px de tela, mais alto que a tela). O
-            degrau de 32 px continua no desktop, que e onde a folga existe. */}
+        {/* The padding between the pieces is SMALLER on mobile, and that is design, not carelessness: with seven lines of title and
+            five of promise, the 24 px gap between the six pieces added up to 120 px of air in a panel that is already taller than
+            a screen (measured: 953 px of panel on a 900 px screen, taller than the screen). The
+            32 px step stays on the desktop, which is where the room exists. */}
         <div className="relative z-10 flex w-full flex-col items-center gap-md md:gap-xl">
-          {/* No celular a marca vive AQUI, dentro do painel, e nao numa linha de identidade acima: a abertura carrega a identidade, e o topo da pagina deixou de ter faixa separada. Do tamanho medio para
-              cima quem carrega a marca e a barra, e este bloco sai de cena. */}
-          <span className="entrada flex items-center gap-sm md:hidden" style={{ animationDelay: "0ms" }}>
-            {/* A marca é clara aqui, e não na cor de ação: com o sol batendo de cima, o amarelo do ícone caía sobre
-                a faixa amarela do painel e sumia. Tinta clara sobre a faixa mede 7,7 para 1. */}
+          {/* On mobile the brand lives HERE, inside the panel, and not in an identity line above: the opening carries the identity, and the top of the page no longer has a separate band. From the medium size
+              up the one that carries the brand is the bar, and this block leaves the scene. */}
+          <span className="enter flex items-center gap-sm md:hidden" style={{ animationDelay: "0ms" }}>
+            {/* The brand is light here, and not in the action color: with the sun hitting from above, the yellow of the icon fell over
+                the yellow band of the panel and vanished. Light ink over the band measures 7,7 to 1. */}
             <span className="flex size-10 items-center justify-center rounded-md bg-canvas/10 text-canvas">
-              <IconeMarca />
+              <BrandIcon />
             </span>
             <span className="type-lead text-canvas">Brightfield Solar</span>
           </span>
 
-          {/* O rotulo nao vai em caixa alta: a regra da casa trata caixa alta como defeito em rotulo longo, e
-              "Residential solar in Phoenix, AZ" tem trinta caracteres.
-              Ele e o unico texto da abertura com fundo proprio, e a tinta de acao a 70 por cento sobre o veu do sol
-              media 4,09 para 1, abaixo dos 4,5 exigidos: agora a pilula tem fundo escuro (tinta a 35 por cento) e o
-              texto vai em tinta clara CHEIA, entao o contraste nao depende de onde o amarelo esta naquele ponto. */}
+          {/* The label does not go in uppercase: the rule of the house treats uppercase as a defect in a long label, and
+              "Residential solar in Phoenix, AZ" has thirty characters.
+              It is the only text of the opening with a background of its own, and the action ink at 70 percent over the sun veil
+              measured 4,09 to 1, below the required 4,5: now the pill has a dark background (ink at 35 percent) and the
+              text goes in FULL light ink, so the contrast does not depend on where the yellow is at that point. */}
           <p
-            className="entrada type-label flex items-center gap-sm rounded-md border border-canvas/20 bg-ink/35 px-md py-sm tracking-wide text-canvas"
+            className="enter type-label flex items-center gap-sm rounded-md border border-canvas/20 bg-ink/35 px-md py-sm tracking-wide text-canvas"
             style={{ animationDelay: "60ms" }}
           >
             Residential solar in {city.city}, {city.state}
           </p>
 
-          {/* O titulo desce um degrau no celular, e a medida e propria no desktop. As duas coisas sairam de medida, nao
-              de gosto: a 3,5 rem em 345 px de coluna o titulo quebrava em SETE linhas (372 px de bloco, medido), e a
-              40 px ele quebra em cinco (212 px). No desktop, a medida de leitura de 40 rem dava TRES linhas para um
-              titulo de 70 caracteres; em 54 rem ele fecha em duas, que e o que a medida exige. A medida de 40 rem
-              continua sendo a do texto corrido da pagina. */}
+          {/* The title goes down one step on mobile, and has its own measure on the desktop. Both things came out of measurement, not
+              of taste: at 3,5 rem in a 345 px column the title broke into SEVEN lines (372 px of block, measured), and at
+              40 px it breaks into five (212 px). On the desktop, the reading measure of 40 rem gave THREE lines for a
+              title of 70 characters; at 54 rem it closes in two, which is what the measure demands. The measure of 40 rem
+              keeps being the one of the running text of the page. */}
           <h1
             id="hero-title"
-            className="entrada type-title text-canvas md:type-display md:max-w-[54rem]"
+            className="enter type-title text-canvas md:type-display md:max-w-[54rem]"
             style={{ animationDelay: "120ms" }}
           >
             Know what solar costs on your roof before anyone knocks on your door.
           </h1>
 
-          {/* O lead voltou a ser UMA frase: com duas frases ele empurrava a faixa dos três
-              números e a linha da distribuidora para trás da barra fixa no celular, que é o defeito medido. O
-              que saiu foi a procedência da tarifa, que a linha `From Brightfield's own jobs with ...` logo abaixo
-              já diz com o nome da distribuidora e a região. O que ficou é a promessa (painéis, preço depois do
-              crédito, economia e retorno), a cidade e o "sem formulário". */}
-          <p className="entrada type-body max-w-measure text-canvas/85" style={{ animationDelay: "180ms" }}>
+          {/* The lead went back to being ONE sentence: with two sentences it pushed the band of the three
+              numbers and the utility line behind the fixed bar on mobile, which is the measured defect. What
+              left was the origin of the rate, which the line `From Brightfield's own jobs with ...` right below
+              already states with the name of the utility and the region. What stayed is the promise (panels, price after the
+              credit, savings and return), the city and the "no form". */}
+          <p className="enter type-body max-w-measure text-canvas/85" style={{ animationDelay: "180ms" }}>
             Panels, price after the federal credit, savings and payback for a {city.city}, {city.state} roof, with
             no form and no lead sold to three installers.
           </p>
 
           <div
-            className="entrada flex flex-wrap items-center justify-center gap-md"
+            className="enter flex flex-wrap items-center justify-center gap-md"
             style={{ animationDelay: "240ms" }}
           >
             <Button asChild size="lg">
               <a href="#simulator">
                 Estimate my savings
-                <IconeDescer />
+                <ArrowDownIcon />
               </a>
             </Button>
             <a className="inline-flex min-h-touch items-center type-body text-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-canvas" href={`tel:${city.phone.replace(/[^0-9+]/g, "")}`}>
-              <IconeTelefoneVazado />
+              <OutlinePhoneIcon />
               Or call {city.phone}
             </a>
           </div>
 
-          {/* Faixa de numeros na base do bloco, com divisorias finas. A contagem pintava
-              valor parcial sobre o numero que o HTML ja entrega certo — a nota de 4,8 aparecia como 0,3 no
-              comeco da animacao, medido quadro a quadro. A correcao: a contagem continua, mas
-              comeca em 90% do valor e sobe ate ele, sem passar pelo zero (o piso esta em `Contador.tsx`, com o
-              motivo ao lado). */}
-          {/* No celular os três ficam em UMA linha de verdade, e não em duas: com `flex-wrap` e vão de 24 px os
-              rótulos somavam mais que os 345 px úteis do painel e o terceiro caía para baixo, que foi o defeito
-              relatado. A grade de três divide a linha em partes iguais e o rótulo quebra dentro da própria coluna. */}
-          {/* A procedência vive colada na faixa, e não solta no vão de 32 px: ela explica os três números acima, então
-              entra como uma peça do mesmo bloco (`gap-sm`), com a mesma entrada escalonada das outras. */}
-          <div className="entrada flex w-full flex-col gap-sm" style={{ animationDelay: "300ms" }}>
+          {/* Number band at the base of the block, with thin dividers. The count painted a
+              partial value over the number the HTML already delivers right: the score of 4,8 appeared as 0,3 at the
+              start of the animation, measured frame by frame. The fix: the count continues, but
+              starts at 90% of the value and rises to it, without going through zero (the floor is in `Counter.tsx`, with the
+              reason next to it). */}
+          {/* On mobile the three stay in ONE real line, and not in two: with `flex-wrap` and a 24 px gap the
+              labels added up to more than the 345 useful px of the panel and the third fell down, which was the reported
+              defect. The grid of three divides the line into equal parts and the label breaks inside its own column. */}
+          {/* The origin lives glued to the band, and not loose in the 32 px gap: it explains the three numbers above, so
+              it comes in as a piece of the same block (`gap-sm`), with the same staggered entry as the others. */}
+          <div className="enter flex w-full flex-col gap-sm" style={{ animationDelay: "300ms" }}>
           <dl
             className="grid w-full grid-cols-3 gap-md border-t border-canvas/20 pt-lg md:flex md:flex-wrap md:items-start md:justify-center md:gap-lg"
           >
             <div className="flex flex-col gap-xs">
               <dt className="microcopy text-canvas/70">Installs completed</dt>
               <dd className="type-lead text-canvas tabular-nums">
-                <Contador valor={city.installsCompleted} />
+                <Counter value={city.installsCompleted} />
               </dd>
             </div>
             <div className="flex flex-col gap-xs border-l border-canvas/20 pl-md md:pl-lg">
-              {/* O rótulo diz "Average customer rating", e não só "rating": a nota sozinha não diz de quem é, e
-                  prova social que se possa conferir precisa dizer de quem é a nota. O número não muda: 4,8 é o do arquivo. */}
+              {/* The label says "Average customer rating", and not only "rating": the score alone does not say whose it is, and
+                  social proof that can be checked has to say whose the score is. The number does not change: 4,8 is the one from the file. */}
               <dt className="microcopy text-canvas/70">Average customer rating</dt>
               <dd className="type-lead text-canvas tabular-nums">
-                <Contador valor={city.avgRating} casas={1} />
+                <Counter value={city.avgRating} casas={1} />
               </dd>
             </div>
             <div className="flex flex-col gap-xs border-l border-canvas/20 pl-md md:pl-lg">
               <dt className="microcopy text-canvas/70">Crews in the area</dt>
               <dd className="type-lead text-canvas tabular-nums">
-                <Contador valor={city.crewsAvailable} />
+                <Counter value={city.crewsAvailable} />
               </dd>
             </div>
           </dl>
 
-          {/* Procedencia dos tres numeros acima. A prova social tem de ser conferivel, e a alternativa descartada foi
-              inventar contexto: aqui nao entra data de coleta, percentual de satisfacao nem "familias
-              atendidas", porque nada disso existe no arquivo da cidade. O que existe e o nome da distribuidora e a
-              regiao metropolitana, e sao eles que dizem de onde vem o numero. */}
+          {/* Origin of the three numbers above. The social proof has to be checkable, and the discarded alternative was
+              to invent context: here no collection date comes in, no satisfaction percentage and no "families
+              served", because none of that exists in the city file. What exists is the name of the utility and the
+              metropolitan region, and they are the ones that say where the number comes from. */}
           <p className="type-label text-canvas/80">
             From Brightfield&apos;s own jobs with {city.utilityName} in the {city.metroArea} area.
           </p>

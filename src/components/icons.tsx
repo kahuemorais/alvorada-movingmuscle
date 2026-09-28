@@ -1,16 +1,16 @@
-// Ícones do Phosphor, a mesma família que o kahue.net usa, reunidos em um lugar só para o tamanho e o
-// papel de cada um serem decididos aqui e não em cada componente.
+// Phosphor icons, the same family kahue.net uses, gathered in a single place so the size and the
+// role of each one are decided here and not in each component.
 //
-// Todos são decorativos: quem carrega o significado é o texto ao lado, então saem com aria-hidden e o
-// leitor de tela não anuncia o mesmo duas vezes. A importação é a do modo servidor, que rende o SVG
-// pronto sem hook de cliente, e é o que o Next recomenda para componente de servidor.
+// All of them are decorative: what carries the meaning is the text next to them, so they come out with aria-hidden and the
+// screen reader does not announce the same thing twice. The import is the server mode one, which renders the SVG
+// ready with no client hook, and it is what Next recommends for a server component.
 //
-// PESO: os ícones são PREENCHIDOS (`weight="fill"`), no lugar do traço fino, e o tamanho e a posição de
-// cada um não mudam: o `className` de 16, 20 ou 24 px continua sendo quem decide isso. Duas exceções:
-//   - o TELEFONE dentro de botão ou link continua vazado (`IconeTelefoneVazado`): glifo cheio dentro de
-//     botão estreito vira mancha;
-//   - a MARCA do cabeçalho (`IconeMarca`) continua vazada porque não é ícone de interface: é o desenho da
-//     identidade, e ela não engorda.
+// WEIGHT: the icons are FILLED (`weight="fill"`), in place of the thin stroke, and the size and the position of
+// each one do not change: the `className` of 16, 20 or 24 px keeps being what decides that. Two exceptions:
+//   - the PHONE inside a button or link stays outlined (`IconeTelefoneVazado`): a filled glyph inside a
+//     narrow button turns into a blob;
+//   - the BRAND of the header (`IconeMarca`) stays outlined because it is not an interface icon: it is the drawing of the
+//     identity, and it does not get fat.
 import {
   ArrowDown,
   Clock,
@@ -40,48 +40,48 @@ import {
   Wrench,
 } from "@phosphor-icons/react/dist/ssr";
 
-// Tamanhos: emblema de 16 px acompanha o texto de 14; rótulo e resultado de 20 px acompanham o corpo e
-// o número; passo, aviso, citação e os botões de mais e menos de 24 px marcam o começo de um bloco e
-// ficam legíveis dentro de um botão largo no celular.
-const pequeno = "size-4 shrink-0";
-const medio = "size-5 shrink-0";
-const grande = "size-6 shrink-0";
-// A citação subiu um degrau: é marca decorativa de abertura de bloco, e não ícone de rótulo, então ela
-// pode passar dos 24 px dos vizinhos.
+// Sizes: a 16 px badge accompanies the 14 text; a label and a result of 20 px accompany the body and
+// the number; step, notice, quote and the plus and minus buttons of 24 px mark the start of a block and
+// stay legible inside a wide button on mobile.
+const small = "size-4 shrink-0";
+const medium = "size-5 shrink-0";
+const large = "size-6 shrink-0";
+// The quote went up one step: it is a decorative mark of block opening, and not a label icon, so it
+// may go over the 24 px of its neighbors.
 const citacao = "size-7 shrink-0";
 
-export const IconeConta = () => <Receipt aria-hidden weight="fill" className={medio} />;
-export const IconeCobertura = () => <Gauge aria-hidden weight="fill" className={medio} />;
-export const IconePainel = () => <SolarPanel aria-hidden weight="fill" className={medio} />;
-export const IconeDinheiro = () => <CurrencyDollar aria-hidden weight="fill" className={medio} />;
-export const IconeEconomia = () => <PiggyBank aria-hidden weight="fill" className={medio} />;
-export const IconeRetorno = () => <ClockCountdown aria-hidden weight="fill" className={medio} />;
-export const IconeCasa = () => <HouseLine aria-hidden weight="fill" className={medio} />;
-export const IconeEquipe = () => <HardHat aria-hidden weight="fill" className={medio} />;
-export const IconeEstrela = () => <Star aria-hidden weight="fill" className={pequeno} />;
-// O relógio do tempo de leitura, no tamanho do texto miúdo que o acompanha.
-export const IconeTempo = () => <Clock aria-hidden weight="fill" className={pequeno} />;
-export const IconeBairro = () => <MapPin aria-hidden weight="fill" className={pequeno} />;
-export const IconeTelefone = () => <PhoneCall aria-hidden weight="fill" className={medio} />;
-// O telefone dos botões e do link de ligar, vazado de propósito: ver a nota do topo.
-export const IconeTelefoneVazado = () => <PhoneCall aria-hidden weight="regular" className={medio} />;
-// A seta do botão da abertura aponta para BAIXO, e não para a direita, porque é para onde ele leva: o
-// destino é a calculadora, mais abaixo na mesma página. Seta de avanço em link que desce é ícone contando
-// outra história.
-export const IconeDescer = () => <ArrowDown aria-hidden weight="fill" className={medio} />;
-export const IconeVoltar = () => <ArrowUp aria-hidden weight="fill" className={medio} />;
-export const IconeMais = () => <Plus aria-hidden weight="fill" className={grande} />;
-export const IconeMenos = () => <Minus aria-hidden weight="fill" className={grande} />;
-export const IconeDocumento = () => <FileText aria-hidden weight="fill" className={grande} />;
-export const IconeChave = () => <Wrench aria-hidden weight="fill" className={grande} />;
-export const IconeConexao = () => <PlugCharging aria-hidden weight="fill" className={grande} />;
-export const IconeCitacao = () => <Quotes aria-hidden weight="fill" className={citacao} />;
-export const IconeAviso = () => <WarningCircle aria-hidden weight="fill" className={medio} />;
-export const IconeCalculadora = () => <Calculator aria-hidden weight="fill" className={medio} />;
-export const IconePassos = () => <FlowArrow aria-hidden weight="fill" className={medio} />;
-// O blog: livro aberto com texto, na medida dos outros itens da barra. O `FileText` de `IconeDocumento`
-// diz "documento" e vive em tamanho grande, para marcar o começo de um bloco; aqui o papel é o de item
-// de navegação, então o ícone é outro e o tamanho é o mesmo dos quatro vizinhos.
-export const IconeBlog = () => <BookOpenText aria-hidden weight="fill" className={medio} />;
-export const IconeMarca = () => <Sun aria-hidden className={grande} />;
-export const IconeInformacao = () => <Info aria-hidden weight="fill" className={medio} />;
+export const BillIcon = () => <Receipt aria-hidden weight="fill" className={medium} />;
+export const CoverageIcon = () => <Gauge aria-hidden weight="fill" className={medium} />;
+export const PanelIcon = () => <SolarPanel aria-hidden weight="fill" className={medium} />;
+export const MoneyIcon = () => <CurrencyDollar aria-hidden weight="fill" className={medium} />;
+export const SavingsIcon = () => <PiggyBank aria-hidden weight="fill" className={medium} />;
+export const PaybackIcon = () => <ClockCountdown aria-hidden weight="fill" className={medium} />;
+export const HouseIcon = () => <HouseLine aria-hidden weight="fill" className={medium} />;
+export const CrewIcon = () => <HardHat aria-hidden weight="fill" className={medium} />;
+export const StarIcon = () => <Star aria-hidden weight="fill" className={small} />;
+// The reading time clock, in the size of the small text that accompanies it.
+export const ClockIcon = () => <Clock aria-hidden weight="fill" className={small} />;
+export const NeighborhoodIcon = () => <MapPin aria-hidden weight="fill" className={small} />;
+export const PhoneIcon = () => <PhoneCall aria-hidden weight="fill" className={medium} />;
+// The phone of the buttons and of the call link, outlined on purpose: see the note at the top.
+export const OutlinePhoneIcon = () => <PhoneCall aria-hidden weight="regular" className={medium} />;
+// The arrow of the opening button points DOWN, and not to the right, because that is where it leads: the
+// destination is the calculator, further down on the same page. A forward arrow on a link that goes down is an icon telling
+// another story.
+export const ArrowDownIcon = () => <ArrowDown aria-hidden weight="fill" className={medium} />;
+export const ArrowUpIcon = () => <ArrowUp aria-hidden weight="fill" className={medium} />;
+export const PlusIcon = () => <Plus aria-hidden weight="fill" className={large} />;
+export const MinusIcon = () => <Minus aria-hidden weight="fill" className={large} />;
+export const DocumentIcon = () => <FileText aria-hidden weight="fill" className={large} />;
+export const KeyIcon = () => <Wrench aria-hidden weight="fill" className={large} />;
+export const ConnectionIcon = () => <PlugCharging aria-hidden weight="fill" className={large} />;
+export const QuoteIcon = () => <Quotes aria-hidden weight="fill" className={citacao} />;
+export const WarningIcon = () => <WarningCircle aria-hidden weight="fill" className={medium} />;
+export const CalculatorIcon = () => <Calculator aria-hidden weight="fill" className={medium} />;
+export const StepsIcon = () => <FlowArrow aria-hidden weight="fill" className={medium} />;
+// The blog: an open book with text, at the measure of the other items of the bar. The `FileText` of `IconeDocumento`
+// says "document" and lives at a large size, to mark the start of a block; here the role is that of a navigation
+// item, so the icon is another one and the size is the same as the four neighbors.
+export const BlogIcon = () => <BookOpenText aria-hidden weight="fill" className={medium} />;
+export const BrandIcon = () => <Sun aria-hidden className={large} />;
+export const InfoIcon = () => <Info aria-hidden weight="fill" className={medium} />;

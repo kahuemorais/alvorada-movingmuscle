@@ -25,17 +25,17 @@ export type SimResult = {
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
-// A ordem das contas e esta, e ela manda em caso de duvida:
-//   consumo mensal = conta / tarifa da distribuidora
-//   consumo a cobrir = consumo mensal * cobertura
-//   geracao de um painel = potencia em kW * horas de sol * 30 * fator de desempenho
-//   numero de paineis = consumo a cobrir / geracao de um painel
-//   investimento = paineis * potencia em W * custo por W instalado, menos a aliquota federal
-//   economia mensal = geracao total * tarifa, limitada a conta
-//   retorno = investimento depois do incentivo / economia de 12 meses
+// The order of the calculations is this one, and it rules in case of doubt:
+//   monthly usage = bill / utility rate
+//   usage to cover = monthly usage * coverage
+//   generation of one panel = power in kW * sun hours * 30 * performance factor
+//   number of panels = usage to cover / generation of one panel
+//   investment = panels * power in W * installed cost per W, minus the federal rate
+//   monthly savings = total generation * rate, capped at the bill
+//   payback = investment after the incentive / 12 months of savings
 //
-// Nenhum numero do sistema vem daqui: tarifa, sol, potencia, custo e minimo saem do arquivo da
-// cidade. Esta funcao so aplica a aritmetica.
+// No number of the system comes from here: rate, sun, power, cost and minimum come from the city
+// file. This function only applies the arithmetic.
 export function simulate(city: City, input: SimInput): SimResult {
   const monthlyUsageKwh = input.bill / city.utilityRatePerKwh;
   const targetKwh = monthlyUsageKwh * (input.coverage / 100);
@@ -44,8 +44,8 @@ export function simulate(city: City, input: SimInput): SimResult {
   const panelGenerationKwh = panelKw * city.peakSunHoursPerDay * 30 * city.performanceRatio;
 
   const panelsRaw = targetKwh / panelGenerationKwh;
-  // Regra 1: painel e unidade inteira, entao sobe sempre. O investimento e a geracao acompanham o
-  // numero final, nunca o intermediario quebrado.
+  // Rule 1: a panel is a whole unit, so it always rounds up. The investment and the generation follow the
+  // final number, never the broken intermediate.
   const panels = Math.max(city.minPanels, Math.ceil(panelsRaw));
 
   const generationKwh = panels * panelGenerationKwh;
@@ -54,11 +54,11 @@ export function simulate(city: City, input: SimInput): SimResult {
   const investmentGross = panels * city.panelWatts * city.costPerWattInstalled;
   const investmentAfterCredit = investmentGross * (1 - city.federalCreditRate);
 
-  // Regra 3: o que o sistema gera acima do consumo vira credito na distribuidora, e credito nao e
-  // dinheiro de volta. A economia para no tamanho da conta.
+  // Rule 3: what the system generates above the usage becomes a credit with the utility, and credit is not
+  // money back. The savings stop at the size of the bill.
   const monthlySavings = Math.min(rawGenerationValue, input.bill);
 
-  // Retorno com uma casa decimal, como a tabela de aceitacao (`src/lib/aceitacao.test.ts`) mostra (6,9 e 9,6).
+  // Payback with one decimal, as the acceptance table (`src/lib/acceptance.test.ts`) shows (6,9 and 9,6).
   const paybackYears = round1(investmentAfterCredit / (monthlySavings * 12));
 
   return {
@@ -74,7 +74,7 @@ export function simulate(city: City, input: SimInput): SimResult {
     monthlySavings: round2(monthlySavings),
     paybackYears,
     flags: {
-      // Regra 2: existe um minimo por instalacao, e a pagina precisa dizer quando ele entrou.
+      // Rule 2: there is a minimum per installation, and the page needs to say when it entered.
       minPanelsApplied: panelsRaw < city.minPanels,
       savingsCapped: rawGenerationValue > input.bill,
       surplusValue: round2(Math.max(0, rawGenerationValue - input.bill)),

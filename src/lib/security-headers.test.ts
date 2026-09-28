@@ -1,18 +1,18 @@
-// Os cabeçalhos de segurança como dado, para serem testáveis.
+// The security headers as data, so they can be tested.
 //
-// O que foi conferido na fonte antes de escrever a política: o pacote de analytics carrega
-// `/_vercel/insights/script.js` em produção, de mesma origem, e só o modo de depuração busca
-// `va.vercel-scripts.com`. E o Next injeta script em linha para hidratar a página, o que impede
-// `script-src` sem `'unsafe-inline'` numa página estática.
+// What was checked in the source before writing the policy: the analytics package loads
+// `/_vercel/insights/script.js` in production, same origin, and only the debug mode fetches
+// `va.vercel-scripts.com`. And Next injects inline script to hydrate the page, which rules out
+// `script-src` without `'unsafe-inline'` on a static page.
 import { describe, expect, it } from "vitest";
-import configuracao from "../../next.config";
-import { cabecalhosSeguranca } from "./security-headers";
+import config from "../../next.config";
+import { securityHeaders } from "./security-headers";
 
-const politica = () => cabecalhosSeguranca().find((c) => c.key === "Content-Security-Policy")!.value;
+const policy = () => securityHeaders().find((c) => c.key === "Content-Security-Policy")!.value;
 
-describe("cabeçalhos de segurança", () => {
-  it("declara as cinco proteções exigidas", () => {
-    expect(cabecalhosSeguranca().map((c) => c.key)).toEqual([
+describe("security headers", () => {
+  it("declares the five required protections", () => {
+    expect(securityHeaders().map((c) => c.key)).toEqual([
       "Content-Security-Policy",
       "X-Content-Type-Options",
       "Referrer-Policy",
@@ -21,50 +21,50 @@ describe("cabeçalhos de segurança", () => {
     ]);
   });
 
-  it("fecha objeto, base, enquadramento e formulário", () => {
-    for (const diretiva of ["object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'", "form-action 'none'"]) {
-      expect(politica()).toContain(diretiva);
+  it("closes object, base, framing and form", () => {
+    for (const directive of ["object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'", "form-action 'none'"]) {
+      expect(policy()).toContain(directive);
     }
   });
 
-  it("não libera eval em produção, e libera só em desenvolvimento", () => {
-    // O defeito aparecia no console: o React em modo de desenvolvimento usa `eval()` para reconstruir
-    // pilha de chamada e para o recarregamento rápido, e a política fechada bloqueava. A exceção existe, e
-    // existe SÓ no lado de desenvolvimento — é esta segunda linha que impede a primeira de ser esquecida.
-    expect(politica()).not.toContain("unsafe-eval");
-    const emDesenvolvimento = cabecalhosSeguranca("development").find(
+  it("does not allow eval in production, and allows it only in development", () => {
+    // The defect showed up in the console: React in development mode uses `eval()` to rebuild
+    // the call stack and for the fast refresh, and the closed policy blocked it. The exception exists, and
+    // exists ONLY on the development side: it is this second line that keeps the first one from being forgotten.
+    expect(policy()).not.toContain("unsafe-eval");
+    const inDevelopment = securityHeaders("development").find(
       (c) => c.key === "Content-Security-Policy",
     )!.value;
-    expect(emDesenvolvimento).toContain("'unsafe-eval'");
-    // E a exceção não arrasta o resto da política: as quatro proteções continuam fechadas lá também.
-    for (const diretiva of ["object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'", "form-action 'none'"]) {
-      expect(emDesenvolvimento).toContain(diretiva);
+    expect(inDevelopment).toContain("'unsafe-eval'");
+    // And the exception does not drag the rest of the policy with it: the four protections stay closed there too.
+    for (const directive of ["object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'", "form-action 'none'"]) {
+      expect(inDevelopment).toContain(directive);
     }
   });
 
-  it("não libera origem de terceiro além da que serve o medidor", () => {
-    const origens = politica().match(/https:\/\/[a-z0-9.-]+/g) ?? [];
+  it("does not allow a third-party origin beyond the one that serves the meter", () => {
+    const origens = policy().match(/https:\/\/[a-z0-9.-]+/g) ?? [];
     expect(new Set(origens)).toEqual(new Set(["https://va.vercel-scripts.com"]));
   });
 
-  it("permite script em linha, que é o que a hidratação do Next exige", () => {
-    expect(politica()).toContain("script-src 'self' 'unsafe-inline'");
+  it("allows inline script, which is what the Next hydration requires", () => {
+    expect(policy()).toContain("script-src 'self' 'unsafe-inline'");
   });
 
-  it("a configuração do Next aplica os cabeçalhos em toda rota", async () => {
-    // Sem esta ligação, o dado existe e a resposta continua sem proteção nenhuma.
-    expect(typeof configuracao.headers).toBe("function");
-    const rotas = await configuracao.headers!();
+  it("the Next configuration applies the headers on every route", async () => {
+    // Without this link, the data exists and the response keeps going out with no protection at all.
+    expect(typeof config.headers).toBe("function");
+    const rotas = await config.headers!();
     expect(rotas).toHaveLength(1);
     expect(rotas[0].source).toBe("/(.*)");
-    expect(rotas[0].headers.map((c) => c.key)).toEqual(cabecalhosSeguranca().map((c) => c.key));
+    expect(rotas[0].headers.map((c) => c.key)).toEqual(securityHeaders().map((c) => c.key));
   });
 
-  it("mantém as outras proteções com o valor esperado", () => {
-    const mapa = Object.fromEntries(cabecalhosSeguranca().map((c) => [c.key, c.value]));
-    expect(mapa["X-Content-Type-Options"]).toBe("nosniff");
-    expect(mapa["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
-    expect(mapa["X-Frame-Options"]).toBe("DENY");
-    expect(mapa["Permissions-Policy"]).toContain("camera=()");
+  it("keeps the other protections with the expected value", () => {
+    const map = Object.fromEntries(securityHeaders().map((c) => [c.key, c.value]));
+    expect(map["X-Content-Type-Options"]).toBe("nosniff");
+    expect(map["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
+    expect(map["X-Frame-Options"]).toBe("DENY");
+    expect(map["Permissions-Policy"]).toContain("camera=()");
   });
 });

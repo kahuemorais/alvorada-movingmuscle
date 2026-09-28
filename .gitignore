@@ -8,8 +8,11 @@ build/
 .vercel
 .hermes/
 
-# Artefatos da medida de navegação: rastro de falha, relatório e cache do Playwright.
-# Entram na árvore a cada execução e não são conteúdo do projeto.
+# Browser measurement artifacts: failure trace, report and Playwright cache. They enter the tree on every
+# run and they are not project content.
 test-results/
 playwright-report/
 .playwright/
+
+# Artefato de build do TypeScript.
+tsconfig.tsbuildinfo

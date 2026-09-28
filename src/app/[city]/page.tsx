@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Aparecer } from "@/components/Aparecer";
+import { Reveal } from "@/components/Reveal";
 import Faq from "@/components/Faq";
 import FinalCta from "@/components/FinalCta";
 import Hero from "@/components/Hero";
@@ -9,45 +9,45 @@ import SiteHeader from "@/components/SiteHeader";
 import SocialProof from "@/components/SocialProof";
 import Steps from "@/components/Steps";
 import StructuredData from "@/components/StructuredData";
-import { buscarCidadeOpcional, getCity, listCitySlugs } from "@/lib/city";
-import { num, porcentoCheio } from "@/lib/format";
+import { findOptionalCity, getCity, listCitySlugs } from "@/lib/city";
+import { num, percentFull } from "@/lib/format";
 import { cityUrl } from "@/lib/urls";
 
-// Uma rota para todas as cidades: o parametro e o slug, e a lista de caminhos sai da pasta de dados.
-// Publicar a cidade numero 120 e soltar o arquivo dela em src/data/cities e refazer o build, sem
-// tocar em codigo, que e o requisito de escala (cerca de 120 cidades).
+// One route for all cities: the parameter is the slug, and the list of paths comes from the data folder.
+// Publishing city number 120 is dropping its file into src/data/cities and rebuilding, without
+// touching code, which is the scale requirement (about 120 cities).
 export function generateStaticParams() {
   return listCitySlugs().map((city) => ({ city }));
 }
 
-// A pagina so existe para slug que tem arquivo: qualquer outro caminho cai em 404 de verdade, em vez
-// de pagina vazia que o buscador indexa.
+// The page only exists for a slug that has a file: any other path falls into a real 404, instead
+// of an empty page that the search engine indexes.
 export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }): Promise<Metadata> {
   const { city } = await params;
-  // Caminho seguro, e não o carregador direto: slug de forma inválida ou cidade sem arquivo devolve nulo
-  // e a resposta é 404. Antes, este ponto lançava erro de renderização, porque era o único lugar que
-  // chamava o carregador sem a conferência de lista que o corpo da página faz.
-  const dados = buscarCidadeOpcional(city);
-  if (!dados) notFound();
-  // Sem barra no fim: e o endereco que a hospedagem serve, e canonical precisa ser o endereco
-  // servido, nao um que redireciona.
-  const url = cityUrl(dados.slug);
+  // Safe path, and not the direct loader: a malformed slug or a city without a file returns null
+  // and the response is 404. Before, this point threw a render error, because it was the only place
+  // that called the loader without the list check the page body does.
+  const data = findOptionalCity(city);
+  if (!data) notFound();
+  // No trailing slash: this is the address the host serves, and canonical has to be the address
+  // served, not one that redirects.
+  const url = cityUrl(data.slug);
 
-  // Title de 51 caracteres e description de 152, medidos: a kopy pede de 50 a 60 no title e de 150 a
-  // 160 na description, e os dois estavam fora (47 e 171). A contagem de instalacoes entra com
-  // separador de milhar, que e como o dado aparece na pagina.
+  // Title of 51 characters and description of 152, measured: the copy standard asks for 50 to 60 in the title and 150 to
+  // 160 in the description, and both were outside (47 and 171). The installation count comes in with a
+  // thousands separator, which is how the data appears on the page.
   return {
-    title: `Solar panel cost in ${dados.city}, ${dados.state} | Brightfield Solar`,
-    description: `How many panels a ${dados.city} home needs, the price after the ${porcentoCheio(dados.federalCreditRate)} federal credit, and monthly savings. ${num(dados.installsCompleted)} installs completed with ${dados.utilityName}.`,
+    title: `Solar panel cost in ${data.city}, ${data.state} | Brightfield Solar`,
+    description: `How many panels a ${data.city} home needs, the price after the ${percentFull(data.federalCreditRate)} federal credit, and monthly savings. ${num(data.installsCompleted)} installs completed with ${data.utilityName}.`,
     alternates: { canonical: url },
     openGraph: {
       type: "website",
       url,
       siteName: "Brightfield Solar",
-      title: `Solar panel cost in ${dados.city}, ${dados.state}`,
-      description: `${num(dados.installsCompleted)} installs completed with ${dados.utilityName}. How many panels, the price after the credit, and the monthly savings.`,
+      title: `Solar panel cost in ${data.city}, ${data.state}`,
+      description: `${num(data.installsCompleted)} installs completed with ${data.utilityName}. How many panels, the price after the credit, and the monthly savings.`,
     },
   };
 }
@@ -55,41 +55,41 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;
   if (!listCitySlugs().includes(city)) notFound();
-  const dados = getCity(city);
+  const data = getCity(city);
 
-  // Ordem dos blocos, e ela e a argumentacao da pagina: promessa, conta, como
-  // acontece, quem faz, duvida, e a chamada final.
+  // Order of the blocks, and it is the argument of the page: promise, bill, how it
+  // happens, who does it, doubt, and the final call.
   return (
     <>
-      {/* Âncora do item Home, e não o `main`. Um alvo com margem de rolagem faz o navegador parar antes
-          do topo, que era o defeito relatado: o `main` tem margem porque é alvo de âncora de seção. Aqui
-          a âncora é um elemento sem altura, no começo do documento, então o salto vai ao topo de verdade. */}
-      <span id="topo" aria-hidden="true" />
-      <SiteHeader marcaNoHero />
-      {/* A abertura pega a largura toda da janela, então ela vive FORA do contêiner de 64 rem do `main` — dentro
-          dele o bloco de tinta pararia antes das bordas. Quem reserva a altura da barra fixa no topo passa a ser a
-          margem desta caixa, e não o respiro do `main`: o teste da abertura mede que ela começa logo abaixo da
-          barra, com os cantos de cima retos. */}
+      {/* Anchor for the Home item, and not the `main`. A target with scroll margin makes the browser stop before
+          the top, which was the reported defect: `main` has a margin because it is a section anchor target. Here
+          the anchor is an element with no height, at the start of the document, so the jump goes to the real top. */}
+      <span id="top" aria-hidden="true" />
+      <SiteHeader brandInHero />
+      {/* The opening takes the full width of the window, so it lives OUTSIDE the 64 rem container of `main`: inside
+          it the ink block would stop before the edges. What reserves the height of the fixed bar at the top becomes the
+          margin of this box, and not the padding of `main`: the opening test measures that it starts right below the
+          bar, with square top corners. */}
       <div className="md:mt-[3.5rem]">
-        <Hero city={dados} />
+        <Hero city={data} />
       </div>
-      {/* O respiro de baixo reserva o espaço da barra fixa no celular. Com as faixas, quem dá o respiro
-          vertical das seções é o `py-xxl` de cada uma, e a última faixa (o fecho, na cor de ação) reserva a
-          barra por dentro dela: o `pb` do `main` deixou de existir, então a cor do fecho chega até o fim do
-          documento em vez de deixar uma tira do fundo da página embaixo da faixa. */}
+      {/* The bottom padding reserves the space of the fixed bar on mobile. With the bands, what gives the vertical
+          padding of the sections is the `py-xxl` of each one, and the last band (the close, in the action color) reserves the
+          bar inside itself: the `pb` of `main` no longer exists, so the close color reaches the end of the
+          document instead of leaving a strip of the page background below the band. */}
       <main>
-        <StructuredData city={dados} />
-        <Simulator city={dados} />
-        <Aparecer>
-          <Steps city={dados} />
-        </Aparecer>
-        <Aparecer>
-          <SocialProof city={dados} />
-        </Aparecer>
-        <Aparecer>
-          <Faq city={dados} />
-        </Aparecer>
-        <FinalCta city={dados} />
+        <StructuredData city={data} />
+        <Simulator city={data} />
+        <Reveal>
+          <Steps city={data} />
+        </Reveal>
+        <Reveal>
+          <SocialProof city={data} />
+        </Reveal>
+        <Reveal>
+          <Faq city={data} />
+        </Reveal>
+        <FinalCta city={data} />
       </main>
     </>
   );

@@ -1,8 +1,8 @@
-// Configuração da medida de navegação.
+// Configuration for the browser measurement.
 //
-// O servidor do teste é o build de produção, e não o modo de desenvolvimento: é o que a hospedagem serve,
-// e medir no modo de desenvolvimento mediria CSS com caminho diferente (o Tailwind injeta folha separada,
-// por exemplo), então um defeito de produção poderia passar aqui.
+// The test server is the production build, not the development mode: it is what the host serves, and
+// measuring in development mode would measure CSS through a different path (Tailwind injects a separate
+// sheet, for example), so a production defect could pass here.
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -27,8 +27,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
     env: {
-      // O build de produção exige endereço quando o ambiente é de publicação, e a integração contínua
-      // marca CI. Aqui o endereço é o local, que é o correto para medir.
+      // The production build requires an address when the environment is a publishing one, and the CI
+      // marks itself as CI. Here the address is the local one, which is the right one for measuring.
       NEXT_PUBLIC_SITE_URL: "http://localhost:3200",
     },
   },

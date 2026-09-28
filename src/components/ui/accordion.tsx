@@ -67,10 +67,10 @@ function AccordionContent({
     >
       <div
         className={cn(
-          // Sem altura presa aqui. A altura em `--radix-accordion-content-height` pertence aos quadros da
-          // animação, e usá-la como altura de repouso corta o texto: o pai tem `overflow-hidden`, então toda
-          // resposta mais alta que o valor medido perde o fim. Foi o defeito relatado nas perguntas 1, 4 e 5,
-          // que são as respostas mais longas, e ele apareceu quando a fonte mudou e o texto ficou mais alto.
+          // No fixed height here. The height in `--radix-accordion-content-height` belongs to the frames of the
+          // animation, and using it as a resting height cuts the text: the parent has `overflow-hidden`, so every
+          // answer taller than the measured value loses its end. It was the defect reported in questions 1, 4 and 5,
+          // which are the longest answers, and it appeared when the font changed and the text became taller.
           "pt-0 pb-md [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
           className
         )}

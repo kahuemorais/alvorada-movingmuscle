@@ -1,38 +1,38 @@
 import { Button } from "@/components/ui/button";
 import type { City } from "@/lib/city";
-import { IconeTelefoneVazado } from "@/components/icons";
+import { OutlinePhoneIcon } from "@/components/icons";
 
-// Sexto bloco: a chamada final. Repete a acao do topo porque quem chegou ate aqui ja simulou, e o
-// proximo passo agora e uma visita tecnica. O aviso do incentivo estadual fica aqui, onde ele nao
-// contamina a conta do simulador.
+// Sixth block: the final call. It repeats the action of the top because whoever got here has already simulated, and the
+// next step now is a technical visit. The notice of the state incentive stays here, where it does not
+// contaminate the simulator bill.
 //
-// O cliente disse que a pagina estava parada. A sobrancelha em cima do titulo continua, e o veu em gradiente da
-// cor de acao (`veu-acao`) e a base da faixa. A marca d'agua do sol que sangrava no canto saiu,
-// junto com o brilho de canto (`brilho-sol`): a faixa passou a ter a foto dos paineis no deserto com o veu em cima,
-// e os dois enfeites de tinta ficavam competindo com ela no mesmo canto.
+// The client said the page was standing still. The eyebrow above the title stays, and the gradient veil of the
+// action color (`action-veil`) is the base of the band. The sun watermark that bled in the corner left,
+// together with the corner glow (`sun-glow`): the band came to have the photo of the panels in the desert with the veil over it,
+// and the two ink ornaments were competing with it in the same corner.
 export default function FinalCta({ city }: { city: City }) {
   return (
-    // Âncora desta seção, porque o item Call do menu leva aqui: é aqui que a visita é agendada, e o
-    // telefone da distribuidora está escrito logo abaixo do convite.
-    // Faixa 5: a cor de ação cheia, agora na largura da janela e sem canto — o canto arredondado saiu com a
-    // faixa, porque bloco arredondado sangrando nas duas pontas lê como defeito de recorte (a regra que a
-    // abertura já segue). O respiro de baixo reserva a barra fixa do celular mais a área segura, já que a
-    // cor chega até o fim do documento.
+    // Anchor of this section, because the Call item of the menu leads here: this is where the visit is scheduled, and the
+    // phone of the utility is written right below the invite.
+    // Band 5: the full action color, now at the window width and with no corner: the rounded corner left with the
+    // band, because a rounded block bleeding at both ends reads as a cutting defect (the rule the
+    // opening already follows). The bottom padding reserves the mobile fixed bar plus the safe area, since the
+    // color reaches the end of the document.
     <section
-      id="agendar"
+      id="book"
       aria-labelledby="final-cta-title"
-      className="veu-acao relative w-full overflow-hidden bg-primary py-xxl pb-[calc(var(--spacing-xxl)_+_var(--spacing-lg)_+_env(safe-area-inset-bottom))] sm:pb-[calc(var(--spacing-xxl)_+_var(--spacing-lg))]"
+      className="action-veil relative w-full overflow-hidden bg-primary py-xxl pb-[calc(var(--spacing-xxl)_+_var(--spacing-lg)_+_env(safe-area-inset-bottom))] sm:pb-[calc(var(--spacing-xxl)_+_var(--spacing-lg))]"
     >
-      {/* A foto no fundo e o véu por cima: o véu do fecho é o mesmo desenho da abertura, com o alfa mais leve
-          (`.veu-foto-fecho`, medido), porque o deserto ficava apagado atrás do véu da abertura, e a foto
-          precisa aparecer. A cor de ação continua sendo a base da faixa — se o arquivo não carregar, a faixa fica na cor de
-          ação com o gradiente do `veu-acao`, sem ficar sem fundo. Com foto atrás, o texto da faixa é o claro, que é o
-          par que o véu garante: as três peças medidas ficam entre 4,9 e 7,8 nos dois tamanhos. */}
-      <div aria-hidden className="fundo-fecho pointer-events-none absolute inset-0" />
-      <div aria-hidden className="veu-foto-fecho pointer-events-none absolute inset-0" />
+      {/* The photo in the background and the veil on top: the veil of the close is the same design as the opening, with the lighter alpha
+          (`.closing-photo-veil`, measured), because the desert came out faded behind the veil of the opening, and the photo
+          has to appear. The action color keeps being the base of the band: if the file does not load, the band stays in the action
+          color with the gradient of `action-veil`, without ending up with no background. With a photo behind, the text of the band is the light one, which is the
+          pair the veil guarantees: the three measured pieces stay between 4,9 and 7,8 in both sizes. */}
+      <div aria-hidden className="closing-background pointer-events-none absolute inset-0" />
+      <div aria-hidden className="closing-photo-veil pointer-events-none absolute inset-0" />
 
-      {/* A marca d'água e o brilho de canto que ficavam aqui saíram. A foto, o véu, o texto e o
-          botão ficam como estavam. */}
+      {/* The watermark and the corner glow that were here have left. The photo, the veil, the text and the
+          button stay as they were. */}
 
       <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-md px-lg">
         <p className="flex items-center gap-sm type-label text-canvas">
@@ -47,12 +47,12 @@ export default function FinalCta({ city }: { city: City }) {
           the number you just saw. The visit costs nothing and does not commit you to anything.
         </p>
         <div className="flex flex-wrap items-center gap-md">
-          {/* Sobre o véu escuro o botão volta a ser o claro da cor de ação, com o texto em tinta: era o escuro
-              enquanto o fundo era a cor de ação cheia, porque botão da cor de ação sobre cor de ação desaparece.
-              Com a foto e o véu, o botão de ação é o que identifica a ação. */}
+          {/* Over the dark veil the button is again the light one of the action color, with the text in ink: it was the dark one
+              while the background was the full action color, because a button of the action color over the action color disappears.
+              With the photo and the veil, the action button is what identifies the action. */}
           <Button asChild size="lg">
             <a href={`tel:${city.phone.replace(/[^0-9+]/g, "")}`}>
-              <IconeTelefoneVazado />
+              <OutlinePhoneIcon />
               Call {city.phone}
             </a>
           </Button>

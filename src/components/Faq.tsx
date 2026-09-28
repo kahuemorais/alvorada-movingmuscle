@@ -6,17 +6,17 @@ import {
 } from "@/components/ui/accordion";
 import type { City } from "@/lib/city";
 
-// Quinto bloco: as perguntas do arquivo da cidade, uma por item. O acordeao do shadcn ja entrega
-// papel, foco e aria-expanded, e o texto sai do dado, entao pergunta nova entra sem tocar no codigo.
+// Fifth block: the questions of the city file, one per item. The shadcn accordion already delivers
+// role, focus and aria-expanded, and the text comes from the data, so a new question comes in without touching code.
 //
-// O desenho e mais chamativo do que o padrao da biblioteca: cada pergunta e uma linha propria, com
-// fundo e borda, a pergunta em Title Large (22 px) e o indicador com a cor de acao. Antes eram seis
-// linhas de 16 px separadas por fio, e a pessoa nao via que dava para abrir.
+// The design is more striking than the library default: each question is a row of its own, with
+// background and border, the question in Title Large (22 px) and the indicator in the action color. Before they were six
+// 16 px rows separated by a hairline, and the person did not see that it could be opened.
 export default function Faq({ city }: { city: City }) {
   return (
-    // Faixa 4: a cor de ação a 12%, a faixa clara que separa as duas últimas seções e leva ao fecho. O conteúdo
-    // continua na coluna de 64 rem; a coluna do título cresceu de 16 para 22 rem,
-    // porque em 16 rem o título de quatro palavras quebrava em quatro linhas.
+    // Band 4: the action color at 12%, the light band that separates the last two sections and leads to the close. The content
+    // stays in the 64 rem column; the title column grew from 16 to 22 rem,
+    // because at 16 rem the four-word title broke into four lines.
     <section
       id="faq"
       aria-labelledby="faq-title"
@@ -33,10 +33,10 @@ export default function Faq({ city }: { city: City }) {
         </h2>
       </div>
       <Accordion type="single" collapsible className="flex w-full flex-col gap-sm">
-        {city.faq.map((item, indice) => (
+        {city.faq.map((item, index) => (
           <AccordionItem
             key={item.q}
-            value={`item-${indice}`}
+            value={`item-${index}`}
             className="rounded-lg border border-outline bg-surface px-lg transition-colors data-[state=open]:border-primary"
           >
             <AccordionTrigger className="min-h-touch items-center py-md text-left type-lead text-ink no-underline hover:no-underline **:data-[slot=accordion-trigger-icon]:size-6 **:data-[slot=accordion-trigger-icon]:text-primary">

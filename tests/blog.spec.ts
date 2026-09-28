@@ -1,32 +1,32 @@
 import { expect, test } from "@playwright/test";
 
-// O blog ganhou enfeite: faixa com a foto da abertura no índice, tempo de leitura calculado do
-// corpo, primeiro cartão em destaque e seções numeradas no texto. Cada um destes testes prende uma dessas
-// decisões, e sem eles a próxima mexida no visual derruba o enfeite e nada avisa.
+// The blog gained decoration: a band with the opening photo on the index, reading time calculated from the
+// body, the first card featured and numbered sections in the text. Each of these tests pins one of those
+// decisions, and without them the next touch on the visual drops the decoration and nothing warns.
 
-const INDICE = "/blog";
-const TEXTO = "/blog/how-to-read-your-solar-estimate";
+const INDEX = "/blog";
+const TEXT = "/blog/how-to-read-your-solar-estimate";
 
-test("o índice abre com a faixa da foto, e o texto claro lê sobre os pixels", async ({ page }) => {
-  // A faixa reusa a foto e o véu da abertura da página de cidade, mas o recorte é outro: a faixa é baixa, então o
-  // texto pega a parte clara da foto. Por isso a medida é sobre os PIXELS, e não sobre uma cor de fundo que aqui
-  // não existe — e por isso ela é feita nas duas larguras, porque o recorte muda com a largura.
-  for (const largura of [
+test("the index opens with the photo band, and the light text reads over the pixels", async ({ page }) => {
+  // The band reuses the photo and the veil of the city page opening, but the crop is another one: the band is low, so the
+  // text lands on the light part of the photo. That is why the measurement is over the PIXELS, and not over a background color that does not
+  // exist here, and why it is made at both widths, because the crop changes with the width.
+  for (const width of [
     { width: 1280, height: 900 },
     { width: 393, height: 852 },
   ]) {
-    await page.setViewportSize(largura);
-    await page.goto(INDICE);
+    await page.setViewportSize(width);
+    await page.goto(INDEX);
     await page.waitForTimeout(500);
-    const foto = (await page.screenshot()).toString("base64");
-    const medidas = await page.evaluate(async ({ foto }) => {
+    const photo = (await page.screenshot()).toString("base64");
+    const measures = await page.evaluate(async ({ photo }) => {
       const linear = (v: number) => {
         const s = v / 255;
         return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
       };
-      const lumDe = (r: number, g: number, b: number) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+      const luminanceOf = (r: number, g: number, b: number) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
       const img = new Image();
-      img.src = "data:image/png;base64," + foto;
+      img.src = "data:image/png;base64," + photo;
       await img.decode();
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -45,96 +45,96 @@ test("o índice abre com a faixa da foto, e o texto claro lê sobre os pixels", 
           b += d[i + 2];
           n++;
         }
-        return lumDe(r / n, g / n, b / n);
+        return luminanceOf(r / n, g / n, b / n);
       };
-      const corDe = (el: Element) => {
+      const colorOf = (el: Element) => {
         const s = document.createElement("canvas").getContext("2d")!;
         s.fillStyle = "#ffffff";
         s.fillRect(0, 0, 1, 1);
         s.fillStyle = getComputedStyle(el).color;
         s.fillRect(0, 0, 1, 1);
         const d = s.getImageData(0, 0, 1, 1).data;
-        return lumDe(d[0], d[1], d[2]);
+        return luminanceOf(d[0], d[1], d[2]);
       };
-      const cabecalho = document.querySelector("main header")!;
-      const caixa = cabecalho.getBoundingClientRect();
-      const saida: Record<string, number> = {};
+      const header = document.querySelector("main header")!;
+      const box = header.getBoundingClientRect();
+      const output: Record<string, number> = {};
       const alvos: [string, string][] = [
-        ["titulo", "h1"],
+        ["title", "h1"],
         ["frase", "p.type-body"],
       ];
-      for (const [chave, seletor] of alvos) {
-        const el = cabecalho.querySelector(seletor);
+      for (const [key, seletor] of alvos) {
+        const el = header.querySelector(seletor);
         if (!el) continue;
         const c = el.getBoundingClientRect();
-        // A amostra sai da área de respiro ao lado do texto, que é o que o texto teria atrás se ele não existisse.
-        const x = Math.max(Math.min(Math.round(c.right + 16), Math.round(caixa.right - 30)), 2);
-        const fundo = media(x, Math.round(c.y + c.height / 2 - 6), 16, 12);
-        const [alto, baixo] = [fundo, corDe(el)].sort((a, z) => z - a);
-        saida[chave] = Math.round(((alto + 0.05) / (baixo + 0.05)) * 100) / 100;
+        // The sample comes from the breathing area next to the text, which is what the text would have behind it if it did not exist.
+        const x = Math.max(Math.min(Math.round(c.right + 16), Math.round(box.right - 30)), 2);
+        const background = media(x, Math.round(c.y + c.height / 2 - 6), 16, 12);
+        const [high, low] = [background, colorOf(el)].sort((a, z) => z - a);
+        output[key] = Math.round(((high + 0.05) / (low + 0.05)) * 100) / 100;
       }
-      return saida;
-    }, { foto });
-    expect(medidas.titulo, `título em ${largura.width}px mediu ${medidas.titulo}`).toBeGreaterThanOrEqual(4.5);
-    expect(medidas.frase, `frase em ${largura.width}px mediu ${medidas.frase}`).toBeGreaterThanOrEqual(4.5);
+      return output;
+    }, { photo });
+    expect(measures.title, `title at ${width.width}px measured ${measures.title}`).toBeGreaterThanOrEqual(4.5);
+    expect(measures.frase, `phrase at ${width.width}px measured ${measures.frase}`).toBeGreaterThanOrEqual(4.5);
   }
 });
 
-test("o primeiro cartão do índice ocupa as duas colunas, e os outros não", async ({ page }) => {
+test("the first card of the index takes the two columns, and the others do not", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(INDICE);
+  await page.goto(INDEX);
   await page.waitForTimeout(400);
-  const larguras = await page.locator("main ul li").evaluateAll((cartoes) =>
-    cartoes.map((c) => Math.round(c.getBoundingClientRect().width)),
+  const widths = await page.locator("main ul li").evaluateAll((cards) =>
+    cards.map((c) => Math.round(c.getBoundingClientRect().width)),
   );
-  expect(larguras.length).toBeGreaterThan(1);
-  // Em duas colunas, o destacado ocupa a linha inteira: a largura dele é o dobro da dos vizinhos, e não um
-  // número escrito no teste — assim a asserção continua valendo se a grade mudar de largura.
-  expect(larguras[0]).toBeGreaterThan(larguras[1] * 1.8);
-  for (const largura of larguras.slice(1)) expect(largura).toBeCloseTo(larguras[1], -1);
+  expect(widths.length).toBeGreaterThan(1);
+  // In two columns, the featured one takes the whole row: its width is double that of the neighbors, and not a
+  // number written in the test, so the assertion keeps holding if the grid changes width.
+  expect(widths[0]).toBeGreaterThan(widths[1] * 1.8);
+  for (const width of widths.slice(1)) expect(width).toBeCloseTo(widths[1], -1);
 });
 
-test("cada cartão mostra o tempo de leitura, calculado do texto", async ({ page }) => {
-  // O tempo é conta, e não texto escrito à mão: o que este teste prende é que ele chega à tela com o ícone, e
-  // que não é sempre o mesmo número — constante passaria por qualquer verificação de formato.
-  await page.goto(INDICE);
-  const leituras = await page.locator("main ul li").evaluateAll((cartoes) =>
-    cartoes.map((c) => {
-      const linha = [...c.querySelectorAll("p")].find((p) => /min read/.test(p.textContent ?? ""));
+test("each card shows the reading time, calculated from the text", async ({ page }) => {
+  // The time is a computation, and not hand-written text: what this test pins is that it reaches the screen with the icon, and
+  // that it is not always the same number, because a constant would pass any format check.
+  await page.goto(INDEX);
+  const readings = await page.locator("main ul li").evaluateAll((cards) =>
+    cards.map((c) => {
+      const line = [...c.querySelectorAll("p")].find((p) => /min read/.test(p.textContent ?? ""));
       return {
-        texto: linha?.textContent?.trim() ?? "",
-        temIcone: Boolean(linha?.querySelector("svg")),
+        text: line?.textContent?.trim() ?? "",
+        hasIcon: Boolean(line?.querySelector("svg")),
       };
     }),
   );
-  expect(leituras.length).toBeGreaterThan(1);
-  for (const leitura of leituras) {
-    expect(leitura.texto, `cartão sem tempo de leitura: ${leitura.texto}`).toMatch(/\d+ min read/);
-    expect(leitura.temIcone, `tempo de leitura sem ícone: ${leitura.texto}`).toBe(true);
+  expect(readings.length).toBeGreaterThan(1);
+  for (const reading of readings) {
+    expect(reading.text, `card with no reading time: ${reading.text}`).toMatch(/\d+ min read/);
+    expect(reading.hasIcon, `reading time with no icon: ${reading.text}`).toBe(true);
   }
-  const numeros = leituras.map((l) => Number(l.texto.match(/(\d+) min/)![1]));
-  expect(new Set(numeros).size).toBeGreaterThan(1);
+  const numbers = readings.map((l) => Number(l.text.match(/(\d+) min/)![1]));
+  expect(new Set(numbers).size).toBeGreaterThan(1);
 });
 
-test("as seções do texto são numeradas, na ordem em que aparecem", async ({ page }) => {
-  await page.goto(TEXTO);
-  const medicoes = await page.locator("article h2").evaluateAll((titulos) => {
-    const numerados = titulos
-      .map((titulo) => {
-        const circulo = titulo.querySelector("span");
+test("the sections of the text are numbered, in the order they appear", async ({ page }) => {
+  await page.goto(TEXT);
+  const measurements = await page.locator("article h2").evaluateAll((titles) => {
+    const numerados = titles
+      .map((title) => {
+        const circulo = title.querySelector("span");
         if (!circulo) return null;
         const c = circulo.getBoundingClientRect();
-        const t = titulo.getBoundingClientRect();
-        // O texto do título é um nó de texto ao lado do círculo, então a posição dele sai de um Range: comparar
-        // com a borda do próprio h2 não diria nada, porque o círculo está DENTRO dele e as duas esquerdas
-        // coincidem por construção.
-        const noDeTexto = [...titulo.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? "").trim());
+        const t = title.getBoundingClientRect();
+        // The title text is a text node next to the circle, so its position comes from a Range: comparing
+        // with the edge of the h2 itself would say nothing, because the circle is INSIDE it and the two lefts
+        // coincide by construction.
+        const postNode = [...title.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? "").trim());
         const alcance = document.createRange();
-        if (noDeTexto) alcance.selectNodeContents(noDeTexto);
-        const texto = alcance.getBoundingClientRect();
-        const estilo = getComputedStyle(circulo);
-        const luminancia = (cor: string) => {
-          const canais = cor.match(/\d+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0];
+        if (postNode) alcance.selectNodeContents(postNode);
+        const text = alcance.getBoundingClientRect();
+        const style = getComputedStyle(circulo);
+        const luminancia = (color: string) => {
+          const canais = color.match(/\d+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0];
           const linear = (v: number) => {
             const s = v / 255;
             return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
@@ -142,36 +142,36 @@ test("as seções do texto são numeradas, na ordem em que aparecem", async ({ p
           return 0.2126 * linear(canais[0]) + 0.7152 * linear(canais[1]) + 0.0722 * linear(canais[2]);
         };
         return {
-          numero: (circulo.textContent ?? "").trim(),
-          // O círculo fica na mesma linha do título e o texto começa depois dele.
+          number: (circulo.textContent ?? "").trim(),
+          // The circle sits on the same line as the title and the text starts after it.
           alinhado: Math.abs(c.top - t.top) < c.height,
-          textoDepoisDoCirculo: Boolean(noDeTexto) && texto.left >= c.right - 1,
+          textAfterCircle: Boolean(postNode) && text.left >= c.right - 1,
           redondo: Math.round(c.width) === Math.round(c.height),
-          // Fundo claro, número escuro e borda discreta. O primeiro desenho era círculo escuro
-          // com número dourado, e ficou pesado. Peso é julgamento, então o teste prende o que é medível: o
-          // fundo mais claro que o número, e uma borda visível mas da espessura de um fio.
-          fundoMaisClaroQueNumero: luminancia(estilo.backgroundColor) > luminancia(estilo.color),
-          temBorda: parseFloat(estilo.borderTopWidth) > 0 && estilo.borderTopStyle !== "none",
-          bordaDiscreta: parseFloat(estilo.borderTopWidth) <= 2,
+          // Light background, dark number and a discreet border. The first drawing was a dark circle
+          // with a golden number, and it came out heavy. Weight is judgment, so the test pins what is measurable: the
+          // background lighter than the number, and a border that is visible but the thickness of a thread.
+          backgroundLighterThanNumber: luminancia(style.backgroundColor) > luminancia(style.color),
+          hasBorder: parseFloat(style.borderTopWidth) > 0 && style.borderTopStyle !== "none",
+          bordaDiscreta: parseFloat(style.borderTopWidth) <= 2,
         };
       })
       .filter((n) => n !== null);
     return numerados;
   });
-  expect(medicoes.length).toBeGreaterThan(3);
-  medicoes.forEach((m, indice) => {
-    expect(m!.numero, `seção ${indice + 1} sem número`).toBe(String(indice + 1));
-    expect(m!.alinhado, `número da seção ${indice + 1} fora da linha do título`).toBe(true);
-    expect(m!.textoDepoisDoCirculo, `texto da seção ${indice + 1} não começa depois do número`).toBe(true);
-    expect(m!.redondo, `número da seção ${indice + 1} não está em círculo`).toBe(true);
-    expect(m!.fundoMaisClaroQueNumero, `número da seção ${indice + 1} não está escuro sobre fundo claro`).toBe(true);
-    expect(m!.temBorda, `número da seção ${indice + 1} sem borda`).toBe(true);
-    expect(m!.bordaDiscreta, `borda do número da seção ${indice + 1} grossa demais`).toBe(true);
+  expect(measurements.length).toBeGreaterThan(3);
+  measurements.forEach((m, index) => {
+    expect(m!.number, `section ${index + 1} with no number`).toBe(String(index + 1));
+    expect(m!.alinhado, `number of section ${index + 1} outside the title line`).toBe(true);
+    expect(m!.textAfterCircle, `text of section ${index + 1} does not start after the number`).toBe(true);
+    expect(m!.redondo, `number of section ${index + 1} is not in a circle`).toBe(true);
+    expect(m!.backgroundLighterThanNumber, `number of section ${index + 1} is not dark over a light background`).toBe(true);
+    expect(m!.hasBorder, `number of section ${index + 1} with no border`).toBe(true);
+    expect(m!.bordaDiscreta, `border of the number of section ${index + 1} too thick`).toBe(true);
   });
 });
 
-test("o tempo de leitura também aparece na linha de crédito do texto", async ({ page }) => {
-  await page.goto(TEXTO);
+test("the reading time also appears in the credit line of the text", async ({ page }) => {
+  await page.goto(TEXT);
   const credito = await page.locator("article header p").last().innerText();
   expect(credito).toMatch(/\d+ min read/);
   expect(credito).toContain("Published");

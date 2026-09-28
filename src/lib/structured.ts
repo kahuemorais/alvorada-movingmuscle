@@ -1,19 +1,19 @@
 import type { City } from "./city";
-import { cidadeNoSite } from "./urls";
+import { cityPageUrl } from "./urls";
 
-// JSON-LD da pagina. Dois nos: o servico com o prestador e o endereco atendido, que e o que descreve
-// a pagina, e o FAQPage, porque metade da visita vem de busca e de assistente de IA, e as perguntas
-// precisam estar em dado estruturado. Os valores saem do arquivo da cidade, nunca escritos aqui.
-type No = Record<string, unknown>;
+// JSON-LD of the page. Two nodes: the service with the provider and the served address, which is what describes
+// the page, and the FAQPage, because half of the visit comes from search and from AI assistants, and the questions
+// need to be in structured data. The values come from the city file, never written here.
+type Node = Record<string, unknown>;
 
-// Endereço declarado no dado estruturado, pelo mesmo compositor do canônico. Existe como função exposta
-// para o teste conferir o endereço sem montar o objeto inteiro, e para o formato ficar em um lugar só.
-export function urlDoSchema(city: City, site: string): string {
-  return cidadeNoSite(site, city.slug);
+// Address declared in the structured data, through the same composer as the canonical. It exists as an exposed function
+// so the test checks the address without building the whole object, and so the format stays in a single place.
+export function schemaUrl(city: City, site: string): string {
+  return cityPageUrl(site, city.slug);
 }
 
-export function graphSchema(city: City, site: string): { "@context": string; "@graph": No[] } {
-  const url = urlDoSchema(city, site);
+export function graphSchema(city: City, site: string): { "@context": string; "@graph": Node[] } {
+  const url = schemaUrl(city, site);
 
   return {
     "@context": "https://schema.org",

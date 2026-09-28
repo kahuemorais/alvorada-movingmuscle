@@ -1,153 +1,154 @@
-# Brightfield Solar: página de cidade
+# Brightfield Solar: city page
 
-Next.js com App Router, uma página por cidade, gerada a partir de um arquivo de dados. O mesmo modelo serve
-uma rede de cerca de 120 cidades: publicar a próxima é soltar o arquivo dela e refazer o build.
+Next.js with App Router, one page per city, generated from a data file. The same model serves a network of
+roughly 120 cities: publishing the next one means dropping its file and rebuilding.
 
-- **Página publicada:** https://alvorada-chi.vercel.app
-- **Uma página por cidade:** `src/data/cities/<slug>.json`
+- **Published page:** https://alvorada-chi.vercel.app
+- **One page per city:** `src/data/cities/<slug>.json`
 
-## Como rodar
+## Running it
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:3000, redireciona para a cidade publicada
+pnpm dev        # http://localhost:3000, redirects to the published city
 ```
 
-Outros comandos:
+Other commands:
 
 ```bash
-pnpm build      # build de produção
-pnpm start      # serve o build
-pnpm test       # testes de unidade: cálculo, dados, dados estruturados, analytics e formatação
-pnpm lint       # eslint, incluindo as regras de hooks do React
-pnpm design     # confere DESIGN.md contra o tema e imprime a tabela de contraste
-pnpm navegacao  # medidas no navegador: navegação, simulador, prova social e acabamento
-pnpm seguranca  # varredura de dependência, segredo e padrão inseguro
-pnpm verify     # tudo acima, nesta ordem, parando no primeiro que falhar
+pnpm build       # production build
+pnpm start       # serves the build
+pnpm test        # unit tests: calculation, data, structured data, analytics and formatting
+pnpm lint        # eslint, including the React hooks rules
+pnpm design      # checks DESIGN.md against the theme and prints the contrast table
+pnpm navigation  # browser measurements: navigation, simulator, social proof and finish
+pnpm security    # dependency, secret and insecure pattern sweep
+pnpm verify      # all of the above, in this order, stopping at the first failure
 ```
 
-`pnpm verify` é o portão de cada mudança. Instalação, testes e build também foram conferidos em clone limpo
-(`git clone`, `pnpm install --frozen-lockfile`, `pnpm test`, `pnpm build`), que é o caminho de quem clona.
+`pnpm verify` is the gate for every change. Install, tests and build were also checked in a clean clone
+(`git clone`, `pnpm install --frozen-lockfile`, `pnpm test`, `pnpm build`), which is the path someone
+cloning will take.
 
-## O que a página tem
+## What the page has
 
-Seis blocos, nesta ordem:
+Six blocks, in this order:
 
-1. Abertura de largura toda, em coluna centrada sobre a foto dos instaladores no telhado (com véu de tinta
-   para o texto ler) e a marca dentro dela no celular: proposta, uma ação, e a faixa com instalações
-   concluídas, nota média e equipes da cidade
-2. Simulador de economia, que é o bloco que faz a pessoa pedir a visita técnica
-3. Como a instalação acontece, em três passos, com a licença média da cidade vinda do dado
-4. Prova social: depoimentos com bairro e data, equipes com volume e nota, e um bloco que diz quais são os
-   bairros onde as equipes trabalham e para que a lista serve
-5. Perguntas frequentes, uma por item do arquivo da cidade
-6. Chamada final, com o telefone e o aviso do incentivo estadual, que fica fora da conta
+1. Full width opening, a centered column over the photo of the installers on the roof (with an ink veil so
+   the text reads) and the brand inside it on mobile: the promise, one action, and the strip with completed
+   installs, average rating and crews in the city
+2. Savings simulator, which is the block that makes the visitor book the site visit
+3. How the installation happens, in three steps, with the average permit time coming from the data
+4. Social proof: testimonials with neighborhood and date, crews with volume and rating, and a block that
+   says which neighborhoods the crews work in and what the list is for
+5. Frequently asked questions, one per item in the city file
+6. Closing call, with the phone number and the note about the state incentive, which stays out of the math
 
-O simulador recebe a conta de luz e a cobertura desejada, mostra painéis, investimento depois do crédito
-federal, economia mensal e retorno, e explica na tela quando uma das três regras entra em ação: painel é
-unidade inteira, a cidade tem mínimo de instalações, e a economia para no tamanho da conta porque o
-excedente vira crédito na distribuidora e não dinheiro de volta.
+The simulator takes the power bill and the coverage the visitor wants, shows panels, investment after the
+federal credit, monthly savings and payback, and explains on screen when one of the three rules applies: a
+panel is a whole unit, the city has a minimum number of panels per installation, and savings stop at the
+size of the bill because the surplus becomes bill credit with the utility and not money back.
 
-## Estrutura
+## Structure
 
 ```
-src/app/[city]/page.tsx               rota por cidade, com generateStaticParams lendo a pasta de dados
-src/app/[city]/opengraph-image.tsx    card 1200x630 do compartilhamento, gerado no build
-src/app/blog/page.tsx                 índice do blog, um card por guia, gerado no build
-src/app/blog/[slug]/page.tsx          rota por guia, com as fontes e os três guias seguintes
-src/app/page.tsx                      raiz redirecionando para a primeira cidade publicada
-src/data/cities/*.json                TODO o conteúdo que muda de cidade
-src/content/blog/*.md                 os guias do blog, com o cabeçalho em JSON entre as cercas
-src/lib/city.ts                       tipo City e leitura dos arquivos
-src/lib/solar.ts                      cálculo do sistema, função pura, sem React
-src/lib/blog.ts                       leitura e validação dos guias, no mesmo desenho do city.ts
-src/lib/analytics.ts                  evento de simulação com a origem da campanha
-src/lib/structured.ts                 JSON-LD (Service e FAQPage)
-src/components/                       os seis blocos da página
-src/components/BlogCard.tsx           o card do guia, usado no índice e no fecho do texto
-src/components/ui/                    componentes do shadcn, versionados e editáveis
-DESIGN.md                             tokens e regras de design, fonte única de cor, tipo, raio e espaço
-AGENTS.md                             guia para agente de código que mexa no repositório
+src/app/[city]/page.tsx               route per city, with generateStaticParams reading the data folder
+src/app/[city]/opengraph-image.tsx    1200x630 share card, generated at build time
+src/app/blog/page.tsx                 blog index, one card per guide, generated at build time
+src/app/blog/[slug]/page.tsx          route per guide, with the sources and the next three guides
+src/app/page.tsx                      root redirecting to the first published city
+src/data/cities/*.json                EVERYTHING that changes from city to city
+src/content/blog/*.md                 the blog guides, with a JSON header between the fences
+src/lib/city.ts                       City type and reading of the city files
+src/lib/solar.ts                      system calculation, pure function, no React
+src/lib/blog.ts                       reading and validation of the guides, same shape as city.ts
+src/lib/analytics.ts                  simulation event with the campaign origin
+src/lib/structured.ts                 JSON-LD (Service and FAQPage)
+src/components/                       the six blocks of the page
+src/components/BlogCard.tsx           the guide card, used in the index and at the end of a guide
+src/components/ui/                    shadcn components, versioned and editable
+DESIGN.md                             tokens and design rules, single source for color, type, radius, space
+AGENTS.md                             guide for a code agent working in the repository
 ```
 
-## Como trocar ou acrescentar cidade
+## Swapping or adding a city
 
-Solte `src/data/cities/<slug>.json` com o mesmo formato de `phoenix-az.json` e rode o build. A rota, o
-título, a descrição, o canonical, o card de compartilhamento, o JSON-LD, a conta e todos os textos da
-página saem do arquivo. Nenhuma linha de código muda, e é para isso que a estrutura foi feita.
+Drop `src/data/cities/<slug>.json` with the same shape as `phoenix-az.json` and run the build. The route,
+the title, the description, the canonical, the share card, the JSON-LD, the math and every text on the page
+come from that file. No line of code changes, and that is what the structure is for.
 
-## Como a conta é feita
+## How the math works
 
-- `src/lib/solar.ts` é função pura, sem React, e é o que os testes exercitam.
-- As três regras do cálculo têm teste próprio em `src/lib/aceitacao.test.ts`, com estado explícito nas duas
-  entradas (conta e cobertura): painel é unidade inteira e arredonda para cima, cada cidade tem um mínimo de
-  painéis por instalação, e a economia mensal nunca passa do valor da conta.
-- Todo número que muda de cidade sai de `src/data/cities/<slug>.json`: tarifa, horas de sol pleno, potência
-  do painel, fator de desempenho, custo por watt instalado, mínimo de painéis e alíquota do crédito federal.
-  Constante no componente existe só para os trilhos de entrada dos controles, nomeada e com o motivo ao lado.
-- O estado da simulação vive na URL (`?bill=220&coverage=80`), então o endereço enviado por mensagem abre a
-  mesma conta, e não a página em branco. Escolher um perfil de residência preenche a conta típica e não mexe
-  na cobertura escolhida, que só muda se a pessoa mexer nela.
+- `src/lib/solar.ts` is a pure function, no React, and it is what the tests exercise.
+- The three rules of the calculation have their own test in `src/lib/aceitacao.test.ts`, with explicit state
+  on both inputs (bill and coverage): a panel is a whole unit and rounds up, every city has a minimum number
+  of panels per installation, and monthly savings never exceed the bill.
+- Every number that changes from city to city comes from `src/data/cities/<slug>.json`: rate, peak sun
+  hours, panel watts, performance ratio, cost per watt installed, minimum panels and federal credit rate. A
+  constant inside a component exists only for the input rails of the controls, named, with the reason next
+  to it.
+- The simulator state lives in the URL (`?bill=220&coverage=80`), so the address sent over a message opens
+  the same estimate and not an empty page. Picking a household profile fills the typical bill and does not
+  touch the chosen coverage, which only changes when the visitor changes it.
 
 ## Analytics
 
-Um evento por simulação concluída, com a origem da campanha capturada uma vez, na primeira renderização, e os
-números simulados. É o que responde, na segunda-feira, quais anúncios geraram simulação de economia. O módulo
-tem teste de unidade, e o caminho completo, com a campanha entrando pela URL, tem teste de navegação.
+One event per completed simulation, with the campaign origin captured once, on the first render, and the
+simulated numbers. It is what answers, on Monday, which ads generated a savings simulation. The module has a
+unit test, and the full path, with the campaign arriving in the URL, has a browser test.
 
-## Regras de design
+## Design rules
 
-`DESIGN.md`, na especificação aberta do Google, é a fonte de cor, tipografia, raio e espaçamento, e o
-`@theme` do `globals.css` é gerado dele:
+`DESIGN.md`, in Google's open specification, is the source for color, typography, radius and spacing, and
+the `@theme` in `globals.css` is generated from it:
 
 ```bash
-npx -y @google/design.md lint DESIGN.md                          # zero erro, zero aviso
-npx -y @google/design.md export --format css-tailwind DESIGN.md  # gera o bloco @theme
+npx -y @google/design.md lint DESIGN.md                          # zero error, zero warning
+npx -y @google/design.md export --format css-tailwind DESIGN.md  # generates the @theme block
 ```
 
-Os nomes semânticos do shadcn apontam para esses tokens, então nenhuma cor nasce no componente. Quem confere
-isso é `pnpm design`: ele compara as cores, os degraus de tipo, os pesos e os cantos do `DESIGN.md` com o
-`@theme`, reprova cor escrita em hexadecimal dentro de componente e imprime a tabela de contraste de todo par
-de cor usado, com o mínimo do Material Design (4,5 para 1 em texto pequeno, 3 para 1 em limite de componente).
-Os números de hoje: tinta sobre o fundo 16,47, tinta sobre o branco 17,80, apoio 6,27, economia 5,32, tinta
-sobre a cor de ação 6,77 e limite 3,96. A cor de ação sobre o branco mede 2,63 e por isso não é usada como
-texto.
+The shadcn semantic names point at those tokens, so no color is born inside a component. `pnpm design` is
+what checks that: it compares the colors, type steps, weights and corners in `DESIGN.md` with the `@theme`,
+fails any hex color written inside a component, and prints the contrast table of every color pair in use,
+with the Material Design minimum (4.5 to 1 for small text, 3 to 1 for a component boundary). Today's
+numbers: ink over canvas 16.47, ink over white 17.80, support 6.27, savings 5.32, ink over the action color
+6.77 and outline 3.96. The action color over white measures 2.63, which is why it is not used as text.
 
-A escala de tipo e de canto veio do sistema do Zapier, escolhido entre cinquenta e quatro por ser o mais
-denso em chamada para ação e o mais próximo em temperatura da marca. O que o `DESIGN.md` declara hoje: H1 em
-56 px de peso 600 com entrelinha 0,95, número de resultado em 48 px de peso 500, título de seção em 40 px de
-peso 500, corpo em 16 px e rótulo em 14 px. Canto em 4, 6, 8 e 14, alvo de toque de 48 px em tudo que é
-clicável, espaço na grade de 4 px, e as classes de janela do Material (600, 840, 1200 e 1600 px) no lugar dos
-breakpoints padrão do Tailwind. Uma medida de texto só, de 40 rem, para a página inteira. A paleta não veio do
-Zapier: laranja de sol, verde de economia e fundo quente são da Brightfield.
+The type and corner scale came from the Zapier system, picked out of fifty four for being the densest in
+calls to action and the closest in temperature to the brand. What `DESIGN.md` declares today: H1 at 56 px
+weight 600 with 0.95 line height, result number at 48 px weight 500, section title at 40 px weight 500, body
+at 16 px and label at 14 px. Corners at 4, 6, 8 and 14, a 48 px touch target on everything clickable, a 4 px
+spacing grid, and the Material window classes (600, 840, 1200 and 1600 px) in place of the Tailwind default
+breakpoints. A single text measure of 40 rem for the whole page. The palette did not come from Zapier: sun
+orange, savings green and a warm background belong to Brightfield.
 
-Um defeito que a conferência do tema revelou: o H1 saía com peso 400 em vez do peso declarado. O export do
-`DESIGN.md` gera um nome de família e um de peso por degrau de tipo, e os dois caíam na mesma classe do
-Tailwind, então um anulava o outro. A família passou a ser declarada uma vez, no `--font-sans`.
+One defect the theme check revealed: the H1 rendered at weight 400 instead of the declared weight. The
+`DESIGN.md` export generates one family name and one weight name per type step, and both landed in the same
+Tailwind class, so one cancelled the other. The family is now declared once, in `--font-sans`.
 
-O texto da página segue regras de forma medidas: zero travessão e zero exclamação, zero adjetivo vazio, uma
-chamada por bloco com verbo mais o que a pessoa leva, e número verificável no lugar de promessa. O `title` e a
-`description` foram medidos e ajustados ao alvo (51 e 152 caracteres). O texto do FAQ, dos depoimentos e dos
-perfis vem do arquivo da cidade, e não da copy de interface.
+The page text follows measured form rules: no em dash and no exclamation mark, no empty adjective, one call
+per block with a verb plus what the visitor gets, and a verifiable number instead of a promise. The `title`
+and the `description` were measured and tuned to target (51 and 152 characters). The FAQ, testimonial and
+profile text comes from the city file, not from interface copy.
 
-## Acessibilidade e segurança
+## Accessibility and security
 
-- O simulador é operável só pelo teclado, do primeiro controle ao último, conferido em 375 e em 1280 px,
-  junto de `axe-core` nas duas larguras: zero violação.
-- Os cabeçalhos de segurança são dado, em `src/lib/security-headers.ts`, com teste que reprova quem afrouxar
-  a política sem perceber.
-- Nenhum dado de visitante sai da página antes de a pessoa pedir a visita.
+- The simulator is operable by keyboard alone, from the first control to the last, checked at 375 and at
+  1280 px, together with `axe-core` at both widths: zero violations.
+- The security headers are data, in `src/lib/security-headers.ts`, with a test that fails whoever loosens
+  the policy without noticing.
+- No visitor data leaves the page before the visitor asks for the site visit.
 
-## O que falta
+## What is missing
 
-- **Mais cidades de exemplo.** Hoje existe um arquivo de cidade, o de Phoenix. Um segundo arquivo com números
-  diferentes é o teste que prova que nada de Phoenix está escrito no código.
-- **Imagens das equipes.** Hoje são as iniciais do nome, para não afirmar que uma pessoa existe; com
-  liberação de uso de imagem, viram foto.
-- **Peso da página: 276 KB com gzip**, de 813 KB crus, medidos nos dez arquivos que o HTML da página carrega
-  de verdade, e não no tamanho do repositório. O comando que produz o número lê o HTML construído, soma os
-  arquivos referenciados e comprime cada um, então o valor é reprodutível.
+- **More example cities.** There is one city file today, Phoenix. A second file with different numbers is
+  the test that proves nothing about Phoenix is written into the code.
+- **Crew photos.** Today the cards use the initials of the name, so the page does not claim a person
+  exists; with image rights cleared, they become photos.
+- **Page weight: 276 KB gzipped**, out of 813 KB raw, measured across the ten files the page HTML really
+  loads, and not the size of the repository. The command that produces the number reads the built HTML,
+  sums the referenced files and compresses each one, so the value is reproducible.
 
-## Guia para quem for mexer no código
+## Guide for whoever touches the code
 
-`AGENTS.md` na raiz: comandos, mapa da estrutura e as regras que não se negociam.
+`AGENTS.md` at the root: commands, map of the structure and the rules that are not negotiable.

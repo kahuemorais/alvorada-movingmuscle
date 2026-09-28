@@ -8,11 +8,11 @@
   "author": "Brightfield Solar",
   "sources": [
     {
-      "nome": "U.S. Department of Energy, Homeowner's Guide to Solar",
+      "name": "U.S. Department of Energy, Homeowner's Guide to Solar",
       "url": "https://www.energy.gov/eere/solar/homeowners-guide-going-solar"
     },
     {
-      "nome": "U.S. Energy Information Administration, Electricity Data Browser",
+      "name": "U.S. Energy Information Administration, Electricity Data Browser",
       "url": "https://www.eia.gov/electricity/data/browser/"
     }
   ]

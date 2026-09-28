@@ -1,246 +1,246 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { Aparecer } from "@/components/Aparecer";
+import { Reveal } from "@/components/Reveal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  IconeAviso,
-  IconeCalculadora,
-  IconeCasa,
-  IconeCobertura,
-  IconeConta,
-  IconeDescer,
-  IconeDinheiro,
-  IconeEconomia,
-  IconeInformacao,
-  IconeMais,
-  IconeMenos,
-  IconePainel,
-  IconeRetorno,
+  WarningIcon,
+  CalculatorIcon,
+  HouseIcon,
+  CoverageIcon,
+  BillIcon,
+  ArrowDownIcon,
+  MoneyIcon,
+  SavingsIcon,
+  InfoIcon,
+  PlusIcon,
+  MinusIcon,
+  PanelIcon,
+  PaybackIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { trackSimulationCompleted, trackSimulationStarted } from "@/lib/analytics";
 import type { City } from "@/lib/city";
-import { anos, num, porcento, porcentoCheio, usd, usdRedondo } from "@/lib/format";
+import { years, num, percent, percentFull, usd, usdRedondo } from "@/lib/format";
 import { simulate } from "@/lib/solar";
 
-const CONTA_MIN = 40;
-const CONTA_MAX = 600;
-const CONTA_PASSO = 10;
-// A cobertura vai de 50 a 100 por cento, de cinco em cinco pontos. Antes a pagina oferecia tres pontos
-// (50, 80 e 100), que nao atendia a grade, apesar de os tres valores continuarem validos.
-const COBERTURA_MIN = 50;
-const COBERTURA_MAX = 100;
-const COBERTURA_PASSO = 5;
+const BILL_MIN = 40;
+const BILL_MAX = 600;
+const BILL_STEP = 10;
+// The coverage goes from 50 to 100 percent, in steps of five points. Before, the page offered three points
+// (50, 80 and 100), which did not serve the grid, although the three values keep being valid.
+const COVERAGE_MIN = 50;
+const COVERAGE_MAX = 100;
+const COVERAGE_STEP = 5;
 
-// Os tres pontos nomeados continuam existindo, agora como atalho: e neles que esta a frase que explica a
-// consequencia de cada faixa de escolha.
-const COBERTURAS = [
-  { valor: 50, rotulo: "Half", nota: "a smaller system, the lowest price" },
-  { valor: 80, rotulo: "Most", nota: "what most homes here choose" },
-  { valor: 100, rotulo: "All", nota: "the extra becomes bill credit, not payment" },
+// The three named points keep existing, now as a shortcut: they are where the sentence that explains the
+// consequence of each choice range lives.
+const COVERAGE_OPTIONS = [
+  { value: 50, label: "Half", note: "a smaller system, the lowest price" },
+  { value: 80, label: "Most", note: "what most homes here choose" },
+  { value: 100, label: "All", note: "the extra becomes bill credit, not payment" },
 ] as const;
 
-const coberturaValida = (valor: number) =>
-  Number.isFinite(valor) &&
-  valor >= COBERTURA_MIN &&
-  valor <= COBERTURA_MAX &&
-  valor % COBERTURA_PASSO === 0;
+const isValidCoverage = (value: number) =>
+  Number.isFinite(value) &&
+  value >= COVERAGE_MIN &&
+  value <= COVERAGE_MAX &&
+  value % COVERAGE_STEP === 0;
 
-// A frase de consequencia existe para os tres pontos nomeados. Para um valor do meio, vale a frase do ponto
-// mais proximo: inventar uma frase por valor seria afirmar o que ninguem escreveu, e nao dizer nada seria
-// pior que dizer a mais proxima.
-const pontoMaisProximo = (valor: number) =>
-  COBERTURAS.reduce((a, b) => (Math.abs(b.valor - valor) < Math.abs(a.valor - valor) ? b : a));
-// E o estado inicial da tabela de referencia, nao uma trava.
-const CONTA_PADRAO = 220;
-const COBERTURA_PADRAO = 80;
+// The consequence sentence exists for the three named points. For a value in between, the sentence of the closest
+// point holds: inventing one sentence per value would state what nobody wrote, and saying nothing would be
+// worse than saying the closest one.
+const nearestPoint = (value: number) =>
+  COVERAGE_OPTIONS.reduce((a, b) => (Math.abs(b.value - value) < Math.abs(a.value - value) ? b : a));
+// It is the initial state of the reference table, not a lock.
+const DEFAULT_BILL = 220;
+const DEFAULT_COVERAGE = 80;
 
 type Estado = { bill: number; coverage: number };
 
-// O estado vive na query string porque o endereco e enviado por mensagem para quem decide junto:
-// quem recebe o link precisa abrir a MESMA simulacao, nao a pagina em branco.
+// The state lives in the query string because the address is sent by message to whoever decides together:
+// whoever receives the link has to open the SAME simulation, not the blank page.
 //
-// A URL e lida com useSyncExternalStore, e nao com estado copiado para dentro do React. Duas razoes.
-// A primeira e o link compartilhado: com estado copiado, ler a URL no efeito de montagem e escrever
-// a URL em outro efeito disputam o mesmo ciclo, e no modo estrito do React os efeitos rodam duas
-// vezes, entao a escrita apagava a leitura e o link abria no padrao. A segunda e que aqui nao existe
-// estado paralelo para sincronizar: a simulacao E a URL, e mudar o controle escreve a URL.
+// The URL is read with useSyncExternalStore, and not with state copied into React. Two reasons.
+// The first is the shared link: with copied state, reading the URL in the mount effect and writing
+// the URL in another effect dispute the same cycle, and in React strict mode the effects run
+// twice, so the write erased the read and the link opened at the default. The second is that here there is no
+// parallel state to synchronize: the simulation IS the URL, and changing the control writes the URL.
 function subscrever(avisar: () => void) {
   window.addEventListener("popstate", avisar);
-  window.addEventListener(EVENTO_URL, avisar);
+  window.addEventListener(URL_EVENT, avisar);
   return () => {
     window.removeEventListener("popstate", avisar);
-    window.removeEventListener(EVENTO_URL, avisar);
+    window.removeEventListener(URL_EVENT, avisar);
   };
 }
 
-function lerBusca(): string {
+function readSearch(): string {
   return window.location.search;
 }
 
-// No servidor e na hidratacao nao existe URL: devolve vazio, que e o padrao. Depois de hidratar, o
-// React le a busca de verdade e ja mostra a simulacao do link, sem aviso de divergencia.
-function lerBuscaNoServidor(): string {
+// On the server and at hydration there is no URL: it returns empty, which is the default. After hydrating,
+// React reads the search for real and already shows the simulation of the link, with no divergence warning.
+function readSearchOnServer(): string {
   return "";
 }
 
-function estadoDaBusca(busca: string): Estado | null {
-  const params = new URLSearchParams(busca);
+function stateFromSearch(search: string): Estado | null {
+  const params = new URLSearchParams(search);
   const bill = Number(params.get("bill"));
   const coverage = Number(params.get("coverage"));
   if (!params.has("bill") || !params.has("coverage")) return null;
   if (!Number.isFinite(bill) || !Number.isFinite(coverage)) return null;
-  if (bill < CONTA_MIN || bill > CONTA_MAX) return null;
-  if (!coberturaValida(coverage)) return null;
+  if (bill < BILL_MIN || bill > BILL_MAX) return null;
+  if (!isValidCoverage(coverage)) return null;
   return { bill, coverage };
 }
 
-const EVENTO_URL = "brightfield:url";
+const URL_EVENT = "brightfield:url";
 
-const PADRAO: Estado = { bill: CONTA_PADRAO, coverage: COBERTURA_PADRAO };
+const DEFAULT: Estado = { bill: DEFAULT_BILL, coverage: DEFAULT_COVERAGE };
 
 export default function Simulator({ city }: { city: City }) {
-  const busca = useSyncExternalStore(subscrever, lerBusca, lerBuscaNoServidor);
-  // A campanha vive na busca da PRIMEIRA visita, e o simulador reescreve a URL a cada ajuste (`replaceState`
-  // com bill e coverage), o que apaga as tags. Lidas no momento do evento, elas já não existem: o evento
-  // chegava ao time de mídia sem saber QUAL anúncio gerou a simulação — que é exatamente o que este módulo
-  // existe para responder. Por isso a busca da campanha é capturada uma vez, no primeiro render, antes de
-  // qualquer escrita, e é ela que vai para os dois eventos.
-  const [buscaDaCampanha] = useState(() => (typeof window === "undefined" ? "" : window.location.search));
-  const [perfil, setPerfil] = useState<string | null>(null);
+  const search = useSyncExternalStore(subscrever, readSearch, readSearchOnServer);
+  // The campaign lives in the search of the FIRST visit, and the simulator rewrites the URL at every adjustment (`replaceState`
+  // with bill and coverage), which erases the tags. Read at the moment of the event, they no longer exist: the event
+  // arrived at the media team without knowing WHICH ad generated the simulation, which is exactly what this module
+  // exists to answer. That is why the campaign search is captured once, in the first render, before
+  // any write, and it is what goes to the two events.
+  const [campaignSearch] = useState(() => (typeof window === "undefined" ? "" : window.location.search));
+  const [profile, setProfile] = useState<string | null>(null);
 
-  const estado = useMemo(() => estadoDaBusca(busca) ?? PADRAO, [busca]);
-  const resultado = useMemo(() => simulate(city, estado), [city, estado]);
+  const state = useMemo(() => stateFromSearch(search) ?? DEFAULT, [search]);
+  const result = useMemo(() => simulate(city, state), [city, state]);
 
-  // O estado inicial é o da tabela de referência — $220 com 80% de cobertura —, e $220 é a conta típica
-  // da "Three-bedroom house, no pool". Esse é o cartão que nasce marcado, e não o primeiro da lista (a conta de $90) nem
-  // qualquer outro. A marcação é DERIVADA do estado, e não um `useState` com o índice: assim o cartão certo se
-  // acende também quando alguém abre um link compartilhado que traz exatamente $220 / 80%, e nenhum cartão se acende
-  // quando o link traz outro estado (a simulação é do link, não de um perfil). Clicar num cartão fixa a escolha em
-  // `perfil` e ela sobrevive a mexer na conta depois.
-  const perfilAtivo = useMemo(() => {
-    if (perfil !== null) return perfil;
-    if (estado.bill !== CONTA_PADRAO || estado.coverage !== COBERTURA_PADRAO) return null;
-    const indice = city.householdProfiles.findIndex((item) => item.typicalBill === CONTA_PADRAO);
-    return indice >= 0 ? String(indice) : null;
-    // `perfil` e `estado` são as duas entradas; `city` muda o rótulo do cartão, não a conta típica.
-  }, [perfil, estado, city]);
+  // The initial state is the one of the reference table, $220 with 80% coverage, and $220 is the typical bill
+  // of the "Three-bedroom house, no pool". That is the card that starts marked, and not the first of the list (the $90 bill) nor
+  // any other. The marking is DERIVED from the state, and not a `useState` with the index: that way the right card lights
+  // up also when someone opens a shared link that brings exactly $220 / 80%, and no card lights up
+  // when the link brings another state (the simulation is of the link, not of a profile). Clicking a card fixes the choice in
+  // `profile` and it survives changing the bill afterwards.
+  const activeProfile = useMemo(() => {
+    if (profile !== null) return profile;
+    if (state.bill !== DEFAULT_BILL || state.coverage !== DEFAULT_COVERAGE) return null;
+    const index = city.householdProfiles.findIndex((item) => item.typicalBill === DEFAULT_BILL);
+    return index >= 0 ? String(index) : null;
+    // `profile` and `state` are the two inputs; `city` changes the label of the card, not the typical bill.
+  }, [profile, state, city]);
 
-  // Escreve a URL e avisa quem estiver lendo, que e a propria pagina. `replaceState` em vez do
-  // router: a pagina e estatica, nao ha navegacao a registrar, e sem isso cada arrasto do controle
-  // entraria no historico do navegador.
-  const aplicar = (novo: Estado, novoPerfil: string | null) => {
-    const params = new URLSearchParams({ bill: String(novo.bill), coverage: String(novo.coverage) });
+  // Writes the URL and notifies whoever is reading, which is the page itself. `replaceState` instead of the
+  // router: the page is static, there is no navigation to register, and without that every drag of the control
+  // would enter the browser history.
+  const aplicar = (next: Estado, nextProfile: string | null) => {
+    const params = new URLSearchParams({ bill: String(next.bill), coverage: String(next.coverage) });
     window.history.replaceState(null, "", `?${params.toString()}`);
-    window.dispatchEvent(new Event(EVENTO_URL));
-    setPerfil(novoPerfil);
+    window.dispatchEvent(new Event(URL_EVENT));
+    setProfile(nextProfile);
   };
 
-  // Evento de simulacao, disparado depois que a pessoa para de mexer: sem a espera, cada passo do
-  // controle viraria uma simulacao no relatorio da equipe de midia e o numero perderia sentido.
-  const primeiraVolta = useRef(true);
+  // Simulation event, fired after the person stops moving: without the wait, every step of the
+  // control would become a simulation in the media team report and the number would lose meaning.
+  const firstRound = useRef(true);
   const comecou = useRef(false);
 
   useEffect(() => {
-    if (primeiraVolta.current) {
-      primeiraVolta.current = false;
+    if (firstRound.current) {
+      firstRound.current = false;
       return;
     }
     if (!comecou.current) {
       comecou.current = true;
-      // O perfil vai o ATIVO, e não só o que foi clicado: com o estado inicial já sendo um perfil da tabela,
-      // o evento do primeiro ajuste diria "none" enquanto a tela mostra o cartão de três quartos marcado.
-      trackSimulationStarted(buscaDaCampanha, perfilAtivo);
+      // The ACTIVE profile goes, and not only the one that was clicked: with the initial state already being a profile of the table,
+      // the event of the first adjustment would say "none" while the screen shows the three-bedroom card marked.
+      trackSimulationStarted(campaignSearch, activeProfile);
     }
     const relogio = setTimeout(() => {
-      trackSimulationCompleted(resultado, estado, buscaDaCampanha, perfilAtivo);
+      trackSimulationCompleted(result, state, campaignSearch, activeProfile);
     }, 1000);
     return () => clearTimeout(relogio);
-    // `buscaDaCampanha` fica na lista porque e lida aqui dentro e nunca muda depois do primeiro render: o
-    // efeito continua disparando pelos mesmos tres motivos, mas o aviso do lint nao fica em pe.
-  }, [estado, perfil, perfilAtivo, resultado, buscaDaCampanha]);
+    // `buscaDaCampanha` stays in the list because it is read inside here and never changes after the first render: the
+    // effect keeps firing for the same three reasons, but the lint warning does not stand.
+  }, [state, profile, activeProfile, result, campaignSearch]);
 
-  // Rascunho do campo de conta: enquanto a pessoa digita, o texto vive aqui e nao na URL, senao
-  // digitar 4 de 430 viraria 40 no meio da digitacao. O rascunho e so o texto em edicao; a simulacao
-  // continua sendo a URL, e ele e descartado ao sair do campo.
-  const [rascunho, setRascunho] = useState<string | null>(null);
+  // Draft of the bill field: while the person types, the text lives here and not in the URL, otherwise
+  // typing 4 of 430 would become 40 in the middle of the typing. The draft is only the text being edited; the simulation
+  // keeps being the URL, and it is discarded when leaving the field.
+  const [draft, setDraft] = useState<string | null>(null);
 
-  const definirConta = (valor: number) => {
-    const preso = Math.min(CONTA_MAX, Math.max(CONTA_MIN, valor));
-    aplicar({ ...estado, bill: Math.round(preso / CONTA_PASSO) * CONTA_PASSO }, perfil);
+  const setBill = (value: number) => {
+    const clamped = Math.min(BILL_MAX, Math.max(BILL_MIN, value));
+    aplicar({ ...state, bill: Math.round(clamped / BILL_STEP) * BILL_STEP }, profile);
   };
 
-  const confirmarRascunho = () => {
-    if (rascunho === null) return;
-    const numero = Number(rascunho.replace(/[^0-9]/g, ""));
-    setRascunho(null);
-    if (Number.isFinite(numero) && numero > 0) definirConta(numero);
+  const commitDraft = () => {
+    if (draft === null) return;
+    const number = Number(draft.replace(/[^0-9]/g, ""));
+    setDraft(null);
+    if (Number.isFinite(number) && number > 0) setBill(number);
   };
 
-  const escolherPerfil = (indice: string) => {
-    // O card preenche a conta típica daquele perfil e não encosta na cobertura.
+  const chooseProfile = (index: string) => {
+    // The card fills the typical bill of that profile and does not touch the coverage.
     //
-    // Antes ele também devolvia a cobertura ao padrão de 80, para fechar a quarta linha da tabela de
-    // aceitação. Não é exigência: o teste da tabela (`src/lib/aceitacao.test.ts`) roda por estado, com
-    // conta e cobertura passadas direto ao cálculo, e passa com ou sem o reset. Era decisão de interface, e
-    // descartava em silêncio uma escolha de quem estava usando a página: com 50% marcado, tocar num card
-    // devolvia 80 sem explicação.
-    aplicar({ ...estado, bill: city.householdProfiles[Number(indice)].typicalBill }, indice);
+    // Before, it also returned the coverage to the default of 80, to close the fourth line of the acceptance
+    // table. It is not a requirement: the test of the table (`src/lib/acceptance.test.ts`) runs by state, with
+    // bill and coverage passed straight to the calculation, and it passes with or without the reset. It was an interface decision, and
+    // it discarded in silence a choice of whoever was using the page: with 50% marked, touching a card
+    // returned 80 with no explanation.
+    aplicar({ ...state, bill: city.householdProfiles[Number(index)].typicalBill }, index);
   };
 
-  // O que sobra da conta depois da economia. A economia nunca passa da conta (regra 3, em `src/lib/solar.ts`), então
-  // a conta final nunca fica negativa, e o número é aritmética da própria simulação, não dado novo.
-  const contaFinal = estado.bill - resultado.monthlySavings;
+  // What is left of the bill after the savings. The savings never goes over the bill (rule 3, in `src/lib/solar.ts`), so
+  // the final bill never goes negative, and the number is arithmetic of the simulation itself, not new data.
+  const finalBill = state.bill - result.monthlySavings;
 
-  // As seis contas que a página explica, na ordem, cada uma com o número que esta cidade já traz. Vivem como dado,
-  // e não como seis parágrafos escritos na mão, por dois motivos: o termo da linha é o mesmo que abre a frase, e
-  // a numeração sai da POSIÇÃO, nunca de um contador que soma na renderização. Nenhum valor é novo: todos saem de
-  // `simulate()` ou do arquivo da cidade.
-  const contas = [
+  // The six bills the page explains, in order, each one with the number this city already brings. They live as data,
+  // and not as six hand-written paragraphs, for two reasons: the term of the row is the same one that opens the sentence, and
+  // the numbering comes from the POSITION, never from a counter that adds up at render time. No value is new: all of them come from
+  // `simulate()` or from the city file.
+  const bills = [
     {
       termo: "Usage",
-      texto: `${usd(estado.bill)} a month at ${usd(city.utilityRatePerKwh)} per kWh is ${num(resultado.monthlyUsageKwh)} kWh.`,
+      text: `${usd(state.bill)} a month at ${usd(city.utilityRatePerKwh)} per kWh is ${num(result.monthlyUsageKwh)} kWh.`,
     },
     {
       termo: "Target",
-      texto: `${porcento(estado.coverage)} of that, or ${num(resultado.targetKwh)} kWh.`,
+      text: `${percent(state.coverage)} of that, or ${num(result.targetKwh)} kWh.`,
     },
     {
       termo: "One panel",
-      texto: `${num(city.panelWatts)} W at ${city.peakSunHoursPerDay} peak sun hours a day and a ${city.performanceRatio} performance factor makes ${num(resultado.panelGenerationKwh)} kWh a month.`,
+      text: `${num(city.panelWatts)} W at ${city.peakSunHoursPerDay} peak sun hours a day and a ${city.performanceRatio} performance factor makes ${num(result.panelGenerationKwh)} kWh a month.`,
     },
     {
       termo: "Panels",
-      // Dois passos, e a frase diz os dois: o teto do número cru e, depois, o piso da cidade. Antes ela usava
-      // o número final no lugar do teto e dizia que o piso estava abaixo dele, o que contradiz o cálculo.
-      texto:
-        `${num(resultado.panelsRaw)} of them, and a panel is a whole unit, so that is ${num(Math.ceil(resultado.panelsRaw))}.` +
-        (resultado.flags.minPanelsApplied
-          ? ` ${city.city} also sets a minimum of ${num(city.minPanels)} panels per installation, and that floor is above the rounded number, so the smallest system here is ${num(resultado.panels)}.`
+      // Two steps, and the sentence says both: the ceiling of the raw number and, after, the floor of the city. Before it used
+      // the final number in place of the ceiling and said that the floor was below it, which contradicts the calculation.
+      text:
+        `${num(result.panelsRaw)} of them, and a panel is a whole unit, so that is ${num(Math.ceil(result.panelsRaw))}.` +
+        (result.flags.minPanelsApplied
+          ? ` ${city.city} also sets a minimum of ${num(city.minPanels)} panels per installation, and that floor is above the rounded number, so the smallest system here is ${num(result.panels)}.`
           : ""),
     },
     {
       termo: "Price",
-      texto: `${num(resultado.panels)} panels at ${num(city.panelWatts)} W and ${usd(city.costPerWattInstalled)} per watt installed is ${usd(resultado.investmentGross)}. The ${porcentoCheio(city.federalCreditRate)} federal credit takes it to ${usd(resultado.investmentAfterCredit)}.`,
+      text: `${num(result.panels)} panels at ${num(city.panelWatts)} W and ${usd(city.costPerWattInstalled)} per watt installed is ${usd(result.investmentGross)}. The ${percentFull(city.federalCreditRate)} federal credit takes it to ${usd(result.investmentAfterCredit)}.`,
     },
     {
       termo: "Savings",
-      texto:
-        `${num(resultado.generationKwh)} kWh a month is ${usd(resultado.rawGenerationValue)} of electricity. ` +
-        (resultado.flags.savingsCapped
-          ? `Your bill is the ceiling, so savings stop at ${usd(resultado.monthlySavings)}.`
+      text:
+        `${num(result.generationKwh)} kWh a month is ${usd(result.rawGenerationValue)} of electricity. ` +
+        (result.flags.savingsCapped
+          ? `Your bill is the ceiling, so savings stop at ${usd(result.monthlySavings)}.`
           : "All of it comes off your bill.") +
-        ` Payback: ${usd(resultado.investmentAfterCredit)} over twelve months of savings is ${anos(resultado.paybackYears)}.`,
+        ` Payback: ${usd(result.investmentAfterCredit)} over twelve months of savings is ${years(result.paybackYears)}.`,
     },
   ];
 
   return (
-    // Faixa 1: o fundo da página (`canvas`). A seção passou a ser a faixa — largura da janela, respiro vertical
-    // próprio — e o conteúdo vive na coluna de 64 rem por dentro dela, que é o arranjo da abertura. O `pb` do
-    // celular reserva a altura da barra fixa mais a área segura, como na rodada anterior; do tamanho médio para
-    // cima a barra sobe para o topo e o respiro volta a ser o degrau de 64.
+    // Band 1: the background of the page (`canvas`). The section came to be the band (window width, its own vertical
+    // padding) and the content lives in the 64 rem column inside it, which is the arrangement of the opening. The `pb` of the
+    // mobile reserves the height of the fixed bar plus the safe area, as in the previous round; from the medium size
+    // up the bar rises to the top and the padding goes back to being the 64 step.
     <section
       id="simulator"
       aria-labelledby="simulator-title"
@@ -248,9 +248,9 @@ export default function Simulator({ city }: { city: City }) {
     >
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-lg px-lg">
       <header className="flex flex-col gap-sm">
-        {/* Sobrancelha na linguagem das outras seções (filete e rótulo curto), com trabalho: a calculadora é o
-            produto da página, e é esta linha que a separa do resto, do mesmo jeito que os três passos e a
-            prova social já se apresentam. */}
+        {/* Eyebrow in the language of the other sections (rule and short label), with a job: the calculator is the
+            product of the page, and it is this line that separates it from the rest, the same way the three steps and the
+            social proof already present themselves. */}
         <p className="flex items-center gap-sm type-label text-support">
           <span aria-hidden className="h-px w-xl bg-support" />
           The calculator
@@ -266,45 +266,45 @@ export default function Simulator({ city }: { city: City }) {
 
       <div className="grid gap-lg rounded-xl border border-outline bg-surface/60 p-lg md:grid-cols-2">
         <div className="flex flex-col gap-xl">
-          {/* Perfis primeiro porque a maioria não sabe a conta na hora, e o caminho mais rápido passa a ser o
-              primeiro da coluna. O campo
-              continua editável logo abaixo,
-              com a cobertura no degrau seguinte, e escolher um cartão só troca a conta — a cobertura não volta ao
-              padrão (ver `escolherPerfil`).
+          {/* Profiles first because most people do not know the bill at that moment, and the fastest path becomes the
+              first of the column. The field
+              stays editable right below,
+              with the coverage in the step after, and choosing a card only swaps the bill: the coverage does not go back to the
+              default (see `escolherPerfil`).
 
-              Um cartao por perfil, e nao uma linha com bolinha: o rotulo desses perfis tem duas
-              informacoes (o tipo de casa e a conta tipica) e em linha unica a segunda some. O cartao
-              inteiro e a area clicavel, o que da 48 px de alvo sem apertar o desenho, e o escolhido
-              ganha a borda na cor de acao, que e a unica cor de decisao da pagina. */}
+              One card per profile, and not a row with a dot: the label of these profiles has two
+              pieces of information (the type of house and the typical bill) and in a single row the second one vanishes. The whole
+              card is the clickable area, which gives a 48 px target without squeezing the drawing, and the chosen one
+              gains the border in the action color, which is the only decision color of the page. */}
           <fieldset className="flex flex-col gap-md">
-            {/* O título do bloco perdeu o "Or" quando os perfis subiram para o topo da coluna: o "Or" era da ordem
-                antiga, em que este bloco era a segunda opção depois do campo da conta. Agora ele ABRE a coluna, então
-                a conjunção sobrava e o rótulo volta a ser um convite direto. O lead da seção continua como estava. */}
+            {/* The title of the block lost the "Or" when the profiles went up to the top of the column: the "Or" was from the old
+                order, in which this block was the second option after the bill field. Now it OPENS the column, so
+                the conjunction was left over and the label goes back to being a direct invite. The lead of the section stays as it was. */}
             <legend className="mb-md flex items-center gap-sm type-label text-ink">
               <span className="text-primary-dark">
-                <IconeCasa />
+                <HouseIcon />
               </span>
               Start from a home like yours
             </legend>
-            {/* Atalho, e não formulário: os quatro cartões com bolinha de rádio pareciam formulário, e o estado
-                escolhido estava fraco. A bolinha saiu, o cartão inteiro ficou clicável e
-                o escolhido passa a ser marcado pela borda e pelo anel da cor de ação (`aria-pressed`), que é o
-                mesmo recurso que os atalhos Half, Most e All já usam um degrau acima. O nome acessível continua
-                sendo o rótulo do perfil com a conta típica, e o estado vai em `aria-pressed`, então o leitor de
-                tela ouve o mesmo que ouvia antes. */}
+            {/* A shortcut, and not a form: the four cards with a radio dot looked like a form, and the chosen
+                state was weak. The dot left, the whole card became clickable and
+                the chosen one comes to be marked by the border and the ring of the action color (`aria-pressed`), which is the
+                same resource the Half, Most and All shortcuts already use one step above. The accessible name keeps
+                being the profile label with the typical bill, and the state goes in `aria-pressed`, so the screen
+                reader hears the same as before. */}
             <div className="grid gap-sm sm:grid-cols-2">
-              {city.householdProfiles.map((item, indice) => (
-                // Fundo próprio no escolhido (`bg-canvas`), além da borda e do anel: a borda sozinha marcava o
-                // cartão, mas o escolhido continuava com a mesma superfície branca dos outros três, e a leitura
-                // de estado à primeira vista é o que se quer aqui. O par é o do resto da página (canvas atrás, surface
-                // na frente), e não a tinta de ação cheia: tinta cheia num cartão de duas linhas de texto viraria
-                // botão, e a borda da cor de ação já diz que ele é o escolhido.
+              {city.householdProfiles.map((item, index) => (
+                // Background of its own in the chosen one (`bg-canvas`), beyond the border and the ring: the border alone marked the
+                // card, but the chosen one kept the same white surface as the other three, and reading the
+                // state at first glance is what is wanted here. The pair is the one of the rest of the page (canvas behind, surface
+                // in front), and not the full action ink: full ink in a card of two lines of text would become a
+                // button, and the border of the action color already says that it is the chosen one.
                 <button
                   key={item.label}
                   type="button"
-                  data-perfil={indice}
-                  aria-pressed={perfilAtivo === String(indice)}
-                  onClick={() => escolherPerfil(String(indice))}
+                  data-profile={index}
+                  aria-pressed={activeProfile === String(index)}
+                  onClick={() => chooseProfile(String(index))}
                   className="flex min-h-touch flex-col gap-xs rounded-md border border-outline bg-surface p-md text-left transition-colors hover:border-ink/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink aria-pressed:border-primary aria-pressed:bg-canvas aria-pressed:ring-1 aria-pressed:ring-primary"
                 >
                   <span className="type-body text-ink">{item.label}</span>
@@ -314,33 +314,33 @@ export default function Simulator({ city }: { city: City }) {
             </div>
           </fieldset>
 
-          {/* A borda do campo e a do controle usado é a cor de contorno, e não um cinza claro: o Material
-              pede 3 para 1 de contraste em limite de componente, e ink a 15% mede 1,37, que não identifica
-              nada. Com o token `outline` mede 3,96 sobre o branco e 3,66 sobre o fundo da página. */}
-          {/* Campo com passo de cada lado, no lugar do controle deslizante: quem sabe a conta de luz
-              sabe o numero, nao a posicao de um botao numa barra. Os dois botoes cobrem o ajuste fino
-              e o campo aceita o valor exato. */}
+          {/* The border of the field and of the control used is the outline color, and not a light gray: Material
+              asks for 3 to 1 contrast in a component limit, and ink at 15% measures 1,37, which identifies
+              nothing. With the token `outline` it measures 3,96 over white and 3,66 over the background of the page. */}
+          {/* Field with a step on each side, in place of the slider: whoever knows the power bill
+              knows the number, not the position of a button on a bar. The two buttons cover the fine adjustment
+              and the field accepts the exact value. */}
           <div className="flex flex-col gap-sm">
             <label htmlFor="bill" className="flex items-center gap-sm type-label text-ink">
               <span className="text-primary-dark">
-                <IconeConta />
+                <BillIcon />
               </span>
               Average monthly electric bill
             </label>
-            {/* Uma caixa só, da largura da coluna, com os dois passos dentro. Antes a caixa da conta tinha
-                144 px por causa de um limite de largura que ninguém pediu e os botões ficavam do lado de
-                fora, então o simulador mostrava quatro controles com três larguras diferentes: a conta, o
-                cursor de cobertura, os atalhos e os cartões de perfil. */}
+            {/* A single box, with the width of the column, with the two steps inside. Before the bill box had
+                144 px because of a width limit nobody asked for and the buttons stayed on the
+                outside, so the simulator showed four controls with three different widths: the bill, the
+                coverage cursor, the shortcuts and the profile cards. */}
             <div className="flex min-h-touch items-center gap-xs rounded-lg border border-outline bg-surface px-xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon-lg"
                 className="min-h-touch min-w-touch shrink-0"
-                aria-label={`Lower the bill by ${usdRedondo(CONTA_PASSO)}`}
-                onClick={() => definirConta(estado.bill - CONTA_PASSO)}
+                aria-label={`Lower the bill by ${usdRedondo(BILL_STEP)}`}
+                onClick={() => setBill(state.bill - BILL_STEP)}
               >
-                <IconeMenos />
+                <MinusIcon />
               </Button>
               <span aria-hidden className="microcopy">
                 $
@@ -349,16 +349,16 @@ export default function Simulator({ city }: { city: City }) {
                   id="bill"
                   type="number"
                   inputMode="decimal"
-                  min={CONTA_MIN}
-                  max={CONTA_MAX}
-                  step={CONTA_PASSO}
-                  value={rascunho ?? estado.bill}
+                  min={BILL_MIN}
+                  max={BILL_MAX}
+                  step={BILL_STEP}
+                  value={draft ?? state.bill}
                   aria-describedby="bill-hint"
-                  onChange={(evento) => setRascunho(evento.target.value)}
-                  onBlur={confirmarRascunho}
+                  onChange={(evento) => setDraft(evento.target.value)}
+                  onBlur={commitDraft}
                   onKeyDown={(evento) => {
                     if (evento.key === "Enter") {
-                      confirmarRascunho();
+                      commitDraft();
                       evento.currentTarget.blur();
                     }
                   }}
@@ -369,72 +369,72 @@ export default function Simulator({ city }: { city: City }) {
                 variant="ghost"
                 size="icon-lg"
                 className="min-h-touch min-w-touch shrink-0"
-                aria-label={`Raise the bill by ${usdRedondo(CONTA_PASSO)}`}
-                onClick={() => definirConta(estado.bill + CONTA_PASSO)}
+                aria-label={`Raise the bill by ${usdRedondo(BILL_STEP)}`}
+                onClick={() => setBill(state.bill + BILL_STEP)}
               >
-                <IconeMais />
+                <PlusIcon />
               </Button>
             </div>
             <p id="bill-hint" className="microcopy">
-              Between {usdRedondo(CONTA_MIN)} and {usdRedondo(CONTA_MAX)}, in steps of {usdRedondo(CONTA_PASSO)}.
+              Between {usdRedondo(BILL_MIN)} and {usdRedondo(BILL_MAX)}, in steps of {usdRedondo(BILL_STEP)}.
             </p>
           </div>
 
           <fieldset className="flex flex-col gap-md">
             <legend className="mb-md flex items-center gap-sm type-label text-ink">
               <span className="text-primary-dark">
-                <IconeCobertura />
+                <CoverageIcon />
               </span>
               Share of your usage you want to cover
             </legend>
-            {/* Cursor de cinco em cinco, com o valor sempre visível ao lado. O controle deslizante foi
-                recusado aqui quando a escolha era de três caminhos, porque escondia o número; com o valor
-                na linha de cima ele não esconde nada, e é o único controle que dá a grade que o documento
-                pede sem virar onze cartões. */}
+            {/* Cursor in steps of five, with the value always visible next to it. The slider was
+                refused here when the choice was of three paths, because it hid the number; with the value
+                in the row above it hides nothing, and it is the only control that gives the grid the document
+                asks for without becoming eleven cards. */}
             <div className="flex min-h-touch items-center gap-md rounded-lg border border-outline bg-surface px-md">
-              <span className="type-lead tabular-nums text-ink">{porcento(estado.coverage)}</span>
+              <span className="type-lead tabular-nums text-ink">{percent(state.coverage)}</span>
               <input
                 type="range"
-                min={COBERTURA_MIN}
-                max={COBERTURA_MAX}
-                step={COBERTURA_PASSO}
-                value={estado.coverage}
+                min={COVERAGE_MIN}
+                max={COVERAGE_MAX}
+                step={COVERAGE_STEP}
+                value={state.coverage}
                 aria-label="Share of your usage you want to cover"
-                aria-valuetext={`${porcento(estado.coverage)} of your usage`}
+                aria-valuetext={`${percent(state.coverage)} of your usage`}
                 onChange={(evento) =>
-                  aplicar({ ...estado, coverage: Number(evento.target.value) }, perfil)
+                  aplicar({ ...state, coverage: Number(evento.target.value) }, profile)
                 }
                 className="h-touch flex-1 accent-primary"
               />
             </div>
-            {/* Os três pontos nomeados, como atalho: é neles que está a frase que explica cada faixa. */}
+            {/* The three named points, as a shortcut: they are where the sentence that explains each range lives. */}
             <div className="flex flex-wrap gap-xs">
-              {COBERTURAS.map((opcao) => (
+              {COVERAGE_OPTIONS.map((opcao) => (
                 <button
-                  key={opcao.valor}
+                  key={opcao.value}
                   type="button"
-                  onClick={() => aplicar({ ...estado, coverage: opcao.valor }, perfil)}
-                  aria-pressed={estado.coverage === opcao.valor}
+                  onClick={() => aplicar({ ...state, coverage: opcao.value }, profile)}
+                  aria-pressed={state.coverage === opcao.value}
                   className="min-h-touch flex-1 rounded-sm border border-outline px-md type-label text-ink transition-colors hover:bg-canvas aria-pressed:border-primary aria-pressed:ring-1 aria-pressed:ring-primary"
                 >
-                  {opcao.rotulo} · <span className="tabular-nums">{porcento(opcao.valor)}</span>
+                  {opcao.label} · <span className="tabular-nums">{percent(opcao.value)}</span>
                 </button>
               ))}
             </div>
-            {/* A consequência da escolha, em uma linha, com a frase do ponto nomeado mais próximo. */}
+            {/* The consequence of the choice, in one line, with the sentence of the closest named point. */}
             <p className="microcopy">
-              {pontoMaisProximo(estado.coverage).rotulo} of your usage:{" "}
-              {pontoMaisProximo(estado.coverage).nota}. Extra power goes to {city.utilityName} as bill
+              {nearestPoint(state.coverage).label} of your usage:{" "}
+              {nearestPoint(state.coverage).note}. Extra power goes to {city.utilityName} as bill
               credit.
             </p>
           </fieldset>
 
         </div>
 
-        {/* O resultado deixou de ser quatro números do mesmo tamanho: a economia manda, que é a pergunta que
-            a página promete responder, e os outros três viram linhas de conta, com rótulo de
-            um lado e valor do outro, separadas por fio de 1 px. Antes os quatro estavam no mesmo degrau de
-            48 px e nada dizia qual deles era a resposta. */}
+        {/* The result stopped being four numbers of the same size: the savings leads, which is the question
+            the page promises to answer, and the other three become bill rows, with a label on
+            one side and a value on the other, separated by a 1 px hairline. Before the four were in the same step of
+            48 px and nothing said which of them was the answer. */}
         <Card className="h-fit">
           <CardContent className="flex flex-col gap-lg py-6">
             <p className="flex items-center gap-sm type-label text-support">
@@ -442,84 +442,84 @@ export default function Simulator({ city }: { city: City }) {
               Your estimate
             </p>
 
-            {/* aria-live: o numero muda enquanto a pessoa arrasta, entao o leitor de tela precisa ser
-                avisado sem que o foco saia do controle. */}
+            {/* aria-live: the number changes while the person drags, so the screen reader needs to be
+                notified without the focus leaving the control. */}
             <output aria-live="polite" className="flex flex-col gap-lg">
-              {/* O bloco da economia, no degrau de número e com a frase que diz em quanto a conta fica. O filete
-                  âmbar que atravessava a coluna acima do rótulo saiu: com ele o bloco tinha duas aberturas (o
-                  filete e o rótulo) e o valor perdia o posto de começo do cartaz. */}
+              {/* The savings block, in the number step and with the sentence that says what the bill ends up at. The amber
+                  rule that crossed the column above the label has left: with it the block had two openings (the
+                  rule and the label) and the value lost its place as the start of the poster. */}
               <div className="flex flex-col gap-sm">
                 <p className="flex items-center gap-sm type-label text-support">
                   <span className="text-primary-dark">
-                    <IconeEconomia />
+                    <SavingsIcon />
                   </span>
                   Monthly savings
                 </p>
-                <Valor texto={usdRedondo(resultado.monthlySavings)} className="type-number savings tabular-nums" />
+                <Valor text={usdRedondo(result.monthlySavings)} className="type-number savings tabular-nums" />
                 <p className="type-body text-support max-w-measure">
-                  On a {usdRedondo(estado.bill)} bill with {porcento(estado.coverage)} of your usage
-                  covered. Your bill goes to about {usdRedondo(contaFinal)} a month.
+                  On a {usdRedondo(state.bill)} bill with {percent(state.coverage)} of your usage
+                  covered. Your bill goes to about {usdRedondo(finalBill)} a month.
                 </p>
               </div>
 
-              {/* Uma linha para os painéis e uma linha de dois para custo e retorno: são as três contas de
-                  conferência, e as duas últimas ficam lado a lado, em vez de empilhadas. */}
+              {/* One row for the panels and a row of two for cost and return: they are the three check
+                  bills, and the last two stay side by side, instead of stacked. */}
               <div className="flex flex-wrap items-baseline justify-between gap-x-md gap-y-xs border-t border-border py-md">
                 <p className="flex items-center gap-sm type-label text-support">
                   <span className="text-primary-dark">
-                    <IconePainel />
+                    <PanelIcon />
                   </span>
                   Panels
                 </p>
-                <Valor texto={num(resultado.panels)} className="type-lead text-ink tabular-nums" />
+                <Valor text={num(result.panels)} className="type-lead text-ink tabular-nums" />
               </div>
 
               <div className="grid grid-cols-2 gap-md border-t border-border pt-md">
                 <div className="flex flex-col gap-xs">
                   <p className="flex items-center gap-sm type-label text-support">
                     <span className="text-primary-dark">
-                      <IconeDinheiro />
+                      <MoneyIcon />
                     </span>
-                    Cost after the {porcentoCheio(city.federalCreditRate)} federal credit
+                    Cost after the {percentFull(city.federalCreditRate)} federal credit
                   </p>
                   <Valor
-                    texto={usdRedondo(resultado.investmentAfterCredit)}
+                    text={usdRedondo(result.investmentAfterCredit)}
                     className="type-lead text-ink tabular-nums"
                   />
                 </div>
                 <div className="flex flex-col gap-xs">
                   <p className="flex items-center gap-sm type-label text-support">
                     <span className="text-primary-dark">
-                      <IconeRetorno />
+                      <PaybackIcon />
                     </span>
                     Years to payback
                   </p>
-                  <Valor texto={anos(resultado.paybackYears)} className="type-lead text-ink tabular-nums" />
+                  <Valor text={years(result.paybackYears)} className="type-lead text-ink tabular-nums" />
                 </div>
               </div>
             </output>
 
-            {resultado.flags.minPanelsApplied ? (
+            {result.flags.minPanelsApplied ? (
               <Alert>
-                <IconeAviso />
+                <WarningIcon />
                 <AlertTitle>Why more panels than you asked for</AlertTitle>
                 <AlertDescription>
-                  Your usage would need {num(Math.ceil(resultado.panelsRaw))} panels. A panel is a whole
+                  Your usage would need {num(Math.ceil(result.panelsRaw))} panels. A panel is a whole
                   unit and every installation in {city.city} has a minimum of {num(city.minPanels)}, so
                   the smallest system you can order is {num(city.minPanels)} panels. That is why the
-                  price does not drop below {usdRedondo(resultado.investmentAfterCredit)}.
+                  price does not drop below {usdRedondo(result.investmentAfterCredit)}.
                 </AlertDescription>
               </Alert>
             ) : null}
 
-            {resultado.flags.savingsCapped ? (
+            {result.flags.savingsCapped ? (
               <Alert>
-                <IconeInformacao />
+                <InfoIcon />
                 <AlertTitle>Your system would generate more than you use</AlertTitle>
                 <AlertDescription>
-                  These panels would produce {usd(resultado.flags.generationValue)} of electricity a
-                  month, above your {usd(estado.bill)} bill. The extra{" "}
-                  {usd(resultado.flags.surplusValue)} goes to {city.utilityName} as credit against future
+                  These panels would produce {usd(result.flags.generationValue)} of electricity a
+                  month, above your {usd(state.bill)} bill. The extra{" "}
+                  {usd(result.flags.surplusValue)} goes to {city.utilityName} as credit against future
                   bills, and credit never turns into a payment, so your savings stop at the size of your bill.
                 </AlertDescription>
               </Alert>
@@ -529,54 +529,54 @@ export default function Simulator({ city }: { city: City }) {
         </Card>
       </div>
 
-      {/* A explicação do valor e o aviso de estimativa são UM bloco só, abaixo do forro, e não dois cards nem
-          conteúdo dentro do cartão do resultado. O caminho até aqui: dentro do cartão os três blocos ficavam
-          grudados, e dois cards lado a lado ainda eram conteúdo demais. O que ficou: uma caixa, as seis contas em linhas numeradas (duas
-          colunas no desktop) com o termo em tinta e a frase em apoio, e o aviso fechando o bloco. O que o aviso
-          repetia das contas saiu dele: a tarifa e as horas de sol estão na conta 1 e na 3, e o crédito federal na
-          5. O bloco entra na rolagem como as outras seções, e as linhas chegam escalonadas de 60 em 60 ms, que é o
-          mesmo recurso dos cartões dos três passos. */}
-      <Aparecer>
+      {/* The explanation of the value and the estimate notice are ONE single block, below the lining, and not two cards nor
+          content inside the result card. The path to here: inside the card the three blocks stayed
+          glued, and two cards side by side were still too much content. What stayed: a box, the six bills in numbered rows (two
+          columns on the desktop) with the term in ink and the sentence in support, and the notice closing the block. What the notice
+          repeated from the bills left it: the rate and the sun hours are in bill 1 and in 3, and the federal credit in
+          5. The block enters the scroll like the other sections, and the rows arrive staggered at 60 in 60 ms, which is the
+          same resource of the cards of the three steps. */}
+      <Reveal>
         <div
-          id="como-calculamos"
+          id="how-we-calculate"
           className="flex flex-col gap-md rounded-lg border border-outline bg-surface p-lg"
         >
           <h3 className="flex items-center gap-sm type-lead text-ink">
             <span className="text-primary-dark">
-              <IconeCalculadora />
+              <CalculatorIcon />
             </span>
             How this estimate is built
           </h3>
           <p className="type-body text-support max-w-measure">
             Six counts, in this order, with the numbers {city.city} runs on.
           </p>
-          {/* Numeração leve: o número vive em etiqueta de contorno sobre o fundo da página, e não em selo escuro.
-              Numeração é orientação, não destaque, e é a mesma regra que o blog segue. O `role="list"` é o que devolve a semântica de lista ao leitor de tela quando a
-              marcação do navegador sai de cena (`list-none`), já que o número visível é decoração. */}
+          {/* Light numbering: the number lives in an outline tag over the background of the page, and not in a dark badge.
+              Numbering is orientation, not emphasis, and it is the same rule the blog follows. The `role="list"` is what gives the list semantics back to the screen reader when the
+              browser marking leaves the scene (`list-none`), since the visible number is decoration. */}
           <ol role="list" className="grid list-none gap-md gap-x-xl md:grid-cols-2">
-            {contas.map((conta, indice) => (
+            {bills.map((bill, index) => (
               <li
-                key={conta.termo}
-                className="ecoar flex items-start gap-sm"
-                style={{ animationDelay: `${indice * 60}ms` }}
+                key={bill.termo}
+                className="stagger flex items-start gap-sm"
+                style={{ animationDelay: `${index * 60}ms` }}
               >
                 <span
                   aria-hidden
                   className="flex size-5 shrink-0 items-center justify-center rounded-sm border border-outline bg-canvas type-label text-ink tabular-nums"
                 >
-                  {indice + 1}
+                  {index + 1}
                 </span>
                 <span className="flex flex-col gap-xs">
-                  <span className="type-label text-ink">{conta.termo}</span>
-                  <span className="type-body text-support">{conta.texto}</span>
+                  <span className="type-label text-ink">{bill.termo}</span>
+                  <span className="type-body text-support">{bill.text}</span>
                 </span>
               </li>
             ))}
           </ol>
-          <div id="aviso-estimativa" className="flex flex-col gap-sm border-t border-border pt-md">
+          <div id="estimate-warning" className="flex flex-col gap-sm border-t border-border pt-md">
             <h3 className="flex items-center gap-sm type-label text-ink">
               <span className="text-primary-dark">
-                <IconeInformacao />
+                <InfoIcon />
               </span>
               Estimate, not a proposal
             </h3>
@@ -593,42 +593,42 @@ export default function Simulator({ city }: { city: City }) {
             </ul>
         </div>
         </div>
-      </Aparecer>
+      </Reveal>
 
-      {/* A chamada do meio, com o número que a pessoa acabou de ver. Medido antes: entre 15% e 97% da altura
-          da página não existia nenhuma ação, que é o que faz quem está no celular desistir no meio.
-          O bloco estava apagado, e o destaque é o mesmo recurso que o projeto já usa no depoimento em
-          destaque: tinta da cor de ação a 25%, que é o nível medido que não lê como papel branco, com borda da
-          mesma cor. O botão vira o escuro aqui, porque botão da cor de ação sobre fundo da cor de ação
-          desaparece.
-          A ação deixou de ser a ligação e passou a ser o convite que continua a simulação, sem pedir telefone
-          nem email antes de a pessoa demonstrar interesse. O telefone continua a um toque na abertura, no fecho
-          e na barra. */}
+      {/* The middle call, with the number the person has just seen. Measured before: between 15% and 97% of the height
+          of the page there was no action, which is what makes whoever is on mobile give up in the middle.
+          The block was faded, and the emphasis is the same resource the project already uses in the featured
+          testimonial: action color ink at 25%, which is the measured level that does not read as white paper, with a border of the
+          same color. The button becomes the dark one here, because a button of the action color over a background of the action color
+          disappears.
+          The action stopped being the call and became the invite that continues the simulation, without asking for a phone
+          or email before the person shows interest. The phone stays one tap away in the opening, in the close
+          and in the bar. */}
       <div
-        id="meio-cta"
+        id="middle-cta"
         className="flex flex-col gap-md rounded-lg border border-primary bg-primary/25 p-lg md:flex-row md:items-center md:justify-between"
       >
         <div className="flex flex-col gap-sm">
-          {/* Sobrancelha com filete, o mesmo recurso das seções. */}
+          {/* Eyebrow with a rule, the same resource of the sections. */}
           <p className="flex items-center gap-sm type-label text-ink">
             <span aria-hidden className="h-px w-xl bg-ink/60" />
             Next step
           </p>
           <p className="type-lead text-ink">Want to see what your actual roof could look like?</p>
-          {/* Os números da simulação continuam no bloco: era a informação mais importante dele e estava
-              dissolvida no meio da frase. */}
+          {/* The numbers of the simulation stay in the block: it was the most important information of it and it was
+              dissolved in the middle of the sentence. */}
           <p className="type-body max-w-measure text-ink/90">
-            On your {usdRedondo(estado.bill)} bill with {porcento(estado.coverage)} covered, the estimate
-            is {num(resultado.panels)} panels and {usdRedondo(resultado.monthlySavings)} back every month. The site
+            On your {usdRedondo(state.bill)} bill with {percent(state.coverage)} covered, the estimate
+            is {num(result.panels)} panels and {usdRedondo(result.monthlySavings)} back every month. The site
             visit measures the roof, checks the layout against your own usage and confirms the price
             before anything is signed. It costs nothing, and you do not leave a phone number or an email
             to ask for it.
           </p>
         </div>
         <Button asChild size="lg" className="w-full shrink-0 md:w-auto">
-          <a href="#agendar">
+          <a href="#book">
             Book the site visit
-            <IconeDescer />
+            <ArrowDownIcon />
           </a>
         </Button>
       </div>
@@ -637,29 +637,29 @@ export default function Simulator({ city }: { city: City }) {
   );
 }
 
-// O número que acabou de mudar dá um pulso curto. Aqui movimento não é enfeite: é o que diz QUAL dos quatro
-// números respondeu ao que a pessoa mexeu, que é a regra da casa para animação — mostrar causa e efeito.
-// Sem estado do React: a classe entra e sai pelo próprio elemento, e o `prefers-reduced-motion` global já
-// reduz a animação a nada para quem pediu menos movimento.
-function Valor({ texto, className }: { texto: string; className: string }) {
-  const alvo = useRef<HTMLParagraphElement>(null);
-  const anterior = useRef(texto);
+// The number that has just changed gives a short pulse. Here motion is not an ornament: it is what says WHICH of the four
+// numbers answered what the person changed, which is the rule of the house for animation: show cause and effect.
+// No React state: the class enters and leaves through the element itself, and the global `prefers-reduced-motion` already
+// reduces the animation to nothing for whoever asked for less motion.
+function Valor({ text, className }: { text: string; className: string }) {
+  const target = useRef<HTMLParagraphElement>(null);
+  const previous = useRef(text);
 
   useEffect(() => {
-    const el = alvo.current;
-    if (!el || anterior.current === texto) return;
-    anterior.current = texto;
-    el.classList.remove("pulsou");
+    const el = target.current;
+    if (!el || previous.current === text) return;
+    previous.current = text;
+    el.classList.remove("pulsed");
     void el.offsetWidth;
-    el.classList.add("pulsou");
-    const fim = () => el.classList.remove("pulsou");
-    el.addEventListener("animationend", fim, { once: true });
-    return () => el.removeEventListener("animationend", fim);
-  }, [texto]);
+    el.classList.add("pulsed");
+    const end = () => el.classList.remove("pulsed");
+    el.addEventListener("animationend", end, { once: true });
+    return () => el.removeEventListener("animationend", end);
+  }, [text]);
 
   return (
-    <p ref={alvo} className={className}>
-      {texto}
+    <p ref={target} className={className}>
+      {text}
     </p>
   );
 }

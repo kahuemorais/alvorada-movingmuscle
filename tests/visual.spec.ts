@@ -1,14 +1,14 @@
-// Medida do que a página tem de recurso visual, para a planura não voltar sem ninguém ver.
+// Measure of the visual assets the page carries, so the flatness cannot come back unnoticed.
 //
-// Medição de partida: zero gradiente e zero imagem em 6.434 px de altura no celular. Só cor sólida e
-// borda, que era a planura que se via na tela.
+// Starting measurement: zero gradient and zero image across 6.434 px of height on mobile. Only solid color and
+// border, which was the flatness visible on the screen.
 import { expect, test } from "@playwright/test";
 
-test("a pagina tem foto de servico, e nao so cor solida", async ({ page }) => {
+test("the pageText has a service photo, and not just solid color", async ({ page }) => {
   await page.goto("/phoenix-az");
-  // Com as fotos abaixo da dobra, todas são `loading="lazy"`: a página é percorrida e a espera é pelos arquivos, com
-  // uma segunda passada de rolagem enquanto faltar alguma — sem isso a medida reprova foto que simplesmente ainda não
-  // foi pedida ao servidor.
+  // With the photos below the fold, all of them are `loading="lazy"`: the page is scrolled and the wait is for the files,
+  // with a second scrolling pass while any is still missing. Without that, the measure fails a photo that simply has not
+  // been requested from the server yet.
   const faltando = await page.evaluate(async () => {
     for (let tentativa = 0; tentativa < 40; tentativa++) {
       const pendentes = [...document.images].filter((i) => !i.complete);
@@ -19,36 +19,36 @@ test("a pagina tem foto de servico, e nao so cor solida", async ({ page }) => {
     }
     return [...document.images].filter((i) => !i.complete).map((i) => i.currentSrc || i.src);
   });
-  expect(faltando, `fotos que não carregaram: ${faltando.join(", ")}`).toEqual([]);
+  expect(faltando, `photos that did not load: ${faltando.join(", ")}`).toEqual([]);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
-  const medidas = await page.evaluate(() => {
-    // A foto é o que ocupa espaço de cena: os ícones da página são pequenos e contá-los não provaria nada.
-    const cena = [...document.querySelectorAll("img")].filter((s) => s.getBoundingClientRect().width > 300);
+  const measures = await page.evaluate(() => {
+    // The photo is what takes up scene space: the icons on the page are small and counting them would prove nothing.
+    const scene = [...document.querySelectorAll("img")].filter((s) => s.getBoundingClientRect().width > 300);
     const gradientes = [...document.querySelectorAll("body *")].filter((e) =>
       getComputedStyle(e).backgroundImage.includes("gradient"),
     );
     return {
-      cena: cena.length,
-      maiorCena: cena.length ? Math.round(Math.max(...cena.map((s) => s.getBoundingClientRect().width))) : 0,
-      carregada: cena.every((s) => (s as HTMLImageElement).naturalWidth > 0),
+      scene: scene.length,
+      largestScene: scene.length ? Math.round(Math.max(...scene.map((s) => s.getBoundingClientRect().width))) : 0,
+      carregada: scene.every((s) => (s as HTMLImageElement).naturalWidth > 0),
       gradientes: gradientes.length,
-      altura: document.body.scrollHeight,
+      height: document.body.scrollHeight,
     };
   });
-  expect(medidas.cena, "nenhuma foto de cena na página").toBeGreaterThanOrEqual(1);
-  expect(medidas.carregada, "a foto de cena não carregou").toBe(true);
-  // A abertura deixou de ter véu em gradiente quando virou bloco de tinta com a foto ao lado, e a página
-  // não usa gradiente em lugar nenhum agora. A regra da skill é que gradiente, quando existe, seja funcional, e não
-  // que exista: exigir gradiente aqui seria guardar um recurso que o desenho abandonou.
-  // E a cena aparece em tamanho de cena, não espremida num canto.
-  expect(medidas.maiorCena).toBeGreaterThan(300);
+  expect(measures.scene, "no scene photo on the page").toBeGreaterThanOrEqual(1);
+  expect(measures.carregada, "the scene photo did not load").toBe(true);
+  // The opening no longer has a gradient veil since it became a block of ink with the photo beside it, and the page
+  // uses no gradient anywhere now. The rule from the skill is that a gradient, when it exists, is functional, and not
+  // that it must exist: requiring a gradient here would guard a resource the design abandoned.
+  // And the scene shows up at scene size, not squeezed into a corner.
+  expect(measures.largestScene).toBeGreaterThan(300);
 });
 
-test("as fotos da página passam por caminho local, e não por terceiro", async ({ page }) => {
-  // Servir a foto do próprio domínio evita requisição a terceiro e mantém a política de segurança fechada, que
-  // aqui proíbe imagem de fora. Este teste guarda essa decisão; o nome citava só a foto da abertura, que deixou
-  // de existir, e a guarda vale para toda imagem da página.
+test("the page photos go through a local path, and not through a third party", async ({ page }) => {
+  // Serving the photo from our own domain avoids a request to a third party and keeps the security policy closed, which
+  // here forbids an outside image. This test guards that decision; the name used to mention only the opening photo, which no longer
+  // exists, and the guard applies to every image on the page.
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const origens = await page.evaluate(() =>
@@ -56,201 +56,201 @@ test("as fotos da página passam por caminho local, e não por terceiro", async 
   );
   const proprio = new URL(page.url()).origin;
   expect(origens.length).toBeGreaterThan(0);
-  for (const o of origens) expect(o, "imagem servida de terceiro").toBe(proprio);
+  for (const o of origens) expect(o, "image served by a third party").toBe(proprio);
 });
 
 
-test("no desktop a abertura é uma coluna centrada sobre tinta, sem foto", async ({ page }) => {
-  // Composição: texto centrado sobre cor sólida, e nada mais. A foto que ficava em faixa abaixo
-  // do painel saiu porque atrapalhava o desenho novo, então a medida perdeu as asserções da foto e
-  // ganhou a que guarda a decisão: a abertura não tem imagem nenhuma. O resto continua: o texto sobre cor própria,
-  // e a faixa de números com as três divisórias.
+test("on desktop the hero is a column centered over ink, with no photo", async ({ page }) => {
+  // Composition: text centered over solid color, and nothing else. The photo that sat in a band below
+  // the panel is gone because it got in the way of the new design, so the measure lost the photo assertions and
+  // gained the one that guards the decision: the opening has no image at all. The rest stays: the text over its own color,
+  // and the band of numbers with the three dividers.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(500);
   const m = await page.evaluate(() => {
     const hero = document.querySelector("section:has(#hero-title)");
-    const titulo = document.querySelector("#hero-title");
-    const faixa = hero?.querySelector("dl");
+    const title = document.querySelector("#hero-title");
+    const band = hero?.querySelector("dl");
     const pintura = document.createElement("canvas").getContext("2d");
-    const cor = (e: Element) => {
+    const color = (e: Element) => {
       pintura!.fillStyle = "#ffffff";
       pintura!.fillStyle = getComputedStyle(e).backgroundColor;
       return String(pintura!.fillStyle);
     };
-    if (!hero || !titulo || !faixa) return null;
+    if (!hero || !title || !band) return null;
     const h = hero.getBoundingClientRect();
-    const t = titulo.getBoundingClientRect();
-    const bloco = titulo.closest("div");
+    const t = title.getBoundingClientRect();
+    const block = title.closest("div");
     return {
       imagens: hero.querySelectorAll("img").length,
-      fundoDoTexto: bloco ? cor(bloco) : null,
-      fundoDaPagina: cor(document.body),
-      desvioDoCentro: Math.round(Math.abs(t.x + t.width / 2 - (h.x + h.width / 2))),
-      divisoes: faixa.querySelectorAll("div[class*=border-l]").length,
-      itens: faixa.querySelectorAll("dd").length,
+      textBackground: block ? color(block) : null,
+      pageBackground: color(document.body),
+      centerOffset: Math.round(Math.abs(t.x + t.width / 2 - (h.x + h.width / 2))),
+      divisoes: band.querySelectorAll("div[class*=border-l]").length,
+      items: band.querySelectorAll("dd").length,
     };
   });
-  expect(m, "não achei a abertura").not.toBeNull();
-  expect(m!.imagens, "a abertura voltou a ter imagem").toBe(0);
-  expect(m!.fundoDoTexto, "o texto não está sobre cor sólida própria").not.toBe(m!.fundoDaPagina);
-  expect(m!.desvioDoCentro, `o título está ${m!.desvioDoCentro}px fora do centro da abertura`).toBeLessThanOrEqual(4);
-  expect(m!.itens, "a faixa de números não tem três itens").toBe(3);
-  expect(m!.divisoes, "a faixa de números não tem as divisórias finas").toBe(2);
+  expect(m, "did not find the hero").not.toBeNull();
+  expect(m!.imagens, "the hero has an image again").toBe(0);
+  expect(m!.textBackground, "the text is not over its own solid color").not.toBe(m!.pageBackground);
+  expect(m!.centerOffset, `the title is ${m!.centerOffset}px off the center of the opening`).toBeLessThanOrEqual(4);
+  expect(m!.items, "the band of numbers does not have three items").toBe(3);
+  expect(m!.divisoes, "the band of numbers does not have the thin dividers").toBe(2);
 });
 
-test("no celular a abertura é a coluna centrada na largura da tela, sem foto", async ({ page }) => {
-  // A medida no celular era sobre a foto em faixa, que saiu. O que ela guarda agora é o desenho novo na largura
-  // estreita: o painel ocupa a tela, o título está centrado, e nada estoura a largura.
+test("on mobile the hero is the column centered on the screen width, with no photo", async ({ page }) => {
+  // The mobile measure used to be about the photo in a band, which is gone. What it guards now is the new design at narrow
+  // width: the panel fills the screen, the title is centered, and nothing overflows the width.
   await page.setViewportSize({ width: 393, height: 852 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(500);
   const m = await page.evaluate(() => {
     const hero = document.querySelector("section:has(#hero-title)");
-    const painel = hero?.querySelector(":scope > div");
-    const titulo = document.querySelector("#hero-title");
-    if (!hero || !painel || !titulo) return null;
+    const panel = hero?.querySelector(":scope > div");
+    const title = document.querySelector("#hero-title");
+    if (!hero || !panel || !title) return null;
     const h = hero.getBoundingClientRect();
-    const p = painel.getBoundingClientRect();
-    const t = titulo.getBoundingClientRect();
-    // A faixa dos três números tem que caber em UMA linha: com `flex-wrap` o terceiro caía para baixo, que foi o
-    // defeito relatado no celular.
-    const numeros = [...hero.querySelectorAll("dl > div")].map((d) => Math.round(d.getBoundingClientRect().top));
+    const p = panel.getBoundingClientRect();
+    const t = title.getBoundingClientRect();
+    // The band of three numbers has to fit in ONE line: with `flex-wrap` the third one dropped down, which was the
+    // defect reported on mobile.
+    const numbers = [...hero.querySelectorAll("dl > div")].map((d) => Math.round(d.getBoundingClientRect().top));
     return {
       imagens: hero.querySelectorAll("img").length,
-      painelNaLargura: Math.round((p.width / h.width) * 100),
-      desvioDoCentro: Math.round(Math.abs(t.x + t.width / 2 - (p.x + p.width / 2))),
+      panelAtWidth: Math.round((p.width / h.width) * 100),
+      centerOffset: Math.round(Math.abs(t.x + t.width / 2 - (p.x + p.width / 2))),
       overflowX: document.documentElement.scrollWidth - window.innerWidth,
-      numeros: numeros,
-      // O título desce um degrau no celular, e é isso que decide a altura da abertura: a 56 px, na coluna de
-      // 345 px, o headline de 70 caracteres quebrava em SETE linhas e levava o painel a 953 px, mais alto que
-      // a tela. A 40 px ele quebra em cinco. Sem esta medida, o display volta ao celular sem nada reprovar.
-      pxDoTitulo: parseFloat(getComputedStyle(titulo).fontSize),
-      linhasDoTitulo: Math.round(t.height / parseFloat(getComputedStyle(titulo).lineHeight)),
+      numbers: numbers,
+      // The title drops one step on mobile, and that is what decides the height of the opening: at 56 px, in the
+      // 345 px column, the 70 character headline broke into SEVEN lines and pushed the panel to 953 px, taller than
+      // the screen. At 40 px it breaks into five. Without this measure, the display can go back to mobile with nothing failing.
+      titlePx: parseFloat(getComputedStyle(title).fontSize),
+      titleLines: Math.round(t.height / parseFloat(getComputedStyle(title).lineHeight)),
     };
   });
-  expect(m, "não achei a abertura no celular").not.toBeNull();
-  expect(m!.imagens, "a abertura voltou a ter imagem").toBe(0);
-  // Um degrau abaixo do desktop, e não meio degrau: o tipo tem de ser um dos degraus declarados no DESIGN.md.
-  expect(m!.pxDoTitulo, "o título voltou ao degrau de display no celular").toBe(40);
-  expect(m!.linhasDoTitulo, `o título ocupa ${m!.linhasDoTitulo} linhas no celular`).toBeLessThanOrEqual(5);
-  expect(m!.painelNaLargura, `o painel ocupa ${m!.painelNaLargura}% da abertura`).toBeGreaterThanOrEqual(95);
-  expect(m!.desvioDoCentro, `o título está ${m!.desvioDoCentro}px fora do centro`).toBeLessThanOrEqual(4);
-  expect(m!.overflowX, "a abertura estourou a largura no celular").toBe(0);
-  expect(m!.numeros, `os três números começam nas alturas ${m!.numeros.join(", ")}`).toHaveLength(3);
-  const mesmaLinha = Math.max(...m!.numeros) - Math.min(...m!.numeros) <= 2;
-  expect(mesmaLinha, `os três números não estão na mesma linha: ${m!.numeros.join(", ")}`).toBe(true);
+  expect(m, "did not find the hero on mobile").not.toBeNull();
+  expect(m!.imagens, "the hero has an image again").toBe(0);
+  // One step below desktop, and not half a step: the type has to be one of the steps declared in DESIGN.md.
+  expect(m!.titlePx, "the title went back to the display step on mobile").toBe(40);
+  expect(m!.titleLines, `the title takes ${m!.titleLines} lines on mobile`).toBeLessThanOrEqual(5);
+  expect(m!.panelAtWidth, `the panel takes ${m!.panelAtWidth}% of the opening`).toBeGreaterThanOrEqual(95);
+  expect(m!.centerOffset, `the title is ${m!.centerOffset}px off the center`).toBeLessThanOrEqual(4);
+  expect(m!.overflowX, "the hero overflowed the width on mobile").toBe(0);
+  expect(m!.numbers, `the three numbers start at heights ${m!.numbers.join(", ")}`).toHaveLength(3);
+  const sameLine = Math.max(...m!.numbers) - Math.min(...m!.numbers) <= 2;
+  expect(sameLine, `the three numbers are not on the same line: ${m!.numbers.join(", ")}`).toBe(true);
 });
 
-test("a tipografia do site não é a que todo gerador usa", async ({ page }) => {
-  // O scanner da skill classifica Inter, Roboto, Geist, Plus Jakarta e Space Grotesk como gastas, porque todo
-  // gerador de interface converge para elas. Esta medida guarda a troca para a fonte não voltar por descuido,
-  // que é o tipo de mudança que passa batido em revisão de código.
+test("the site typography is not the one every generator uses", async ({ page }) => {
+  // The skill scanner classifies Inter, Roboto, Geist, Plus Jakarta and Space Grotesk as worn out, because every
+  // interface generator converges on them. This measure guards the swap so the font does not come back by oversight,
+  // which is the kind of change that slips through code review.
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const familia = await page.evaluate(() => getComputedStyle(document.body).fontFamily.toLowerCase());
-  expect(familia, `família medida: ${familia}`).toContain("archivo");
+  expect(familia, `measured family: ${familia}`).toContain("archivo");
   for (const gasta of ["inter", "roboto", "geist", "plus jakarta", "space grotesk"]) {
-    expect(familia.includes(gasta), `a fonte ${gasta} voltou`).toBe(false);
+    expect(familia.includes(gasta), `the font ${gasta} came back`).toBe(false);
   }
 });
 
 
-test("o simulador tem forro de painel", async ({ page }) => {
+test("the simulator has a panel fill", async ({ page }) => {
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
-  const painel = page.locator("#simulator div.rounded-xl.border").first();
-  await expect(painel).toBeVisible();
-  const fundo = await painel.evaluate((e) => getComputedStyle(e).backgroundColor);
-  expect(fundo).not.toBe("rgba(0, 0, 0, 0)");
+  const panel = page.locator("#simulator div.rounded-xl.border").first();
+  await expect(panel).toBeVisible();
+  const background = await panel.evaluate((e) => getComputedStyle(e).backgroundColor);
+  expect(background).not.toBe("rgba(0, 0, 0, 0)");
 });
 
 
-test("o depoimento em destaque é mais alto que os outros dois", async ({ page }) => {
-  // A primeira versão fazia o destaque ocupar duas colunas e ele ficava esticado, com um vão
-  // ao lado. Agora o destaque ocupa a altura dos dois, com os outros empilhados na coluna vizinha.
+test("the featured testimonial is taller than the other two", async ({ page }) => {
+  // The first version made the featured card take two columns and it came out stretched, with a gap
+  // beside it. Now the featured card takes the height of both, with the others stacked in the neighboring column.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
-  const alturas = await page.evaluate(() =>
+  const heights = await page.evaluate(() =>
     [...document.querySelectorAll("#proof [class*=rounded]")]
       .map((e) => Math.round(e.getBoundingClientRect().height))
       .filter((h) => h > 80),
   );
-  expect(alturas.length, `alturas medidas: ${alturas.join(", ")}`).toBeGreaterThanOrEqual(3);
-  const destaque = Math.max(...alturas);
-  const menores = alturas.filter((h) => h < destaque);
+  expect(heights.length, `measured heights: ${heights.join(", ")}`).toBeGreaterThanOrEqual(3);
+  const featured = Math.max(...heights);
+  const menores = heights.filter((h) => h < featured);
   expect(menores.length).toBeGreaterThanOrEqual(2);
-  expect(destaque, "o destaque não está mais alto que os outros").toBeGreaterThan(Math.max(...menores));
+  expect(featured, "the featured card is no longer taller than the others").toBeGreaterThan(Math.max(...menores));
 });
 
-test("as perguntas ficam em duas colunas no desktop", async ({ page }) => {
+test("the questions sit in two columns on desktop", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => {
-    const titulo = document.querySelector("#faq-title")?.getBoundingClientRect();
-    // O seletor é o marcador estável do acordeão, e não uma lista de padrões frouxos: `div[class*=flex]`
-    // passou a casar com a caixa que envolve a sobrancelha e o título quando o bloco ganhou enfeite, e a
-    // medida acusava "lado a lado" olhando para a coluna do próprio título.
-    const lista = document.querySelector('#faq [data-slot="accordion"]');
-    return { titulo: titulo ? Math.round(titulo.left) : null, lista: lista ? Math.round(lista.getBoundingClientRect().left) : null };
+    const title = document.querySelector("#faq-title")?.getBoundingClientRect();
+    // The selector is the stable marker of the accordion, and not a list of loose patterns: `div[class*=flex]`
+    // started matching the box that wraps the eyebrow and the title when the block gained an ornament, and the
+    // measure reported "side by side" while looking at the column of the title itself.
+    const list = document.querySelector('#faq [data-slot="accordion"]');
+    return { title: title ? Math.round(title.left) : null, list: list ? Math.round(list.getBoundingClientRect().left) : null };
   });
-  expect(m.lista).not.toBeNull();
-  expect(m.lista!, "o título e a lista não ficaram lado a lado").toBeGreaterThan(m.titulo!);
+  expect(m.list).not.toBeNull();
+  expect(m.list!, "the title and the list did not end up side by side").toBeGreaterThan(m.title!);
 });
 
-test("a faixa final é tomada pela cor de ação, e a foto não a apaga", async ({ page }) => {
-  // A faixa continua sendo a cor de ação na BASE (é ela que aparece se a foto não carregar), e por cima entrou a foto
-  // com véu. O contraste do texto dela passou a ser medido sobre os PIXELS, na sonda própria
-  // (`o texto do fecho tem contraste medido sobre os pixels da foto`), porque contra a cor declarada da seção a conta
-  // mede o fundo errado — foi assim que ela devolveu 2 para 1 depois da mudança.
+test("the final band is taken over by the action color, and the photo does not erase it", async ({ page }) => {
+  // The band remains the action color at the BASE (it is what shows if the photo fails to load), and on top of it came the photo
+  // with a veil. The contrast of its text is now measured over the PIXELS, in its own probe
+  // (`the closing text has contrast measured over the pixels of the photo`), because against the declared color of the section the calculation
+  // measures the wrong background. That is how it returned 2 to 1 after the change.
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => {
-    const secao = document.querySelector("#agendar") as HTMLElement;
-    const camadas = [...secao.children]
+    const section = document.querySelector("#book") as HTMLElement;
+    const layers = [...section.children]
       .filter((c) => getComputedStyle(c).position === "absolute")
       .map((c) => getComputedStyle(c).backgroundImage);
     return {
-      fundo: getComputedStyle(secao).backgroundColor,
-      camadas,
+      background: getComputedStyle(section).backgroundColor,
+      layers,
     };
   });
-  expect(m.fundo).not.toBe("rgba(0, 0, 0, 0)");
-  // As duas camadas do fundo, na ordem em que pintam: a foto e o véu de tinta por cima dela.
-  expect(m.camadas.length, `a faixa perdeu as camadas de fundo: ${JSON.stringify(m.camadas)}`).toBeGreaterThanOrEqual(2);
-  expect(m.camadas[0]).toContain("paineis-no-deserto.avif");
-  expect(m.camadas[1]).toContain("linear-gradient");
+  expect(m.background).not.toBe("rgba(0, 0, 0, 0)");
+  // The two background layers, in the order they paint: the photo and the ink veil over it.
+  expect(m.layers.length, `the band lost the background layers: ${JSON.stringify(m.layers)}`).toBeGreaterThanOrEqual(2);
+  expect(m.layers[0]).toContain("panels-in-desert.avif");
+  expect(m.layers[1]).toContain("linear-gradient");
 });
 
 
-test("o depoimento em destaque se distingue por borda, com o texto centrado", async ({ page }) => {
-  // O destaque precisava se distinguir dos outros dois, e o texto não podia ficar encostado no
-  // topo de um cartão alto. A distinção começou como cor de fundo e borda na cor de ação, passou a secundária e
-  // voltou; com as fotos, a cor de fundo saiu, porque sem a casa dentro do cartão ela era
-  // mancha: ficaram a borda e a marca de citação. A centralização vive no conteúdo, e não no cartão, que foi o erro
-  // da primeira tentativa: medido em 266 px em cima contra 154 embaixo.
+test("the featured testimonial stands out by border, with the text centered", async ({ page }) => {
+  // The featured card had to stand out from the other two, and the text could not sit against the
+  // top of a tall card. The distinction started as background color and border in the action color, moved to the secondary and
+  // came back; with the photos, the background color went away, because without the house inside the card it was
+  // a smudge: the border and the quote mark stayed. The centering lives in the content, and not in the card, which was the mistake
+  // of the first attempt: measured at 266 px on top against 154 at the bottom.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => {
-    // O destaque é escolhido pela borda na cor de ação, que é determinística. A primeira versão escolhia "o cartão
-    // mais alto", e depois da mudança de fundo isso passou a apontar para outro elemento: a medida acusou contraste
-    // de 1,18 porque estava medindo uma caixa transparente, não o destaque.
-    const cartoes = [...document.querySelectorAll("#proof [class*=rounded]")].filter(
+    // The featured card is chosen by the border in the action color, which is deterministic. The first version chose "the tallest
+    // card", and after the background change that started pointing at another element: the measure reported a contrast
+    // of 1.18 because it was measuring a transparent box, not the featured card.
+    const cards = [...document.querySelectorAll("#proof [class*=rounded]")].filter(
       (e) => e.getBoundingClientRect().height > 120,
     );
-    const destaque = cartoes.find((e) => (e.className || "").toString().includes("border-primary"));
-    const outro = cartoes.find((e) => !(e.className || "").toString().includes("border-primary"));
-    if (!destaque || !outro) return null;
-    const c = getComputedStyle(destaque);
+    const featured = cards.find((e) => (e.className || "").toString().includes("border-primary"));
+    const outro = cards.find((e) => !(e.className || "").toString().includes("border-primary"));
+    if (!featured || !outro) return null;
+    const c = getComputedStyle(featured);
     const o = getComputedStyle(outro);
-    const normalizar = (cor: string) => {
+    const normalizar = (color: string) => {
       const ctx = document.createElement("canvas").getContext("2d");
-      if (!ctx) return cor;
+      if (!ctx) return color;
       ctx.fillStyle = "#ffffff";
-      ctx.fillStyle = cor;
+      ctx.fillStyle = color;
       const normalizada = String(ctx.fillStyle);
       if (normalizada.startsWith("#")) {
         const n = parseInt(normalizada.slice(1), 16);
@@ -272,44 +272,44 @@ test("o depoimento em destaque se distingue por borda, com o texto centrado", as
       const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
       return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100;
     };
-    const citacao = destaque.querySelector("blockquote");
-    const legenda = [...destaque.querySelectorAll("p")].find((p) => (p.textContent ?? "").includes(","));
-    const fundo = c.backgroundColor;
-    const caixa = destaque.getBoundingClientRect();
-    const conteudo = destaque.querySelector("[class*=CardContent], [class*=flex]");
+    const citacao = featured.querySelector("blockquote");
+    const legenda = [...featured.querySelectorAll("p")].find((p) => (p.textContent ?? "").includes(","));
+    const background = c.backgroundColor;
+    const box = featured.getBoundingClientRect();
+    const conteudo = featured.querySelector("[class*=CardContent], [class*=flex]");
     const cb = conteudo?.getBoundingClientRect();
     return {
-      fundoDestaque: c.backgroundColor,
-      fundoOutro: o.backgroundColor,
+      featuredBackground: c.backgroundColor,
+      otherBackground: o.backgroundColor,
       bordaDestaque: c.borderColor,
-      bordaOutro: o.borderColor,
-      diferencaDeFundo: Math.round(Math.abs(lum(fundo) - lum(o.backgroundColor)) * 100) / 100,
-      contrasteCitacao: citacao ? contraste(fundo, getComputedStyle(citacao).color) : null,
-      contrasteLegenda: legenda ? contraste(fundo, getComputedStyle(legenda).color) : null,
-      acima: cb ? Math.round(cb.top - caixa.top) : null,
-      abaixo: cb ? Math.round(caixa.bottom - cb.bottom) : null,
+      otherBorder: o.borderColor,
+      backgroundDifference: Math.round(Math.abs(lum(background) - lum(o.backgroundColor)) * 100) / 100,
+      contrasteCitacao: citacao ? contraste(background, getComputedStyle(citacao).color) : null,
+      contrasteLegenda: legenda ? contraste(background, getComputedStyle(legenda).color) : null,
+      above: cb ? Math.round(cb.top - box.top) : null,
+      below: cb ? Math.round(box.bottom - cb.bottom) : null,
     };
   });
-  expect(m, "não achei os depoimentos").not.toBeNull();
-  // A lavagem de fundo (`bg-primary/25`) saiu do destaque: sem a casa dentro do cartão ela virou
-  // mancha sem trabalho, e quem distingue o destaque agora é a borda na cor de ação, com a marca de citação dentro.
-  // As duas metades disso são medidas: fundo IGUAL ao dos outros cartões e borda DIFERENTE.
-  expect(m!.fundoDestaque, "o destaque ganhou lavagem de fundo de novo").toBe(m!.fundoOutro);
-  for (const [rotulo, r] of [["citação", m!.contrasteCitacao], ["legenda", m!.contrasteLegenda]] as const) {
-    expect(r, `contraste da ${rotulo} sobre o destaque: ${r}`).toBeGreaterThanOrEqual(4.5);
+  expect(m, "did not find the testimonials").not.toBeNull();
+  // The background wash (`bg-primary/25`) left the featured card: without the house inside the card it became
+  // a smudge with no purpose, and what now sets the featured card apart is the border in the action color, with the quote mark inside.
+  // The two halves of that are measured: background EQUAL to the other cards and border DIFFERENT.
+  expect(m!.featuredBackground, "the featured card picked up a background wash again").toBe(m!.otherBackground);
+  for (const [label, r] of [["quote", m!.contrasteCitacao], ["caption", m!.contrasteLegenda]] as const) {
+    expect(r, `contrast of the ${label} over the featured card: ${r}`).toBeGreaterThanOrEqual(4.5);
   }
-  expect(m!.bordaDestaque, "o destaque não tem borda própria").not.toBe(m!.bordaOutro);
+  expect(m!.bordaDestaque, "the featured card has no border of its own").not.toBe(m!.otherBorder);
   expect(
-    Math.abs((m!.acima ?? 0) - (m!.abaixo ?? 0)),
-    `espaço acima ${m!.acima} e abaixo ${m!.abaixo}`,
+    Math.abs((m!.above ?? 0) - (m!.below ?? 0)),
+    `space above ${m!.above} and below ${m!.below}`,
   ).toBeLessThanOrEqual(40);
 });
 
 
-test("nenhuma resposta do acordeão fica cortada no celular", async ({ page }) => {
-  // Defeito relatado: as respostas 1, 4 e 5 apareciam pela metade no celular. Causa: o conteúdo tinha altura
-  // presa na variável que o Radix mede, e o pai tem overflow hidden, então resposta mais alta que o valor
-  // medido perdia o fim. A altura pertence aos quadros da animação, não ao elemento em repouso.
+test("no accordion answer is cut off on mobile", async ({ page }) => {
+  // Reported defect: answers 1, 4 and 5 appeared cut in half on mobile. Cause: the content had a height
+  // locked to the variable Radix measures, and the parent has overflow hidden, so an answer taller than the measured
+  // value lost its end. The height belongs to the animation frames, not to the element at rest.
   await page.setViewportSize({ width: 393, height: 852 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(600);
@@ -324,24 +324,24 @@ test("nenhuma resposta do acordeão fica cortada no celular", async ({ page }) =
         (e.textContent ?? "").trim().length > 60,
       );
       return abertos
-        .map((e) => ({ tag: e.tagName, sobra: e.scrollHeight - Math.round(e.getBoundingClientRect().height) }))
-        .filter((x) => x.sobra > 2);
+        .map((e) => ({ tag: e.tagName, remainder: e.scrollHeight - Math.round(e.getBoundingClientRect().height) }))
+        .filter((x) => x.remainder > 2);
     });
-    expect(cortado, `pergunta ${i + 1} com texto cortado: ${JSON.stringify(cortado)}`).toEqual([]);
+    expect(cortado, `question ${i + 1} with cut text: ${JSON.stringify(cortado)}`).toEqual([]);
     await gatilhos.nth(i).click();
     await page.waitForTimeout(300);
   }
 });
 
 
-test("toda foto da página tem dimensão declarada e carrega", async ({ page }) => {
-  // Foto é prova de serviço, e prova precisa carregar de verdade. Largura e altura declaradas evitam que ela empurre
-  // o conteúdo quando termina de baixar, que é o defeito de layout mais comum com imagem. Com as seis fotos, a
-  // medida saiu do pé da prova social e passou a valer para TODA imagem da página, que é onde o defeito pode
-  // voltar agora que são seis.
+test("every photo on the page has a declared dimension and loads", async ({ page }) => {
+  // A photo is proof of service, and proof has to load for real. Declared width and height stop it from pushing
+  // the content when it finishes downloading, which is the most common layout defect with an image. With the six photos, the
+  // measure left the foot of the social proof and now applies to EVERY image on the page, which is where the defect can
+  // come back now that there are six.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
-  // Percorre a página e espera cada arquivo: as fotos são `loading="lazy"` e as de baixo só carregam quando chegam perto.
+  // Walks the page and waits for each file: the photos are `loading="lazy"` and the lower ones only load when they get close.
   const faltando = await page.evaluate(async () => {
     for (let tentativa = 0; tentativa < 40; tentativa++) {
       const pendentes = [...document.images].filter((i) => !i.complete);
@@ -352,79 +352,79 @@ test("toda foto da página tem dimensão declarada e carrega", async ({ page }) 
     }
     return [...document.images].filter((i) => !i.complete).map((i) => i.currentSrc || i.src);
   });
-  expect(faltando, `fotos que não carregaram: ${faltando.join(", ")}`).toEqual([]);
-  const fotos = await page.locator("img").evaluateAll((imgs) =>
+  expect(faltando, `photos that did not load: ${faltando.join(", ")}`).toEqual([]);
+  const photos = await page.locator("img").evaluateAll((imgs) =>
     imgs.map((i) => ({
-      arquivo: new URL((i as HTMLImageElement).src).pathname.split("/").pop(),
-      largura: i.getAttribute("width"),
-      altura: i.getAttribute("height"),
+      file: new URL((i as HTMLImageElement).src).pathname.split("/").pop(),
+      width: i.getAttribute("width"),
+      height: i.getAttribute("height"),
       carregou: (i as HTMLImageElement).naturalWidth > 0,
       alt: i.getAttribute("alt"),
     })),
   );
-  expect(fotos.length).toBe(5);
-  for (const foto of fotos) {
-    expect(foto.largura, `${foto.arquivo} sem width declarada`).toBeTruthy();
-    expect(foto.altura, `${foto.arquivo} sem height declarada`).toBeTruthy();
-    expect(foto.carregou, `${foto.arquivo} não carregou`).toBe(true);
-    expect((foto.alt ?? "").length, `${foto.arquivo} sem texto alternativo`).toBeGreaterThan(0);
-    const resposta = await page.request.get(`/fotos/${foto.arquivo}`);
-    expect(resposta.status(), `${foto.arquivo} não é servida pelo site`).toBe(200);
+  expect(photos.length).toBe(5);
+  for (const photo of photos) {
+    expect(photo.width, `${photo.file} has no declared width`).toBeTruthy();
+    expect(photo.height, `${photo.file} has no declared height`).toBeTruthy();
+    expect(photo.carregou, `${photo.file} did not load`).toBe(true);
+    expect((photo.alt ?? "").length, `${photo.file} has no alt text`).toBeGreaterThan(0);
+    const answer = await page.request.get(`/fotos/${photo.file}`);
+    expect(answer.status(), `${photo.file} is not served by the site`).toBe(200);
   }
 });
 
 
-test("o texto do hero tem contraste medido sobre os pixels", async ({ page }) => {
-  // O texto da abertura vive sobre o painel de tinta com os véus decorativos (grade e sol), e essa soma não se
-  // confere com a cor declarada no CSS: o que vale é o pixel que está atrás. Esta medida recorta a área de respiro
-  // ao lado do texto, sem os pixels do próprio texto, e calcula a luminância média dali contra a cor do texto. É a
-  // única forma honesta de afirmar que o título lê bem — e é ela que dá o teto do amarelo do enfeite.
+test("the hero text has contrast measured over the pixels", async ({ page }) => {
+  // The text of the opening sits over the ink panel with the decorative veils (grid and sun), and that sum does not
+  // match the color declared in the CSS: what counts is the pixel behind it. This measure crops the breathing area
+  // beside the text, without the pixels of the text itself, and computes the average luminance there against the color of the text. It is the
+  // only honest way to state that the title reads well, and it is what sets the ceiling of the yellow in the ornament.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(700);
-  // A lista tem os três textos da abertura, e não só o título e o parágrafo: a sobrancelha ficou sem contraste
-  // quando o sol subiu para o topo do painel, e ela é o pedaço do texto que mais perto da faixa amarela fica.
+  // The list has the three texts of the opening, and not only the title and the paragraph: the eyebrow lost contrast
+  // when the sun moved up to the top of the panel, and it is the piece of text that sits closest to the yellow band.
   for (const seletor of [
     "#hero-title",
     "section:has(#hero-title) p.type-body",
     "section:has(#hero-title) p.type-label",
   ]) {
-    const alvo = page.locator(seletor).first();
-    const caixa = await alvo.boundingBox();
-    expect(caixa, `não achei ${seletor}`).not.toBeNull();
-    // A amostra é a área de respiro à direita do texto, dentro do painel: ali existe tinta com a grade e o sol. A
-    // primeira versão recortava uma faixa abaixo do texto, que cai sobre os distintivos claros e devolveu 1,37
-    // medindo a coisa errada.
-    // A amostra sai do bloco onde o texto vive, e não da abertura inteira: a abertura tem borda e arredondamento, e
-    // amostrar a borda mede a calçada em vez do painel.
-    const bloco = await page
+    const target = page.locator(seletor).first();
+    const box = await target.boundingBox();
+    expect(box, `did not find ${seletor}`).not.toBeNull();
+    // The sample is the breathing area to the right of the text, inside the panel: there the ink with the grid and the sun lives.
+    // The first version cropped a band below the text, which falls on the light badges and returned 1,37
+    // while measuring the wrong thing.
+    // The sample comes from the block where the text lives, and not from the whole opening: the opening has a border and rounding, and
+    // sampling the border measures the sidewalk instead of the panel.
+    const block = await page
       .locator("section:has(#hero-title) > div")
       .first()
       .boundingBox();
-    expect(bloco, "não achei o bloco de texto da abertura").not.toBeNull();
-    // A sobrancelha é o único texto da abertura que tem fundo PRÓPRIO (uma pílula). Nela a amostra sai de dentro
-    // da pílula, na lateral interna onde não há glifo: medindo ao lado, como nas outras duas, a perda de contraste
-    // passou despercebida quando o sol subiu para o topo do painel — este é o caso que exige amostra própria.
-    const temPilula = seletor.includes("type-label");
-    const sobrou = bloco!.x + bloco!.width - (caixa!.x + caixa!.width);
-    const larguraAmostra = temPilula ? 6 : Math.max(24, Math.min(Math.round(sobrou - 8), 160));
-    const faixa = {
-      x: temPilula
-        ? Math.round(caixa!.x + 3)
-        : Math.round(bloco!.x + bloco!.width - larguraAmostra - 4),
-      y: Math.round(caixa!.y + caixa!.height / 2 - (temPilula ? 5 : 0)),
-      width: larguraAmostra,
-      height: temPilula ? 10 : 12,
+    expect(block, "did not find the hero text block").not.toBeNull();
+    // The eyebrow is the only text of the opening with a background OF ITS OWN (a pill). For it the sample comes from inside
+    // the pill, on the inner side where there is no glyph: measured beside it, as with the other two, the loss of contrast
+    // went unnoticed when the sun moved up to the top of the panel. This is the case that requires its own sample.
+    const hasPill = seletor.includes("type-label");
+    const sobrou = block!.x + block!.width - (box!.x + box!.width);
+    const sampleWidth = hasPill ? 6 : Math.max(24, Math.min(Math.round(sobrou - 8), 160));
+    const band = {
+      x: hasPill
+        ? Math.round(box!.x + 3)
+        : Math.round(block!.x + block!.width - sampleWidth - 4),
+      y: Math.round(box!.y + box!.height / 2 - (hasPill ? 5 : 0)),
+      width: sampleWidth,
+      height: hasPill ? 10 : 12,
     };
-    const b64 = (await page.screenshot({ clip: faixa })).toString("base64");
-    const cor = await alvo.evaluate((e) => getComputedStyle(e).color);
+    const b64 = (await page.screenshot({ clip: band })).toString("base64");
+    const color = await target.evaluate((e) => getComputedStyle(e).color);
     const r = await page.evaluate(
-      async ({ b64, cor }) => {
+      async ({ b64, color }) => {
         const linear = (v: number) => {
           const s = v / 255;
           return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
         };
-        const lumDe = (r: number, g: number, b: number) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+        const luminanceOf = (r: number, g: number, b: number) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
         const img = new Image();
         img.src = "data:image/png;base64," + b64;
         await img.decode();
@@ -448,14 +448,14 @@ test("o texto do hero tem contraste medido sobre os pixels", async ({ page }) =>
         const mr = sr / n;
         const mg = sg / n;
         const mb = sb / n;
-        const fundo = lumDe(mr, mg, mb);
-        // A cor do texto é lida pintando um pixel no canvas e lendo o que saiu. Ler o texto da propriedade não
-        // serve: o navegador devolve oklab, e tratar esses números como se fossem 0 a 255 devolveu um contraste de
-        // 1,78 medindo uma cor que não existe.
+        const background = luminanceOf(mr, mg, mb);
+        // The text color is read by painting a pixel on the canvas and reading what came out. Reading the text from the
+        // property does not work: the browser returns oklab, and treating those numbers as if they were 0 to 255 returned a
+        // contrast of 1,78 while measuring a color that does not exist.
         //
-        // A tinta de base da sonda é o FUNDO AMOSTRADO, e não branco: texto com opacidade (a sobrancelha e o
-        // parágrafo usam `canvas/70` e `canvas/85`) compõe com o que está atrás, e compor sobre branco devolve um
-        // texto mais claro do que o olho vê — foi assim que a perda de contraste da sobrancelha passou batida.
+        // The base ink of the probe is the SAMPLED BACKGROUND, and not white: text with opacity (the eyebrow and the
+        // paragraph use `canvas/70` and `canvas/85`) composites with what is behind it, and compositing over white returns a
+        // text lighter than the eye sees. That is how the loss of contrast in the eyebrow slipped by.
         const sonda = document.createElement("canvas");
         sonda.width = 1;
         sonda.height = 1;
@@ -463,105 +463,105 @@ test("o texto do hero tem contraste medido sobre os pixels", async ({ page }) =>
         if (!sctx) return null;
         sctx.fillStyle = `rgb(${Math.round(mr)}, ${Math.round(mg)}, ${Math.round(mb)})`;
         sctx.fillRect(0, 0, 1, 1);
-        sctx.fillStyle = cor;
+        sctx.fillStyle = color;
         sctx.fillRect(0, 0, 1, 1);
         const px = sctx.getImageData(0, 0, 1, 1).data;
-        const texto = lumDe(px[0], px[1], px[2]);
-        const [alto, baixo] = [fundo, texto].sort((a, b) => b - a);
-        return Math.round(((alto + 0.05) / (baixo + 0.05)) * 100) / 100;
+        const text = luminanceOf(px[0], px[1], px[2]);
+        const [high, low] = [background, text].sort((a, b) => b - a);
+        return Math.round(((high + 0.05) / (low + 0.05)) * 100) / 100;
       },
-      { b64, cor },
+      { b64, color },
     );
-    expect(r, `contraste medido contra os pixels: ${r} em ${seletor}`).not.toBeNull();
-    expect(r!, `contraste medido contra os pixels: ${r} em ${seletor}`).toBeGreaterThanOrEqual(4.5);
+    expect(r, `contrast measured against the pixels: ${r} in ${seletor}`).not.toBeNull();
+    expect(r!, `contrast measured against the pixels: ${r} in ${seletor}`).toBeGreaterThanOrEqual(4.5);
   }
 });
 
 
-test("o card do blog é clicável por inteiro, e a borda muda no hover", async ({ page }) => {
-  // Card clicável inteiro, e o hover mudando a borda, não só o sublinhado do título. O clique é
-  // conferido longe do título, no canto inferior do card, que é onde um link só no texto não pegaria.
+test("the blog card is clickable as a whole, and the border changes on hover", async ({ page }) => {
+  // Card clickable as a whole, and the hover changing the border, not just the underline of the title. The click is
+  // checked far from the title, in the bottom corner of the card, which is where a link only on the text would not catch.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/blog");
   await page.waitForTimeout(500);
   const card = page.locator("main ul li").first();
-  const caixa = await card.boundingBox();
-  expect(caixa, "não achei card no blog").not.toBeNull();
+  const box = await card.boundingBox();
+  expect(box, "did not find a card in the blog").not.toBeNull();
 
-  const antes = await card.evaluate((e) => getComputedStyle(e).borderColor);
+  const before = await card.evaluate((e) => getComputedStyle(e).borderColor);
   await card.hover();
   await page.waitForTimeout(300);
-  const depois = await card.evaluate((e) => getComputedStyle(e).borderColor);
-  expect(depois, `borda antes ${antes}, depois ${depois}`).not.toBe(antes);
+  const after = await card.evaluate((e) => getComputedStyle(e).borderColor);
+  expect(after, `border before ${before}, after ${after}`).not.toBe(before);
 
-  // Esperar a URL mudar, e não o estado de carga: em página já carregada o estado resolve na hora e a conferência
-  // acontece antes de a navegação terminar, que foi o que fez a medida reprovar com a navegação funcionando.
-  await page.mouse.click(caixa!.x + caixa!.width - 14, caixa!.y + caixa!.height - 10);
+  // Waiting for the URL to change, and not for the load state: on an already loaded page the state resolves right away and the check
+  // happens before the navigation finishes, which is what made the measure fail while navigation worked.
+  await page.mouse.click(box!.x + box!.width - 14, box!.y + box!.height - 10);
   await page.waitForURL(/\/blog\/.+/, { timeout: 15000 });
-  expect(page.url(), "clicar no canto do card não navegou").toContain("/blog/");
+  expect(page.url(), "clicking the corner of the card did not navigate").toContain("/blog/");
 });
 
 
-test("os links de fonte do blog abrem em outra aba", async ({ page }) => {
-  // Quem clica numa fonte não pode sair da página. Nem todo texto tem fonte, então a medida
-  // percorre os primeiros e cobra os atributos onde houver link externo, exigindo que exista pelo menos um.
+test("the blog source links open in another tab", async ({ page }) => {
+  // Whoever clicks a source cannot leave the page. Not every text has a source, so the measure
+  // walks the first ones and checks the attributes wherever there is an external link, requiring that at least one exists.
   await page.goto("/blog");
   await page.waitForTimeout(400);
   const links = page.locator("main ul li h2 a");
-  const quantos = Math.min(await links.count(), 3);
-  expect(quantos, "não achei texto no blog").toBeGreaterThan(0);
+  const howMany = Math.min(await links.count(), 3);
+  expect(howMany, "did not find text in the blog").toBeGreaterThan(0);
   let externos = 0;
-  for (let i = 0; i < quantos; i++) {
+  for (let i = 0; i < howMany; i++) {
     await links.nth(i).click();
     await page.waitForURL(/\/blog\/.+/, { timeout: 15000 });
     const total = await page.locator('main a[href^="http"]').count();
     for (let n = 0; n < total; n++) {
       const link = page.locator('main a[href^="http"]').nth(n);
       externos++;
-      expect(await link.getAttribute("target"), "link externo na mesma aba").toBe("_blank");
-      expect(await link.getAttribute("rel"), "link externo sem noopener").toContain("noopener");
+      expect(await link.getAttribute("target"), "external link in the same tab").toBe("_blank");
+      expect(await link.getAttribute("rel"), "external link without noopener").toContain("noopener");
     }
     await page.goBack();
     await page.waitForLoadState("domcontentloaded");
   }
-  expect(externos, "nenhum link externo encontrado nos textos conferidos").toBeGreaterThan(0);
+  expect(externos, "no external link found in the texts checked").toBeGreaterThan(0);
 });
 
 
-test("no desktop os três cards ficam lado a lado, com o botão centralizado", async ({ page }) => {
-  // Em tela larga os cards do fim do texto ficam em linha, e o botão de ver todos centralizado
-  // embaixo. A medida confere as duas posições, e não a existência dos elementos.
+test("on desktop the three cards sit side by side, with the button centered", async ({ page }) => {
+  // On a wide screen the cards at the end of the text sit in a line, and the see all button is centered
+  // below. The measure checks the two positions, and not the existence of the elements.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/blog/how-to-read-your-solar-estimate");
   await page.waitForTimeout(500);
   const m = await page.evaluate(() => {
-    const secao = document.querySelector('section[aria-labelledby="outros-titulo"]');
-    const cards = [...(secao?.querySelectorAll("li") ?? [])].map((li) => li.getBoundingClientRect());
-    const botao = secao?.querySelector("a[href='/blog']")?.getBoundingClientRect();
-    if (cards.length < 3 || !botao || !secao) return null;
+    const section = document.querySelector('section[aria-labelledby="others-title"]');
+    const cards = [...(section?.querySelectorAll("li") ?? [])].map((li) => li.getBoundingClientRect());
+    const botao = section?.querySelector("a[href='/blog']")?.getBoundingClientRect();
+    if (cards.length < 3 || !botao || !section) return null;
     const topos = cards.map((c) => Math.round(c.top));
     const esquerdas = cards.slice(0, 3).map((c) => Math.round(c.left));
-    const centroSecao = secao.getBoundingClientRect().left + secao.getBoundingClientRect().width / 2;
+    const centroSecao = section.getBoundingClientRect().left + section.getBoundingClientRect().width / 2;
     return {
       mesmosTopos: Math.max(...topos.slice(0, 3)) - Math.min(...topos.slice(0, 3)) <= 2,
       esquerdasDistintas: new Set(esquerdas).size === 3,
-      botaoAbaixo: botao.top >= Math.max(...topos.slice(0, 3)),
-      desvioDoCentro: Math.round(Math.abs(botao.left + botao.width / 2 - centroSecao)),
+      buttonBelow: botao.top >= Math.max(...topos.slice(0, 3)),
+      centerOffset: Math.round(Math.abs(botao.left + botao.width / 2 - centroSecao)),
     };
   });
-  expect(m, "não achei o bloco dos outros textos").not.toBeNull();
-  expect(m!.mesmosTopos, "os cards não estão alinhados no mesmo topo").toBe(true);
-  expect(m!.esquerdasDistintas, "os cards não estão lado a lado").toBe(true);
-  expect(m!.botaoAbaixo, "o botão não está abaixo dos cards").toBe(true);
-  expect(m!.desvioDoCentro, `desvio do centro: ${m!.desvioDoCentro}px`).toBeLessThanOrEqual(4);
+  expect(m, "did not find the block of the other texts").not.toBeNull();
+  expect(m!.mesmosTopos, "the cards are not aligned at the same top").toBe(true);
+  expect(m!.esquerdasDistintas, "the cards are not side by side").toBe(true);
+  expect(m!.buttonBelow, "the button is not below the cards").toBe(true);
+  expect(m!.centerOffset, `offset from the center: ${m!.centerOffset}px`).toBeLessThanOrEqual(4);
 });
 
 
-test("no desktop o índice do blog mostra o destaque sozinho e os outros dois por linha", async ({ page }) => {
-  // Os cards do índice lado a lado, dois por linha em tela larga. O card mais novo ocupa as duas colunas, então a
-  // primeira linha tem UM card e as seguintes continuam com DOIS. A medida é a mesma de antes (quem compartilha o topo está na
-  // mesma linha, que é o que define linha em grade), com as duas contagens separadas, e a largura do destaque
-  // conferida em relação à do vizinho em vez de contra um número escrito aqui.
+test("on desktop the blog index shows the featured card alone and the other two per line", async ({ page }) => {
+  // The index cards side by side, two per line on a wide screen. The newest card takes both columns, so the
+  // first line has ONE card and the following ones keep TWO. The measure is the same as before (whoever shares the top is on the
+  // same line, which is what defines a line in a grid), with the two counts separated, and the width of the featured card
+  // checked against that of its neighbor instead of against a number written here.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/blog");
   await page.waitForTimeout(500);
@@ -569,84 +569,84 @@ test("no desktop o índice do blog mostra o destaque sozinho e os outros dois po
     const cards = [...document.querySelectorAll("main ul li")].map((li) => li.getBoundingClientRect());
     if (cards.length < 3) return null;
     const topos = cards.map((c) => Math.round(c.top));
-    const naPrimeiraLinha = topos.filter((t) => Math.abs(t - topos[0]) <= 2).length;
-    const segundoTopo = Math.min(...topos.filter((t) => t > topos[0] + 2));
-    const naSegundaLinha = topos.filter((t) => Math.abs(t - segundoTopo) <= 2).length;
+    const onFirstLine = topos.filter((t) => Math.abs(t - topos[0]) <= 2).length;
+    const secondTop = Math.min(...topos.filter((t) => t > topos[0] + 2));
+    const onSecondLine = topos.filter((t) => Math.abs(t - secondTop) <= 2).length;
     return {
-      naPrimeiraLinha,
-      naSegundaLinha,
-      larguraDestaque: Math.round(cards[0].width),
-      larguraVizinho: Math.round(cards[1].width),
+      onFirstLine,
+      onSecondLine,
+      featuredWidth: Math.round(cards[0].width),
+      neighborWidth: Math.round(cards[1].width),
       total: cards.length,
     };
   });
-  expect(m, "não achei cards no índice").not.toBeNull();
-  expect(m!.naPrimeiraLinha, `cards na primeira linha: ${m!.naPrimeiraLinha}`).toBe(1);
-  expect(m!.naSegundaLinha, `cards na segunda linha: ${m!.naSegundaLinha}`).toBe(2);
+  expect(m, "did not find cards in the index").not.toBeNull();
+  expect(m!.onFirstLine, `cards on the first line: ${m!.onFirstLine}`).toBe(1);
+  expect(m!.onSecondLine, `cards on the second line: ${m!.onSecondLine}`).toBe(2);
   expect(
-    m!.larguraDestaque,
-    `destaque com ${m!.larguraDestaque}px contra ${m!.larguraVizinho}px do vizinho`,
-  ).toBeGreaterThan(m!.larguraVizinho * 1.8);
+    m!.featuredWidth,
+    `featured card at ${m!.featuredWidth}px against ${m!.neighborWidth}px of the neighbor`,
+  ).toBeGreaterThan(m!.neighborWidth * 1.8);
 });
 
-test("no celular o índice do blog segue com um card por linha", async ({ page }) => {
+test("on mobile the blog index keeps one card per line", async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 852 });
   await page.goto("/blog");
   await page.waitForTimeout(500);
-  const naPrimeiraLinha = await page.evaluate(() => {
+  const onFirstLine = await page.evaluate(() => {
     const cards = [...document.querySelectorAll("main ul li")].map((li) => Math.round(li.getBoundingClientRect().top));
     if (cards.length < 2) return 0;
     return cards.filter((t) => Math.abs(t - cards[0]) <= 2).length;
   });
-  expect(naPrimeiraLinha).toBe(1);
+  expect(onFirstLine).toBe(1);
 });
 
 
-test("a barra limita o conteúdo à largura dos itens da página", async ({ page }) => {
-  // A logo à esquerda e os botões à direita, mas dentro da largura dos itens da página, e não
-  // esticados até as bordas da janela. A medida compara as duas pontas com a coluna de conteúdo.
+test("the bar keeps the content within the width of the page items", async ({ page }) => {
+  // The logo on the left and the buttons on the right, but inside the width of the page items, and not
+  // stretched to the edges of the window. The measure compares the two ends against the content column.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(500);
   const m = await page.evaluate(() => {
-    const barra = document.querySelector('nav[aria-label="Main navigation"]');
-    // A referência era a abertura, que era o primeiro item visível dentro de main. Depois que a abertura passou a
-    // pegar a largura toda da janela ela deixou de servir como coluna: a barra se alinha com o CONTEÚDO, e agora quem
-    // define essa coluna é o simulador, o primeiro bloco que continua dentro do contêiner. Comparar com a caixa de main
-    // dava zero enquanto os itens da barra passavam da largura visível, porque a caixa inclui o respiro; comparar com o
-    // primeiro filho também não serve, porque o primeiro filho é o script de dado estruturado, com caixa em zero.
-    // A seção do simulador passou a pegar a largura da janela, e quem carrega a coluna de
-    // conteúdo é o invólucro de dentro dela (`> div`), que é a referência agora.
+    const bar = document.querySelector('nav[aria-label="Main navigation"]');
+    // The reference used to be the opening, which was the first visible item inside main. After the opening started
+    // taking the whole window width it stopped working as a column: the bar aligns with the CONTENT, and now what
+    // defines that column is the simulator, the first block that stays inside the container. Comparing with the box of main
+    // gave zero while the bar items went past the visible width, because the box includes the breathing room; comparing with the
+    // first child does not work either, because the first child is the structured data script, with a box at zero.
+    // The simulator section started taking the window width, and what carries the content
+    // column is its inner wrapper (`> div`), which is the reference now.
     const conteudo = document.querySelector("main section#simulator > div");
-    if (!barra || !conteudo) return null;
-    const dentro = [...barra.querySelectorAll("span")].find((s) => (s.textContent ?? "").trim() === "Brightfield Solar");
-    const destinos = [...barra.querySelectorAll("a")];
-    const ultimo = destinos[destinos.length - 1];
-    if (!dentro || !ultimo) return null;
+    if (!bar || !conteudo) return null;
+    const inside = [...bar.querySelectorAll("span")].find((s) => (s.textContent ?? "").trim() === "Brightfield Solar");
+    const destinations = [...bar.querySelectorAll("a")];
+    const last = destinations[destinations.length - 1];
+    if (!inside || !last) return null;
     const c = conteudo.getBoundingClientRect();
-    const estilo = getComputedStyle(conteudo);
-    // A coluna de conteúdo é a CAIXA DE DENTRO do invólucro (o invólucro carrega o respiro lateral), e é ela que
-    // os itens da barra têm de respeitar.
-    const esquerda = c.left + parseFloat(estilo.paddingLeft);
-    const direita = c.right - parseFloat(estilo.paddingRight);
-    const d = dentro.getBoundingClientRect();
-    const u = ultimo.getBoundingClientRect();
+    const style = getComputedStyle(conteudo);
+    // The content column is the INNER BOX of the wrapper (the wrapper carries the side breathing room), and it is what
+    // the bar items have to respect.
+    const esquerda = c.left + parseFloat(style.paddingLeft);
+    const direita = c.right - parseFloat(style.paddingRight);
+    const d = inside.getBoundingClientRect();
+    const u = last.getBoundingClientRect();
     return {
       esquerda: Math.round(d.left - esquerda),
       direita: Math.round(direita - u.right),
-      larguraDosItens: Math.round(direita - esquerda),
+      itemWidth: Math.round(direita - esquerda),
     };
   });
-  expect(m, "não achei a barra ou o conteúdo").not.toBeNull();
-  // A marca começa onde a coluna começa, e o último destino termina onde a coluna termina, com folga de poucos px.
-  expect(Math.abs(m!.esquerda), `desvio à esquerda: ${m!.esquerda}px`).toBeLessThanOrEqual(6);
-  expect(Math.abs(m!.direita), `desvio à direita: ${m!.direita}px`).toBeLessThanOrEqual(6);
+  expect(m, "did not find the bar or the content").not.toBeNull();
+  // The brand starts where the column starts, and the last destination ends where the column ends, with a few px of slack.
+  expect(Math.abs(m!.esquerda), `offset to the left: ${m!.esquerda}px`).toBeLessThanOrEqual(6);
+  expect(Math.abs(m!.direita), `offset to the right: ${m!.direita}px`).toBeLessThanOrEqual(6);
 });
 
 
-test("no desktop a abertura começa logo abaixo da barra, com os cantos de cima retos", async ({ page }) => {
-  // A abertura não pode entrar por baixo da barra, ela começa abaixo dela. A abertura em zero com espaço extra no
-  // texto para escapar da barra flutuante era o arranjo errado.
+test("on desktop the hero starts right below the bar, with the top corners square", async ({ page }) => {
+  // The opening cannot slide under the bar, it starts below it. The opening at zero with extra space in the
+  // text to escape the floating bar was the wrong arrangement.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(500);
@@ -654,225 +654,225 @@ test("no desktop a abertura começa logo abaixo da barra, com os cantos de cima 
     const hero = document.querySelector("section:has(#hero-title)");
     if (!hero) return null;
     const r = hero.getBoundingClientRect();
-    const estilo = getComputedStyle(hero);
-    const raio = [estilo.borderTopLeftRadius, estilo.borderTopRightRadius].map((v) => parseFloat(v));
-    const barra = document.querySelector('nav[aria-label="Main navigation"]')!.getBoundingClientRect();
-    const texto = document.querySelector("#hero-title")!.getBoundingClientRect();
+    const style = getComputedStyle(hero);
+    const raio = [style.borderTopLeftRadius, style.borderTopRightRadius].map((v) => parseFloat(v));
+    const bar = document.querySelector('nav[aria-label="Main navigation"]')!.getBoundingClientRect();
+    const text = document.querySelector("#hero-title")!.getBoundingClientRect();
     return {
-      distanciaDaBarra: Math.round(r.top - barra.bottom),
-      raioTopo: raio,
-      textoAbaixoDaBarra: texto.top >= barra.bottom,
-      textoDentroDaAbertura: texto.top >= r.top,
+      distanceFromBar: Math.round(r.top - bar.bottom),
+      topRadius: raio,
+      textBelowBar: text.top >= bar.bottom,
+      textInsideHero: text.top >= r.top,
     };
   });
-  expect(m, "não achei a abertura").not.toBeNull();
-  // Começa abaixo da barra, e não longe dela: a folga tem que ser pequena, senão vira buraco no topo da página.
-  expect(m!.distanciaDaBarra, `a abertura começa ${m!.distanciaDaBarra}px abaixo da barra`).toBeGreaterThanOrEqual(-1);
-  expect(m!.distanciaDaBarra, `a abertura começa ${m!.distanciaDaBarra}px abaixo da barra`).toBeLessThanOrEqual(32);
-  expect(Math.max(...m!.raioTopo), "os cantos de cima continuam arredondados").toBe(0);
-  expect(m!.textoAbaixoDaBarra, "a barra cobre o título da abertura").toBe(true);
-  expect(m!.textoDentroDaAbertura, "o título escapou para cima da abertura").toBe(true);
+  expect(m, "did not find the hero").not.toBeNull();
+  // It starts below the bar, and not far from it: the slack has to be small, otherwise it becomes a hole at the top of the page.
+  expect(m!.distanceFromBar, `the opening starts ${m!.distanceFromBar}px below the bar`).toBeGreaterThanOrEqual(-1);
+  expect(m!.distanceFromBar, `the opening starts ${m!.distanceFromBar}px below the bar`).toBeLessThanOrEqual(32);
+  expect(Math.max(...m!.topRadius), "the top corners are still rounded").toBe(0);
+  expect(m!.textBelowBar, "the bar covers the hero title").toBe(true);
+  expect(m!.textInsideHero, "the title escaped to the top of the hero").toBe(true);
 });
 
 
-test("o texto do blog usa a largura da coluna", async ({ page }) => {
-  // O texto ocupa a largura da coluna, e não uma coluna estreita com lateral de navegação ao lado. A medida confere o
-  // aproveitamento da coluna, e registra o custo: linha mais longa que a faixa confortável de leitura, uma escolha e
-  // não descuido.
+test("the blog text uses the width of the column", async ({ page }) => {
+  // The text takes the width of the column, and not a narrow column with a navigation rail beside it. The measure checks the
+  // use of the column, and records the cost: a line longer than the comfortable reading range, a choice and
+  // not an oversight.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/blog/how-to-read-your-solar-estimate");
   await page.waitForTimeout(600);
   const m = await page.evaluate(() => {
-    const coluna = document.querySelector("main")?.getBoundingClientRect();
-    const caixa = document.querySelector('main div[class*="max-w-[52rem]"]');
-    const titulo = document.querySelector("h1")?.getBoundingClientRect();
-    const corpo = document.querySelector('main div[class*="max-w-[52rem]"] p');
-    if (!coluna || !caixa || !titulo || !corpo) return null;
-    const c = caixa.getBoundingClientRect();
-    const px = parseFloat(getComputedStyle(corpo).fontSize);
+    const column = document.querySelector("main")?.getBoundingClientRect();
+    const box = document.querySelector('main div[class*="max-w-[52rem]"]');
+    const title = document.querySelector("h1")?.getBoundingClientRect();
+    const body = document.querySelector('main div[class*="max-w-[52rem]"] p');
+    if (!column || !box || !title || !body) return null;
+    const c = box.getBoundingClientRect();
+    const px = parseFloat(getComputedStyle(body).fontSize);
     return {
-      aproveitamento: Math.round((c.width / coluna.width) * 100),
-      tituloIgualAoTexto: Math.abs(Math.round(titulo.width) - Math.round(c.width)) <= 2,
-      caracteresPorLinha: Math.round(c.width / (px * 0.5)),
+      aproveitamento: Math.round((c.width / column.width) * 100),
+      titleSameAsText: Math.abs(Math.round(title.width) - Math.round(c.width)) <= 2,
+      charactersPerLine: Math.round(c.width / (px * 0.5)),
     };
   });
-  expect(m, "não achei o texto do blog").not.toBeNull();
-  expect(m!.aproveitamento, `o texto usa ${m!.aproveitamento}% da coluna`).toBeGreaterThanOrEqual(75);
-  expect(m!.tituloIgualAoTexto, "título e texto estão com larguras diferentes").toBe(true);
-  // O número fica na mensagem para não virar regra escondida: é a consequência aceita de alargar.
-  expect(m!.caracteresPorLinha, `cerca de ${m!.caracteresPorLinha} caracteres por linha`).toBeGreaterThan(80);
+  expect(m, "did not find the blog text").not.toBeNull();
+  expect(m!.aproveitamento, `the text uses ${m!.aproveitamento}% of the column`).toBeGreaterThanOrEqual(75);
+  expect(m!.titleSameAsText, "title and text have different widths").toBe(true);
+  // The number stays in the message so it does not become a hidden rule: it is the accepted consequence of widening.
+  expect(m!.charactersPerLine, `about ${m!.charactersPerLine} characters per line`).toBeGreaterThan(80);
 });
 
 
-test("o fundo da abertura é a foto do serviço, com o véu de tinta atrás do texto", async ({ page }) => {
-  // O fundo é foto, e a camada decorativa passou a ser o véu de tinta sobre
-  // ela. A grade fina e o sol amarelo saíram com a foto: ela já tem a luz que o véu imitava. O que se mede agora é
-  // a foto servida do próprio domínio, o véu desenhando gradiente, e as garantias de camada decorativa.
+test("the hero background is the service photo, with the ink veil behind the text", async ({ page }) => {
+  // The background is a photo, and the decorative layer became the ink veil over
+  // it. The fine grid and the yellow sun left with the photo: it already has the light the veil imitated. What is measured now is
+  // the photo served from our own domain, the veil drawing a gradient, and the guarantees of the decorative layer.
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => {
     const hero = document.querySelector("section:has(#hero-title)");
-    const painel = hero?.querySelector(":scope > div");
-    const fundo = hero?.querySelector('[data-fundo="abertura"]');
+    const panel = hero?.querySelector(":scope > div");
+    const background = hero?.querySelector('[data-background="hero"]');
     const conteudo = document.querySelector("#hero-title")?.closest("div");
-    if (!hero || !painel || !fundo || !conteudo) return null;
-    const estilo = getComputedStyle(fundo);
-    const foto = getComputedStyle(painel).backgroundImage;
-    // O navegador devolve a URL ABSOLUTA no valor computado, então comparar origem é o que diz se a foto é nossa —
-    // checar "não tem http" reprovava o próprio domínio.
-    const url = foto.match(/url\("?([^")]+)"?\)/);
+    if (!hero || !panel || !background || !conteudo) return null;
+    const style = getComputedStyle(background);
+    const photo = getComputedStyle(panel).backgroundImage;
+    // The browser returns the ABSOLUTE URL in the computed value, so comparing the origin is what says whether the photo is ours.
+    // Checking "has no http" failed our own domain.
+    const url = photo.match(/url\("?([^")]+)"?\)/);
     return {
-      fotoNoPainel: foto.includes("url("),
+      photoInPanel: photo.includes("url("),
       fotoLocal: Boolean(url) && new URL(url![1], location.href).origin === location.origin,
-      caminhoDaFoto: url ? url[1] : null,
-      desenha: estilo.backgroundImage.includes("gradient"),
-      atras: Number(estilo.zIndex) < Number(getComputedStyle(conteudo).zIndex),
-      zIndex: Number(estilo.zIndex),
-      semPonteiro: estilo.pointerEvents === "none",
-      escondido: fundo.getAttribute("aria-hidden") === "true",
-      primeiroFilho: hero.firstElementChild === fundo,
+      photoPath: url ? url[1] : null,
+      draws: style.backgroundImage.includes("gradient"),
+      behind: Number(style.zIndex) < Number(getComputedStyle(conteudo).zIndex),
+      zIndex: Number(style.zIndex),
+      noPointer: style.pointerEvents === "none",
+      escondido: background.getAttribute("aria-hidden") === "true",
+      firstChild: hero.firstElementChild === background,
     };
   });
-  expect(m, "não achei o fundo da abertura").not.toBeNull();
-  expect(m!.fotoNoPainel, "o painel da abertura não tem foto no fundo").toBe(true);
-  expect(m!.fotoLocal, `a foto do fundo vem de fora: ${m!.caminhoDaFoto}`).toBe(true);
-  expect(m!.desenha, "o véu não desenha gradiente").toBe(true);
-  expect(m!.atras, "o véu não está atrás do texto").toBe(true);
-  // `-z-10` também satisfaz "menor que o texto" e some atrás do painel de tinta: o que garante a leitura é o
-  // fundo ficar acima do zero, dentro do contexto do painel (`isolate`).
-  expect(m!.zIndex, "o fundo está no negativo e some atrás do painel").toBeGreaterThanOrEqual(0);
-  expect(m!.semPonteiro, "o fundo captura o ponteiro").toBe(true);
-  expect(m!.escondido, "o fundo aparece para o leitor de tela").toBe(true);
-  // O fundo mora DENTRO do painel: como primeiro filho da seção ele roubaria a amostra do teste de contraste.
-  expect(m!.primeiroFilho, "o fundo virou primeiro filho da seção").toBe(false);
+  expect(m, "did not find the hero background").not.toBeNull();
+  expect(m!.photoInPanel, "the hero panel has no photo in the background").toBe(true);
+  expect(m!.fotoLocal, `the background photo comes from outside: ${m!.photoPath}`).toBe(true);
+  expect(m!.draws, "the veil does not draw a gradient").toBe(true);
+  expect(m!.behind, "the veil is not behind the text").toBe(true);
+  // `-z-10` also satisfies "less than the text" and vanishes behind the ink panel: what guarantees the reading is the
+  // background staying above zero, inside the panel context (`isolate`).
+  expect(m!.zIndex, "the background is in the negative and vanishes behind the panel").toBeGreaterThanOrEqual(0);
+  expect(m!.noPointer, "the background captures the pointer").toBe(true);
+  expect(m!.escondido, "the background shows for the screen reader").toBe(true);
+  // The background lives INSIDE the panel: as the first child of the section it would steal the sample of the contrast test.
+  expect(m!.firstChild, "the background became the first child of the section").toBe(false);
 });
 
-test("a abertura é uma coluna centrada, sem foto, e o simulador continua na primeira tela", async ({ page }) => {
+test("the hero is a centered column, with no photo, and the simulator stays in the first screen", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/phoenix-az");
   await page.waitForTimeout(500);
   const m = await page.evaluate(() => {
     const hero = document.querySelector("section:has(#hero-title)");
-    const titulo = document.querySelector("#hero-title");
-    const bloco = titulo?.closest("div");
-    if (!hero || !titulo || !bloco) return null;
-    const b = bloco.getBoundingClientRect();
-    const t = titulo.getBoundingClientRect();
+    const title = document.querySelector("#hero-title");
+    const block = title?.closest("div");
+    if (!hero || !title || !block) return null;
+    const b = block.getBoundingClientRect();
+    const t = title.getBoundingClientRect();
     const simulador = document.querySelector("#simulator > div")!.getBoundingClientRect();
     return {
       imagens: hero.querySelectorAll("img").length,
-      desvioDoCentro: Math.round(Math.abs(t.x + t.width / 2 - (b.x + b.width / 2))),
-      medidaDoTitulo: Math.round(t.width),
-      // O título é o pedaço que tem de respirar: em três linhas ele não respira, e a medida que o faz
-      // fechar em duas é maior que a medida de leitura do corpo. As duas coisas são medidas aqui.
-      linhasDoTitulo: Math.round(t.height / parseFloat(getComputedStyle(titulo).lineHeight)),
-      pxDoTitulo: parseFloat(getComputedStyle(titulo).fontSize),
-      // A abertura pega a largura toda da janela; o resto da página continua na coluna de 64 rem.
-      larguraDaAbertura: Math.round(hero.getBoundingClientRect().width),
-      larguraDaColuna: Math.round(simulador.width),
+      centerOffset: Math.round(Math.abs(t.x + t.width / 2 - (b.x + b.width / 2))),
+      titleMeasure: Math.round(t.width),
+      // The title is the piece that has to breathe: in three lines it does not breathe, and the measure that makes it
+      // close in two is larger than the reading measure of the body. Both things are measured here.
+      titleLines: Math.round(t.height / parseFloat(getComputedStyle(title).lineHeight)),
+      titlePx: parseFloat(getComputedStyle(title).fontSize),
+      // The opening takes the whole window width; the rest of the page stays in the 64 rem column.
+      heroWidth: Math.round(hero.getBoundingClientRect().width),
+      columnWidth: Math.round(simulador.width),
       janela: window.innerWidth,
-      // O simulador não pode sair da primeira tela: é o que a abertura existe para entregar. Com a foto fora, a
-      // abertura ficou mais baixa, e esta asserção virou a diferença entre passar com folga e passar raspando.
-      topoDoSimulador: Math.round(simulador.top),
+      // The simulator cannot leave the first screen: it is what the opening exists to deliver. With the photo gone, the
+      // opening got shorter, and this assertion became the difference between passing with slack and passing barely.
+      simulatorTop: Math.round(simulador.top),
     };
   });
-  expect(m, "não achei a abertura").not.toBeNull();
-  expect(m!.imagens, "a abertura voltou a ter imagem").toBe(0);
-  expect(m!.desvioDoCentro, `o título está ${m!.desvioDoCentro}px fora do centro do bloco`).toBeLessThanOrEqual(4);
-  // O título tem medida própria, e ela é maior que a medida de leitura DE PROPÓSITO: 54 rem é o que faz o
-  // headline de 70 caracteres fechar em duas linhas no desktop. Medido antes da mudança: com os 40 rem do
-  // corpo o título ocupava três linhas, que é o excesso visual medido. A medida de 40 rem
-  // continua governando o texto corrido, e o teto de baixo aqui é o que impede o título de voltar aos 40 rem.
-  expect(m!.medidaDoTitulo, `o título mede ${m!.medidaDoTitulo}px`).toBeLessThanOrEqual(864);
-  expect(m!.medidaDoTitulo).toBeGreaterThan(640);
-  expect(m!.pxDoTitulo, "o título perdeu o degrau de display no desktop").toBe(56);
-  expect(m!.linhasDoTitulo, `o título ocupa ${m!.linhasDoTitulo} linhas`).toBe(2);
-  // Abertura na largura da janela, e o resto da página na coluna: é o desenho, e as duas metades dele são medidas.
-  expect(m!.larguraDaAbertura, `a abertura mede ${m!.larguraDaAbertura}px numa janela de ${m!.janela}px`).toBe(m!.janela);
-  expect(m!.larguraDaColuna, "a coluna de conteúdo esticou junto com a abertura").toBeLessThan(m!.janela);
+  expect(m, "did not find the hero").not.toBeNull();
+  expect(m!.imagens, "the hero has an image again").toBe(0);
+  expect(m!.centerOffset, `the title is ${m!.centerOffset}px off the center of the block`).toBeLessThanOrEqual(4);
+  // The title has a measure of its own, and it is larger than the reading measure ON PURPOSE: 54 rem is what makes the
+  // 70 character headline close in two lines on desktop. Measured before the change: with the 40 rem of the
+  // body the title took three lines, which is the measured visual excess. The 40 rem measure
+  // still governs the running text, and the floor here is what stops the title from going back to 40 rem.
+  expect(m!.titleMeasure, `the title measures ${m!.titleMeasure}px`).toBeLessThanOrEqual(864);
+  expect(m!.titleMeasure).toBeGreaterThan(640);
+  expect(m!.titlePx, "the title lost the display step on desktop").toBe(56);
+  expect(m!.titleLines, `the title takes ${m!.titleLines} lines`).toBe(2);
+  // The opening at the window width, and the rest of the page in the column: that is the design, and both halves of it are measured.
+  expect(m!.heroWidth, `the opening measures ${m!.heroWidth}px in a window of ${m!.janela}px`).toBe(m!.janela);
+  expect(m!.columnWidth, "the content column stretched together with the hero").toBeLessThan(m!.janela);
   expect(
-    m!.topoDoSimulador,
-    `o simulador começa em ${m!.topoDoSimulador}px de uma janela de ${m!.janela}px`,
+    m!.simulatorTop,
+    `the simulator starts at ${m!.simulatorTop}px of a window of ${m!.janela}px`,
   ).toBeLessThan(m!.janela);
 });
 
 
-// O desenho mais visual: as faixas de fundo, o cartaz do resultado, os bairros em
-// grade com pino dourado, os títulos de seção mais largos e as três fotos. Cada metade tem uma medida
-// própria aqui, porque nenhuma delas aparece em teste de unidade e todas foram decididas olhando a tela.
-test.describe("faixas de fundo e o desenho da página", () => {
-  // Com menos movimento ligado, a entrada das seções sai de cena e as caixas medidas são as de layout: as faixas
-  // entram na rolagem com deslocamento de 12 px, e a caixa de um elemento em animação carrega esse deslocamento.
+// The most visual design: the background bands, the result poster, the neighborhoods in a
+// grid with a golden pin, the wider section titles and the three photos. Each half has a measure
+// of its own here, because none of them shows up in a unit test and all of them were decided by looking at the screen.
+test.describe("background bands and the page design", () => {
+  // With less motion enabled, the entry of the sections leaves the scene and the boxes measured are the layout ones: the bands
+  // enter the scroll with a 12 px offset, and the box of an element in animation carries that offset.
   test.use({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
 
-  test("as cinco faixas se encostam e cada uma tem o fundo planejado", async ({ page }) => {
+  test("the five bands touch each other and each one has the planned background", async ({ page }) => {
     await page.goto("/phoenix-az");
     await page.waitForTimeout(500);
     const faixas = await page.evaluate(() => {
       const pintura = document.createElement("canvas").getContext("2d")!;
-      const cor = (e: Element) => {
+      const color = (e: Element) => {
         pintura.fillStyle = "#ffffff";
         pintura.fillStyle = getComputedStyle(e).backgroundColor;
         return String(pintura.fillStyle);
       };
       const secoes = [...document.querySelectorAll("main section")];
-      return secoes.map((secao, indice) => {
-        const r = secao.getBoundingClientRect();
-        const anterior = indice > 0 ? secoes[indice - 1].getBoundingClientRect() : null;
+      return secoes.map((section, index) => {
+        const r = section.getBoundingClientRect();
+        const previous = index > 0 ? secoes[index - 1].getBoundingClientRect() : null;
         return {
-          id: secao.id,
-          fundo: cor(secao),
-          topo: Math.round(r.top + window.scrollY),
-          baseAnterior: anterior ? Math.round(anterior.bottom + window.scrollY) : null,
-          conteudo: Math.round((secao.firstElementChild ?? secao).getBoundingClientRect().width),
+          id: section.id,
+          background: color(section),
+          top: Math.round(r.top + window.scrollY),
+          previousBase: previous ? Math.round(previous.bottom + window.scrollY) : null,
+          conteudo: Math.round((section.firstElementChild ?? section).getBoundingClientRect().width),
           janela: window.innerWidth,
         };
       });
     });
-    expect(faixas.map((f) => f.id)).toEqual(["simulator", "steps", "proof", "faq", "agendar"]);
-    // A ordem pedida: canvas, surface, canvas, a cor de ação a 12% e a cor de ação cheia. O que o navegador devolve
-    // é o hexadecimal quando a cor é opaca e `rgba` quando tem alfa.
-    expect(faixas[0].fundo).toBe("#f7f6f3");
-    expect(faixas[1].fundo).toBe("#ffffff");
-    expect(faixas[2].fundo).toBe("#f7f6f3");
-    // A faixa do FAQ é a cor de ação com alfa, e o navegador devolve isso em `oklab(...)` — o alfa é o que se mede.
-    expect(faixas[3].fundo).toContain("/ 0.12)");
-    expect(faixas[4].fundo).toBe("#e8882a");
-    for (const faixa of faixas) {
-      if (faixa.baseAnterior !== null) {
-        // As faixas encostam uma na outra: sem vão do fundo da página entre elas, que era o risco de trocar o
-        // `gap` do `main` por fundo de seção sem tirar o respiro de cada uma.
-        expect(faixa.topo, `a faixa ${faixa.id} não encosta na anterior`).toBe(faixa.baseAnterior);
+    expect(faixas.map((f) => f.id)).toEqual(["simulator", "steps", "proof", "faq", "book"]);
+    // The requested order: canvas, surface, canvas, the action color at 12% and the full action color. What the browser returns
+    // is the hexadecimal when the color is opaque and `rgba` when it has alpha.
+    expect(faixas[0].background).toBe("#f7f6f3");
+    expect(faixas[1].background).toBe("#ffffff");
+    expect(faixas[2].background).toBe("#f7f6f3");
+    // The FAQ band is the action color with alpha, and the browser returns that as `oklab(...)`, the alpha is what is measured.
+    expect(faixas[3].background).toContain("/ 0.12)");
+    expect(faixas[4].background).toBe("#e8882a");
+    for (const band of faixas) {
+      if (band.previousBase !== null) {
+        // The bands touch each other: with no gap of the page background between them, which was the risk of swapping the
+        // `gap` of the `main` for a section background without removing the breathing room of each one.
+        expect(band.top, `the band ${band.id} does not touch the previous one`).toBe(band.previousBase);
       }
-      expect(faixa.conteudo, `o conteúdo da faixa ${faixa.id} estourou a janela`).toBeLessThanOrEqual(faixa.janela);
+      expect(band.conteudo, `the content of the band ${band.id} overflowed the window`).toBeLessThanOrEqual(band.janela);
     }
   });
 
-  test("o texto de cada faixa tem contraste contra o fundo que está atrás dele", async ({ page }) => {
-    // O fundo de cada texto é composto subindo a árvore: as faixas têm alfa (a de 12%) e os cartões brancos ficam
-    // por cima delas, então medir contra o fundo da seção daria o par errado. O mínimo é o do Material: 4,5 para
-    // texto pequeno e 3 para texto grande (a partir de 24 px).
+  test("the text of each band has contrast against the background behind it", async ({ page }) => {
+    // The background of each text is composited up the tree: the bands have alpha (the 12% one) and the white cards sit
+    // on top of them, so measuring against the section background would give the wrong pair. The minimum is the Material one: 4,5 for
+    // small text and 3 for large text (from 24 px).
     await page.goto("/phoenix-az");
     await page.waitForTimeout(500);
-    const medidas = await page.evaluate(() => {
+    const measures = await page.evaluate(() => {
       const pintura = document.createElement("canvas");
       pintura.width = 1;
       pintura.height = 1;
-      const tinta = pintura.getContext("2d")!;
-      // Ler o PIXEL é o jeito que resolve qualquer cor do CSS, inclusive as que o Tailwind v4 escreve em `oklab(...)`
-      // quando a classe tem alfa: `fillStyle` devolve essas sem converter.
-      const ler = (valor: string) => {
-        tinta.clearRect(0, 0, 1, 1);
-        tinta.fillStyle = "#000000";
-        tinta.fillStyle = valor;
-        tinta.fillRect(0, 0, 1, 1);
-        const d = tinta.getImageData(0, 0, 1, 1).data;
+      const ink = pintura.getContext("2d")!;
+      // Reading the PIXEL is the way that resolves any color from the CSS, including the ones Tailwind v4 writes as `oklab(...)`
+      // when the class has alpha: `fillStyle` returns those without converting.
+      const read = (value: string) => {
+        ink.clearRect(0, 0, 1, 1);
+        ink.fillStyle = "#000000";
+        ink.fillStyle = value;
+        ink.fillRect(0, 0, 1, 1);
+        const d = ink.getImageData(0, 0, 1, 1).data;
         return [d[0], d[1], d[2], d[3] / 255];
       };
-      const sobrepor = (frente: number[], fundo: number[]) => {
-        const a = frente[3];
-        return [frente[0] * a + fundo[0] * (1 - a), frente[1] * a + fundo[1] * (1 - a), frente[2] * a + fundo[2] * (1 - a), 1];
+      const overlay = (front: number[], background: number[]) => {
+        const a = front[3];
+        return [front[0] * a + background[0] * (1 - a), front[1] * a + background[1] * (1 - a), front[2] * a + background[2] * (1 - a), 1];
       };
       const luminancia = (c: number[]) => {
         const canal = (v: number) => {
@@ -885,8 +885,8 @@ test.describe("faixas de fundo e o desenho da página", () => {
         const [la, lb] = [luminancia(a), luminancia(b)];
         return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
       };
-      // O fundo acumulado: página, e depois cada ancestral até o próprio elemento, compondo os alfas.
-      const fundoDe = (el: Element) => {
+      // The accumulated background: the page, and then each ancestor up to the element itself, compositing the alphas.
+      const backgroundOf = (el: Element) => {
         const cadeia: Element[] = [];
         let no: Element | null = el;
         while (no) {
@@ -895,23 +895,23 @@ test.describe("faixas de fundo e o desenho da página", () => {
         }
         let acumulado = [247, 246, 243, 1];
         for (const n of cadeia.reverse()) {
-          const c = ler(getComputedStyle(n).backgroundColor);
-          if (c[3] > 0) acumulado = sobrepor(c, acumulado);
+          const c = read(getComputedStyle(n).backgroundColor);
+          if (c[3] > 0) acumulado = overlay(c, acumulado);
         }
         return acumulado;
       };
-      const textos = [...document.querySelectorAll("main p, main h2, main h3, main blockquote, main li, main dt, main dd")];
-      // Texto sobre FOTO não se mede por composição de cor: o fundo dele é uma imagem, que esta conta não vê. Quem
-      // mede esse caso é a sonda de pixel — a do fecho vive logo abaixo, e a da abertura já existia.
+      const texts = [...document.querySelectorAll("main p, main h2, main h3, main blockquote, main li, main dt, main dd")];
+      // Text over a PHOTO is not measured by color composition: its background is an image, which this calculation does not see. What
+      // measures that case is the pixel probe. The one for the closing lives right below, and the one for the opening already existed.
       const sobreFoto = (el: Element) => {
-        const secao = el.closest("section");
-        if (!secao) return false;
-        return [...secao.querySelectorAll("*")].some((n) => {
+        const section = el.closest("section");
+        if (!section) return false;
+        return [...section.querySelectorAll("*")].some((n) => {
           const e = getComputedStyle(n);
           return e.backgroundImage !== "none" && e.backgroundImage.includes("url(");
         });
       };
-      const lidos = textos
+      const lidos = texts
         .filter((el) => {
           const r = el.getBoundingClientRect();
           return (
@@ -922,38 +922,38 @@ test.describe("faixas de fundo e o desenho da página", () => {
           );
         })
         .map((el) => {
-          const estilo = getComputedStyle(el);
-          const fundo = fundoDe(el);
-          const cor = sobrepor(ler(estilo.color), fundo);
+          const style = getComputedStyle(el);
+          const background = backgroundOf(el);
+          const color = overlay(read(style.color), background);
           return {
-            texto: (el.textContent ?? "").trim().slice(0, 30),
-            px: parseFloat(estilo.fontSize),
-            contraste: Math.round(contraste(cor, fundo) * 100) / 100,
+            text: (el.textContent ?? "").trim().slice(0, 30),
+            px: parseFloat(style.fontSize),
+            contraste: Math.round(contraste(color, background) * 100) / 100,
           };
         });
       return lidos;
     });
-    expect(medidas.length).toBeGreaterThan(20);
-    for (const m of medidas) {
+    expect(measures.length).toBeGreaterThan(20);
+    for (const m of measures) {
       const minimo = m.px >= 24 ? 3 : 4.5;
-      expect(m.contraste, `"${m.texto}" mede ${m.contraste} para 1, e o mínimo é ${minimo}`).toBeGreaterThanOrEqual(minimo);
+      expect(m.contraste, `"${m.text}" measures ${m.contraste} to 1, and the minimum is ${minimo}`).toBeGreaterThanOrEqual(minimo);
     }
   });
 
-  test("o texto do fecho tem contraste medido sobre os pixels da foto", async ({ page }) => {
-    // A faixa do fecho passou a ter a foto dos painéis no deserto com o véu de tinta por cima. Contraste sobre foto
-    // não se calcula pela cor declarada no CSS: o que vale é o pixel que está atrás do texto. Esta medida recorta a
-    // área de respiro à DIREITA da linha do texto, sem glifo, e compara a luminância média dali com a cor do texto,
-    // composta sobre esse mesmo fundo (o texto da faixa tem alfa). É a mesma técnica da medida da abertura.
+  test("the closing text has contrast measured over the pixels of the photo", async ({ page }) => {
+    // The closing band now has the photo of the panels in the desert with the ink veil on top. Contrast over a photo
+    // is not computed from the color declared in the CSS: what counts is the pixel behind the text. This measure crops the
+    // breathing area to the RIGHT of the text line, without glyphs, and compares the average luminance there with the color of the text,
+    // composited over that same background (the text of the band has alpha). It is the same technique as the opening measure.
     await page.goto("/phoenix-az");
     await page.waitForTimeout(900);
-    // A faixa do fecho fica no fim do documento: o alvo precisa estar na janela para o recorte do screenshot existir.
+    // The closing band sits at the end of the document: the target has to be in the window for the screenshot crop to exist.
     await page.locator("#final-cta-title").scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
-    const bloco = (await page.locator("#agendar > div.relative").boundingBox())!;
-    expect(bloco, "não achei a coluna do fecho").not.toBeNull();
-    const amostrar = async (faixa: { x: number; y: number; width: number; height: number }) => {
-      const b64 = (await page.screenshot({ clip: faixa })).toString("base64");
+    const block = (await page.locator("#book > div.relative").boundingBox())!;
+    expect(block, "did not find the closing column").not.toBeNull();
+    const amostrar = async (band: { x: number; y: number; width: number; height: number }) => {
+      const b64 = (await page.screenshot({ clip: band })).toString("base64");
       return page.evaluate(async (b64) => {
         const img = new Image();
         img.src = "data:image/png;base64," + b64;
@@ -977,22 +977,22 @@ test.describe("faixas de fundo e o desenho da página", () => {
         return [sr / n, sg / n, sb / n];
       }, b64);
     };
-    for (const seletor of ["#final-cta-title", "#agendar p.type-body", "#agendar p.type-label"]) {
-      const alvo = page.locator(seletor).first();
-      const caixa = await alvo.boundingBox();
-      expect(caixa, `não achei ${seletor}`).not.toBeNull();
-      const sobra = bloco.x + bloco.width - (caixa!.x + caixa!.width);
-      const largura = Math.max(20, Math.min(Math.round(sobra - 8), 160));
-      const faixa = {
-        x: Math.round(caixa!.x + caixa!.width + 4),
-        y: Math.round(caixa!.y + caixa!.height / 2 - 6),
-        width: largura,
+    for (const seletor of ["#final-cta-title", "#book p.type-body", "#book p.type-label"]) {
+      const target = page.locator(seletor).first();
+      const box = await target.boundingBox();
+      expect(box, `did not find ${seletor}`).not.toBeNull();
+      const remainder = block.x + block.width - (box!.x + box!.width);
+      const width = Math.max(20, Math.min(Math.round(remainder - 8), 160));
+      const band = {
+        x: Math.round(box!.x + box!.width + 4),
+        y: Math.round(box!.y + box!.height / 2 - 6),
+        width: width,
         height: 12,
       };
-      const comVeu = await amostrar(faixa);
-      const cor = await alvo.evaluate((e) => getComputedStyle(e).color);
+      const withVeil = await amostrar(band);
+      const color = await target.evaluate((e) => getComputedStyle(e).color);
       const contraste = await page.evaluate(
-        async ({ fundo, cor }) => {
+        async ({ background, color }) => {
           const linear = (v: number) => {
             const s = v / 255;
             return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
@@ -1002,153 +1002,153 @@ test.describe("faixas de fundo e o desenho da página", () => {
           sonda.width = 1;
           sonda.height = 1;
           const sctx = sonda.getContext("2d")!;
-          sctx.fillStyle = `rgb(${Math.round(fundo[0])}, ${Math.round(fundo[1])}, ${Math.round(fundo[2])})`;
+          sctx.fillStyle = `rgb(${Math.round(background[0])}, ${Math.round(background[1])}, ${Math.round(background[2])})`;
           sctx.fillRect(0, 0, 1, 1);
-          sctx.fillStyle = cor;
+          sctx.fillStyle = color;
           sctx.fillRect(0, 0, 1, 1);
           const px = sctx.getImageData(0, 0, 1, 1).data;
-          const [alto, baixo] = [lum(fundo[0], fundo[1], fundo[2]), lum(px[0], px[1], px[2])].sort((a, b) => b - a);
-          return Math.round(((alto + 0.05) / (baixo + 0.05)) * 100) / 100;
+          const [high, low] = [lum(background[0], background[1], background[2]), lum(px[0], px[1], px[2])].sort((a, b) => b - a);
+          return Math.round(((high + 0.05) / (low + 0.05)) * 100) / 100;
         },
-        { fundo: comVeu, cor },
+        { background: withVeil, color },
       );
-      expect(contraste, `"${seletor}" mede ${contraste} para 1 sobre os pixels do fecho`).toBeGreaterThanOrEqual(4.5);
-      // E a foto não pode ter sumido atrás do véu. A medida é a diferença entre o mesmo recorte COM e SEM o véu: o que
-      // muda ali é a contribuição da foto (o véu é tinta neutra), então diferença pequena significa foto invisível.
-      // Medido com o véu do fecho em 0,70 / 0,52 / 0,46: 14 a 34 unidades por canal; com o véu antigo da abertura,
-      // 20 a 30% menos.
+      expect(contraste, `"${seletor}" measures ${contraste} to 1 over the pixels of the closing`).toBeGreaterThanOrEqual(4.5);
+      // And the photo cannot have vanished behind the veil. The measure is the difference between the same crop WITH and WITHOUT the veil: what
+      // changes there is the contribution of the photo (the veil is neutral ink), so a small difference means an invisible photo.
+      // Measured with the closing veil at 0,70 / 0,52 / 0,46: 14 to 34 units per channel; with the old opening veil,
+      // 20 to 30% less.
       await page.evaluate(() => {
-        const veu = document.querySelector("#agendar > .veu-foto-fecho") as HTMLElement;
-        veu.dataset.veuGuardado = veu.style.backgroundImage;
-        veu.style.backgroundImage = "none";
+        const veil = document.querySelector("#book > .closing-photo-veil") as HTMLElement;
+        veil.dataset.storedVeil = veil.style.backgroundImage;
+        veil.style.backgroundImage = "none";
       });
-      const semVeu = await amostrar(faixa);
+      const withoutVeil = await amostrar(band);
       await page.evaluate(() => {
-        const veu = document.querySelector("#agendar > .veu-foto-fecho") as HTMLElement;
-        veu.style.backgroundImage = veu.dataset.veuGuardado ?? "";
+        const veil = document.querySelector("#book > .closing-photo-veil") as HTMLElement;
+        veil.style.backgroundImage = veil.dataset.storedVeil ?? "";
       });
-      const contribuicao = Math.round(Math.max(...comVeu.map((v, i) => Math.abs(v - semVeu[i]))));
+      const contribuicao = Math.round(Math.max(...withVeil.map((v, i) => Math.abs(v - withoutVeil[i]))));
       expect(
         contribuicao,
-        `"${seletor}": a foto contribui só ${contribuicao} unidade(s) atrás do véu (com ${JSON.stringify(comVeu.map(Math.round))}, sem ${JSON.stringify(semVeu.map(Math.round))})`,
+        `"${seletor}": the photo contributes only ${contribuicao} unit(s) behind the veil (with ${JSON.stringify(withVeil.map(Math.round))}, without ${JSON.stringify(withoutVeil.map(Math.round))})`,
       ).toBeGreaterThanOrEqual(12);
     }
   });
 
-  test("os bairros são grade com pino dourado, e não chips miúdos", async ({ page }) => {
+  test("the neighborhoods are a grid with a golden pin, and not tiny chips", async ({ page }) => {
     await page.goto("/phoenix-az");
     await page.waitForTimeout(500);
     const m = await page.evaluate(() => {
       const pintura = document.createElement("canvas").getContext("2d")!;
-      const cor = (e: Element) => {
+      const color = (e: Element) => {
         pintura.fillStyle = "#ffffff";
         pintura.fillStyle = getComputedStyle(e).backgroundColor;
         return String(pintura.fillStyle);
       };
-      // A lista de bairros é a maior do bloco: as outras duas listas da seção são os depoimentos e as equipes.
-      const bloco = [...document.querySelectorAll("#proof ul")].sort((a, b) => b.children.length - a.children.length)[0];
-      const itens = [...bloco.children];
-      const pinos = itens.map((li) => {
+      // The neighborhood list is the largest in the block: the other two lists in the section are the testimonials and the crews.
+      const block = [...document.querySelectorAll("#proof ul")].sort((a, b) => b.children.length - a.children.length)[0];
+      const items = [...block.children];
+      const pinos = items.map((li) => {
         const svg = li.querySelector("svg")!;
-        return { temPino: Boolean(svg), cor: getComputedStyle(svg.parentElement!).color, fundo: cor(li) };
+        return { hasPin: Boolean(svg), color: getComputedStyle(svg.parentElement!).color, background: color(li) };
       });
       return {
-        itens: itens.length,
-        grade: getComputedStyle(bloco).display,
-        colunas: getComputedStyle(bloco).gridTemplateColumns.split(" ").length,
+        items: items.length,
+        grid: getComputedStyle(block).display,
+        columns: getComputedStyle(block).gridTemplateColumns.split(" ").length,
         pinos,
       };
     });
-    // A cidade traz cinco bairros, e a lista mostra os cinco.
-    expect(m.itens).toBe(5);
-    // Grade de verdade, com três colunas no desktop, e não uma fila de chips.
-    expect(m.grade).toBe("grid");
-    expect(m.colunas).toBe(3);
-    for (const pino of m.pinos) {
-      expect(pino.temPino, "um bairro ficou sem o pino").toBe(true);
-      // O pino é dourado escuro: o dourado claro mede 1,86 para 1 sobre o branco e não identifica um desenho de 16 px.
-      expect(pino.cor, "o pino não está no dourado escuro do DESIGN.md").toBe("rgb(176, 116, 15)");
-      // Nenhum item carrega fundo próprio: o chip branco com borda saiu de cena.
-      expect(pino.fundo, "o item do bairro voltou a ser chip").toBe("rgba(0, 0, 0, 0)");
+    // The city carries five neighborhoods, and the list shows all five.
+    expect(m.items).toBe(5);
+    // A real grid, with three columns on desktop, and not a row of chips.
+    expect(m.grid).toBe("grid");
+    expect(m.columns).toBe(3);
+    for (const pin of m.pinos) {
+      expect(pin.hasPin, "one neighborhood came out without the pin").toBe(true);
+      // The pin is dark gold: the light gold measures 1,86 to 1 over white and does not identify a 16 px drawing.
+      expect(pin.color, "the pin is not in the dark gold of DESIGN.md").toBe("rgb(176, 116, 15)");
+      // No item carries a background of its own: the white chip with a border left the scene.
+      expect(pin.background, "the neighborhood item went back to being a chip").toBe("rgba(0, 0, 0, 0)");
     }
   });
 
-  test("o resultado tem as duas contas em linha, e não tem mais o filete âmbar", async ({ page }) => {
+  test("the result has the two bills on one line, and no longer has the amber rule", async ({ page }) => {
     await page.goto("/phoenix-az");
     await page.waitForTimeout(500);
     const m = await page.evaluate(() => {
       const pintura = document.createElement("canvas").getContext("2d")!;
-      const cor = (e: Element) => {
+      const color = (e: Element) => {
         pintura.fillStyle = "#ffffff";
         pintura.fillStyle = getComputedStyle(e).backgroundColor;
         return String(pintura.fillStyle);
       };
-      const cartao = document.querySelector("#simulator output")!;
-      const filetes = [...cartao.querySelectorAll("span[aria-hidden]")].filter(
+      const card = document.querySelector("#simulator output")!;
+      const rules = [...card.querySelectorAll("span[aria-hidden]")].filter(
         (s) => getComputedStyle(s).height === "1px",
       );
-      const rotulos = [...cartao.querySelectorAll("p")];
-      const custo = rotulos.find((p) => (p.textContent ?? "").includes("Cost after"))!;
-      const retorno = rotulos.find((p) => (p.textContent ?? "").includes("Years to payback"))!;
-      const caixa = (p: Element) => p.parentElement!.getBoundingClientRect();
+      const labels = [...card.querySelectorAll("p")];
+      const cost = labels.find((p) => (p.textContent ?? "").includes("Cost after"))!;
+      const payback = labels.find((p) => (p.textContent ?? "").includes("Years to payback"))!;
+      const box = (p: Element) => p.parentElement!.getBoundingClientRect();
       return {
-        filetes: filetes.map((f) => cor(f)),
-        custo: { topo: Math.round(caixa(custo).top), esquerda: Math.round(caixa(custo).left) },
-        retorno: { topo: Math.round(caixa(retorno).top), esquerda: Math.round(caixa(retorno).left) },
+        rules: rules.map((f) => color(f)),
+        cost: { top: Math.round(box(cost).top), esquerda: Math.round(box(cost).left) },
+        payback: { top: Math.round(box(payback).top), esquerda: Math.round(box(payback).left) },
       };
     });
-    // O filete âmbar que atravessava a coluna acima do rótulo da economia saiu, e a medida guarda a
-    // ausência dele: dentro do resultado não sobra nenhuma linha de 1 px.
-    expect(m.filetes, `sobrou uma linha no resultado: ${JSON.stringify(m.filetes)}`).toEqual([]);
-    // Custo e retorno na mesma linha: mesmo topo, colunas diferentes.
-    expect(m.custo.topo, "custo e retorno não estão na mesma linha").toBe(m.retorno.topo);
-    expect(m.retorno.esquerda, "as duas contas ficaram na mesma coluna").toBeGreaterThan(m.custo.esquerda + 100);
+    // The amber thin line that crossed the column above the savings label is gone, and the measure guards its
+    // absence: inside the result no 1 px line is left.
+    expect(m.rules, `a line is left in the result: ${JSON.stringify(m.rules)}`).toEqual([]);
+    // Cost and payback on the same line: same top, different columns.
+    expect(m.cost.top, "cost and payback are not on the same line").toBe(m.payback.top);
+    expect(m.payback.esquerda, "the two bills ended up in the same column").toBeGreaterThan(m.cost.esquerda + 100);
   });
 
-  test("os títulos de seção cabem em 54 rem", async ({ page }) => {
+  test("the section titles fit in 54 rem", async ({ page }) => {
     await page.goto("/phoenix-az");
     await page.waitForTimeout(800);
     const m = await page.evaluate(() => ({
-      titulos: [...document.querySelectorAll("main h2")].map((h) => Math.round(h.getBoundingClientRect().width)),
-      colunaDoTituloDoFaq: Math.round(
+      titles: [...document.querySelectorAll("main h2")].map((h) => Math.round(h.getBoundingClientRect().width)),
+      faqTitleColumn: Math.round(
         document.querySelector("#faq h2")!.parentElement!.getBoundingClientRect().width,
       ),
     }));
-    // A medida de leitura do corpo é 40 rem (640 px); o título tem a dele, maior, para não quebrar em três linhas.
-    for (const largura of m.titulos) {
-      expect(largura, `um título de seção mede ${largura}px, acima dos 54 rem`).toBeLessThanOrEqual(864);
-      expect(largura, `um título de seção encolheu para ${largura}px`).toBeGreaterThan(320);
+    // The reading measure of the body is 40 rem (640 px); the title has its own, larger, so it does not break into three lines.
+    for (const width of m.titles) {
+      expect(width, `a section title measures ${width}px, above the 54 rem`).toBeLessThanOrEqual(864);
+      expect(width, `a section title shrank to ${width}px`).toBeGreaterThan(320);
     }
-    // A coluna do título do FAQ cresceu de 16 para 22 rem: em 16 rem o título quebrava em quatro linhas.
-    expect(m.colunaDoTituloDoFaq).toBeGreaterThanOrEqual(330);
+    // The FAQ title column grew from 16 to 22 rem: at 16 rem the title broke into four lines.
+    expect(m.faqTitleColumn).toBeGreaterThanOrEqual(330);
   });
 
-  test("cada foto no seu lugar: quatro de conteúdo e duas de fundo", async ({ page }) => {
-    // O mapa das fotos, na ordem em que aparecem: abertura e o passo 1 com as duas fotos que já existiam, e as
-    // quatro novas nos outros lugares — passo 2, depoimento em destaque, bairros, equipes e fecho. Duas delas são
-    // fundo de faixa (abertura e fecho) e por isso não aparecem como `img`: a medida lê o `background-image`.
+  test("each photo in its place: four of content and two of background", async ({ page }) => {
+    // The map of the photos, in the order they appear: opening and step 1 with the two photos that already existed, and the
+    // four new ones in the other places: step 2, featured testimonial, neighborhoods, crews and closing. Two of them are
+    // band background (opening and closing) and for that reason do not show up as `img`: the measure reads the `background-image`.
     await page.goto("/phoenix-az");
     await page.waitForTimeout(800);
     const m = await page.evaluate(() => {
-      const arquivos = (seletor: string) =>
+      const files = (seletor: string) =>
         [...document.querySelectorAll<HTMLImageElement>(`${seletor} img`)].map(
           (i) => new URL(i.src).pathname.split("/").pop() ?? "",
         );
-      const fundo = (seletor: string) => getComputedStyle(document.querySelector(seletor)!).backgroundImage;
+      const background = (seletor: string) => getComputedStyle(document.querySelector(seletor)!).backgroundImage;
       return {
-        steps: arquivos("#steps"),
-        proof: arquivos("#proof"),
-        abertura: fundo(".fundo-abertura"),
-        fecho: fundo(".fundo-fecho"),
+        steps: files("#steps"),
+        proof: files("#proof"),
+        hero: background(".hero-background"),
+        closing: background(".closing-background"),
       };
     });
-    expect(m.steps).toEqual(["tecnico-no-telhado.avif", "trilho-no-telhado.avif", "paineis-no-campo.avif"]);
-    // A prova social tem DUAS: a equipe erguendo o módulo, acima dos cartões de equipe, e a casa no bloco dos bairros.
-    // A casa chegou a ficar dentro do depoimento em destaque e saiu: foto sobre a lavagem âmbar do
-    // destaque some com o telhado, e o que decidiu foi "uma casa, um lugar".
-    expect(m.proof).toEqual(["equipe-na-calcada.avif", "casa-phoenix.avif"]);
-    expect(m.abertura).toContain("instaladores-no-telhado.avif");
-    expect(m.fecho).toContain("paineis-no-deserto.avif");
+    expect(m.steps).toEqual(["technician-on-roof.avif", "rail-on-roof.avif", "panels-in-field.avif"]);
+    // The social proof has TWO: the crew lifting the module, above the crew cards, and the house in the neighborhood block.
+    // The house once sat inside the featured testimonial and left: a photo over the amber wash of the
+    // featured card loses the roof, and what decided it was "one house, one place".
+    expect(m.proof).toEqual(["crew-on-sidewalk.avif", "house-phoenix.avif"]);
+    expect(m.hero).toContain("installers-on-roof.avif");
+    expect(m.closing).toContain("panels-in-desert.avif");
   });
 });
 

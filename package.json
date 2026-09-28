@@ -9,9 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "design": "node scripts/audit-design.mjs",
-    "seguranca": "bash scripts/seguranca.sh",
-    "verify": "pnpm build && pnpm test && pnpm lint && pnpm design && pnpm navegacao && pnpm seguranca",
-    "navegacao": "playwright test"
+    "security": "bash scripts/security.sh",
+    "verify": "pnpm build && pnpm test && pnpm lint && pnpm design && pnpm navigation && pnpm security",
+    "navigation": "playwright test"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

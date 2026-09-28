@@ -1,14 +1,15 @@
-// Configuração do vitest, que existia sem arquivo nenhum e por isso rodava com os padrões.
+// Vitest configuration. It used to exist with no file at all, so it ran with the defaults.
 //
-// Dois ajustes, os dois aprendidos na prática:
+// Two adjustments, both learned the hard way:
 //
-// 1. O atalho `@/` mora no `tsconfig.json` e quem aplica é o Next; o vitest não lê tsconfig. Enquanto os
-//    testes importavam só vizinhos de pasta, ninguém notou; o primeiro teste que importa arquivo de
-//    `src/app`, que usa `@/` por convenção do projeto, não carregava sem este espelho.
-// 2. O padrão do vitest casa `*.spec.ts`, e a medida de navegação usa essa extensão para o Playwright. Com
-//    os padrões, `pnpm verify` reprovava porque o vitest tentava rodar o arquivo do navegador dentro do
-//    ambiente de Node. O domínio de cada um fica explícito: teste de unidade em `src`, medida de navegador
-//    em `tests`, e nenhum dos dois invade o outro.
+// 1. The `@/` alias lives in `tsconfig.json` and Next is what applies it; vitest does not read tsconfig.
+//    While the tests only imported neighbors in the same folder, nobody noticed; the first test that
+//    imports a file from `src/app`, which uses `@/` by project convention, would not load without this
+//    mirror.
+// 2. The vitest default matches `*.spec.ts`, and the browser measurement uses that extension for
+//    Playwright. With the defaults, `pnpm verify` failed because vitest tried to run the browser file
+//    inside the Node environment. Each domain is explicit now: unit tests in `src`, browser measurement in
+//    `tests`, and neither one invades the other.
 import path from "node:path";
 import { defineConfig } from "vitest/config";
 

@@ -8,11 +8,11 @@
   "author": "Brightfield Solar",
   "sources": [
     {
-      "nome": "Internal Revenue Service, Instructions for Form 5695 (Residential Energy Credits)",
+      "name": "Internal Revenue Service, Instructions for Form 5695 (Residential Energy Credits)",
       "url": "https://www.irs.gov/pub/irs-pdf/i5695.pdf"
     },
     {
-      "nome": "Internal Revenue Service, Residential Clean Energy Credit",
+      "name": "Internal Revenue Service, Residential Clean Energy Credit",
       "url": "https://www.irs.gov/credits-deductions/residential-clean-energy-credit"
     }
   ]

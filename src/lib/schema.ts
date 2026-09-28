@@ -1,25 +1,25 @@
-// O esquema da cidade é a fonte única do tipo `City`, e a trava do dado que entra na conta.
+// The city schema is the single source of the `City` type, and the lock on the data that enters the calculation.
 //
-// Por que existe: um arquivo de cidade com tarifa zero faz a conta virar infinito, e a página mostra
-// "∞ $∞ $NaN NaN years" sem ninguém perceber. O carregamento antigo fazia
-// `JSON.parse(...) as City`, que é uma afirmação sem prova: o compilador concorda com o que o arquivo
-// diz e ninguém confere. Com esquema, arquivo torto derruba o build, que é onde o erro é barato.
+// Why it exists: a city file with a zero rate makes the calculation go to infinity, and the page shows
+// "∞ $∞ $NaN NaN years" without anyone noticing. The older loading did
+// `JSON.parse(...) as City`, which is a claim without proof: the compiler agrees with what the file
+// says and nobody checks. With a schema, a crooked file fails the build, which is where the error is cheap.
 //
-// As faixas numéricas não são arbitrárias: cada uma existe para barrar um erro de digitação plausível,
-// e estão comentadas uma a uma. `.strict()` recusa campo que o esquema não conhece, para um campo
-// escrito errado no arquivo (por exemplo `utilityRate` em vez de `utilityRatePerKwh`) falhar em vez de
-// ser ignorado em silêncio.
+// The numeric ranges are not arbitrary: each one exists to stop a plausible typing error,
+// and they are commented one by one. `.strict()` rejects a field the schema does not know, so a field
+// written wrong in the file (for example `utilityRate` instead of `utilityRatePerKwh`) fails instead of
+// being ignored in silence.
 import { z } from "zod";
 
-export const esquemaPerfil = z
+export const profileSchema = z
   .object({
     label: z.string().min(1),
-    // Conta de luz de casa nos Estados Unidos: 40 dólares é o mínimo do simulador, 600 o teto.
+    // Household power bill in the United States: 40 dollars is the simulator minimum, 600 the ceiling.
     typicalBill: z.number().positive().min(40).max(600),
   })
   .strict();
 
-export const esquemaEquipe = z
+export const crewSchema = z
   .object({
     name: z.string().min(1),
     installs: z.number().int().min(0),
@@ -29,135 +29,135 @@ export const esquemaEquipe = z
   })
   .strict();
 
-export const esquemaDepoimento = z
+export const testimonialSchema = z
   .object({
     quote: z.string().min(1),
     author: z.string().min(1),
     neighborhood: z.string().min(1),
-    // Data ISO, que é o que a página formata e o que o dado estruturado espera.
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "data fora do formato AAAA-MM-DD"),
+    // ISO date, which is what the page formats and what the structured data expects.
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date outside the YYYY-MM-DD format"),
   })
   .strict();
 
-export const esquemaPergunta = z.object({ q: z.string().min(1), a: z.string().min(1) }).strict();
+export const questionSchema = z.object({ q: z.string().min(1), a: z.string().min(1) }).strict();
 
-export const esquemaCidade = z
+export const citySchema = z
   .object({
-    // O slug vira caminho de arquivo e endereço de página, então a forma é fechada aqui também.
-    slug: z.string().regex(/^[a-z0-9-]+$/, "slug fora do formato minusculas, numeros e hifen"),
+    // The slug becomes a file path and a page address, so the shape is closed here too.
+    slug: z.string().regex(/^[a-z0-9-]+$/, "slug outside the lowercase letters, numbers and hyphen format"),
     city: z.string().min(1),
     state: z.string().length(2),
     stateFull: z.string().min(1),
     metroArea: z.string().min(1),
     utilityName: z.string().min(1),
-    // Tarifa residencial nos Estados Unidos fica entre 8 e 60 centavos por kWh. Zero é o erro que
-    // quebra a conta, e acima de 1 dólar é digitação.
+    // Residential rate in the United States sits between 8 and 60 cents per kWh. Zero is the error that
+    // breaks the calculation, and above 1 dollar is a typo.
     utilityRatePerKwh: z.number().positive().max(1),
-    // Horas de sol pleno por dia: o deserto passa de 7, o norte fica perto de 3. Acima de 12 não existe.
+    // Peak sun hours per day: the desert goes past 7, the north sits near 3. Above 12 does not exist.
     peakSunHoursPerDay: z.number().positive().max(12),
-    // Painel residencial: 250 a 800 W hoje.
+    // Residential panel: 250 to 800 W today.
     panelWatts: z.number().int().min(100).max(1000),
-    // Perda por temperatura, sujeira e inversor: fica entre 70 e 90 por cento, nunca 1 nem 1,5.
+    // Loss from temperature, soiling and inverter: sits between 70 and 90 percent, never 1 nor 1,5.
     performanceRatio: z.number().positive().max(1),
-    // Custo instalado por watt antes do incentivo: 2 a 4 dólares é a faixa de mercado.
+    // Installed cost per watt before the incentive: 2 to 4 dollars is the market range.
     costPerWattInstalled: z.number().positive().max(20),
-    // Existe mínimo por instalação: menos de um painel não é sistema.
+    // There is a minimum per installation: less than one panel is not a system.
     minPanels: z.number().int().min(1).max(100),
-    // Alíquota do crédito federal: 30 por cento hoje, e o valor é fração, não porcentagem.
+    // Federal credit rate: 30 percent today, and the value is a fraction, not a percentage.
     federalCreditRate: z.number().min(0).lt(1),
     stateIncentiveNote: z.string().min(1),
     installsCompleted: z.number().int().min(0),
     crewsAvailable: z.number().int().min(1),
-    // Nota média: escala de zero a cinco.
+    // Average rating: scale from zero to five.
     avgRating: z.number().min(0).max(5),
     avgPermitDays: z.number().int().min(0),
     phone: z.string().min(1),
     popularNeighborhoods: z.array(z.string().min(1)).min(1),
-    householdProfiles: z.array(esquemaPerfil).min(1),
-    crews: z.array(esquemaEquipe).min(1),
-    testimonials: z.array(esquemaDepoimento).min(1),
-    faq: z.array(esquemaPergunta).min(1),
+    householdProfiles: z.array(profileSchema).min(1),
+    crews: z.array(crewSchema).min(1),
+    testimonials: z.array(testimonialSchema).min(1),
+    faq: z.array(questionSchema).min(1),
   })
   .strict();
 
-export type City = z.infer<typeof esquemaCidade>;
-export type Crew = z.infer<typeof esquemaEquipe>;
-export type HouseholdProfile = z.infer<typeof esquemaPerfil>;
-export type Testimonial = z.infer<typeof esquemaDepoimento>;
-export type Faq = z.infer<typeof esquemaPergunta>;
+export type City = z.infer<typeof citySchema>;
+export type Crew = z.infer<typeof crewSchema>;
+export type HouseholdProfile = z.infer<typeof profileSchema>;
+export type Testimonial = z.infer<typeof testimonialSchema>;
+export type Faq = z.infer<typeof questionSchema>;
 
 // ------------------------------------------------------------------------------------------------
-// Blog: o mesmo tratamento do dado de cidade, aplicado a texto.
+// Blog: the same treatment as the city data, applied to text.
 //
-// O texto do blog tem cabeçalho escrito à mão por quem escreve, e cabeçalho escrito à mão erra em dois
-// pontos que não podem passar: afirmação numérica sem fonte declarada, que é o defeito que o AGENTS.md
-// proíbe e que motor de resposta não cita porque não pode conferir, e data de atualização anterior à de
-// publicação, que faz a página mentir sobre quando foi revisada. As duas regras moram aqui, e não em
-// quem lê, para valerem em qualquer caminho que carregue texto, inclusive no teste.
-export const esquemaFonte = z
+// A blog text has a header written by hand by whoever writes it, and a hand-written header errs at two
+// points that cannot pass: a numeric claim without a declared source, which is the defect AGENTS.md
+// forbids and an answer engine does not cite because it cannot check, and an update date earlier than
+// the publication date, which makes the page lie about when it was revised. Both rules live here, and not in
+// whoever reads it, so they hold on any path that loads text, including in the test.
+export const sourceSchema = z
   .object({
-    nome: z.string().min(1),
-    // Endereço público: fonte sem endereço não é conferível, então não conta como fonte.
+    name: z.string().min(1),
+    // Public address: a source without an address cannot be checked, so it does not count as a source.
     url: z.url(),
   })
   .strict();
 
-export const esquemaPerguntaBlog = z
+export const blogQuestionSchema = z
   .object({
-    pergunta: z.string().min(1),
-    resposta: z.string().min(1),
+    question: z.string().min(1),
+    answer: z.string().min(1),
   })
   .strict();
 
-// O corpo entra no esquema de propósito. A regra "número citado pede fonte declarada" depende do que o
-// texto afirma, e o corpo é a única parte que afirma: um esquema só do cabeçalho não teria como olhar.
-const FORMA_DA_DATA = /^\d{4}-\d{2}-\d{2}$/;
+// The body enters the schema on purpose. The rule "a cited number requires a declared source" depends on what the
+// text claims, and the body is the only part that claims: a schema of the header alone would have no way to look.
+const DATE_FORM = /^\d{4}-\d{2}-\d{2}$/;
 
-// Número citado no corpo, em sentido largo de propósito: qualquer dígito conta, inclusive dentro de uma
-// palavra. O crivo é conservador porque o erro de barrar demais é barato (a fonte entra no texto) e o de
-// barrar de menos é caro (número sem origem publicado como se tivesse). Não tenta ser uma leitura de
-// linguagem: aqui só se decide se o texto fez alguma afirmação que precise de origem.
-export function citaNumero(corpo: string): boolean {
-  return /\d/.test(corpo);
+// Number cited in the body, in a deliberately broad sense: any digit counts, including inside a
+// word. The sieve is conservative because the error of blocking too much is cheap (the source goes into the text) and the error of
+// blocking too little is expensive (a number without an origin published as if it had one). It does not try to be a reading of
+// language: here it only decides whether the text made any claim that needs an origin.
+export function citesNumber(body: string): boolean {
+  return /\d/.test(body);
 }
 
-export const esquemaTexto = z
+export const postSchema = z
   .object({
-    slug: z.string().regex(/^[a-z0-9-]+$/, "slug fora do formato minusculas, numeros e hifen"),
+    slug: z.string().regex(/^[a-z0-9-]+$/, "slug outside the lowercase letters, numbers and hyphen format"),
     title: z.string().min(1),
     description: z.string().min(1),
-    publishedAt: z.string().regex(FORMA_DA_DATA, "data fora do formato AAAA-MM-DD"),
-    // Igual a de publicação quando o texto não foi revisado. O campo existe mesmo assim: data de revisão
-    // ausente é o que faz a página parecer nunca revista.
-    updatedAt: z.string().regex(FORMA_DA_DATA, "data fora do formato AAAA-MM-DD"),
+    publishedAt: z.string().regex(DATE_FORM, "date outside the YYYY-MM-DD format"),
+    // Equal to the publication date when the text was not revised. The field exists anyway: a missing revision
+    // date is what makes the page look never revised.
+    updatedAt: z.string().regex(DATE_FORM, "date outside the YYYY-MM-DD format"),
     author: z.string().min(1),
-    sources: z.array(esquemaFonte),
-    // Perguntas opcionais: quando existem, a resposta precisa estar literalmente no corpo, e são elas que
-    // a página publica como dado estruturado.
-    faq: z.array(esquemaPerguntaBlog).optional(),
+    sources: z.array(sourceSchema),
+    // Optional questions: when they exist, the answer must be literally in the body, and they are what
+    // the page publishes as structured data.
+    faq: z.array(blogQuestionSchema).optional(),
     body: z.string().min(1),
   })
   .strict()
-  .superRefine((texto, ctx) => {
-    if (citaNumero(texto.body) && texto.sources.length === 0) {
-      // A mensagem nomeia o campo e não o valor: quem lê o log do build precisa saber o que consertar,
-      // não receber o trecho do texto de volta.
-      ctx.addIssue({ code: "custom", path: ["sources"], message: "texto cita numero e nao declara fonte" });
+  .superRefine((text, ctx) => {
+    if (citesNumber(text.body) && text.sources.length === 0) {
+      // The message names the field and not the value: whoever reads the build log needs to know what to fix,
+      // not get the text excerpt back.
+      ctx.addIssue({ code: "custom", path: ["sources"], message: "text cites a number and does not declare a source" });
     }
-    // Comparação de texto funciona porque as duas datas estão no formato AAAA-MM-DD, que ordena igual à
-    // ordem cronológica. Data ilegível nunca chega aqui: a forma da data já foi conferida acima.
-    if (texto.updatedAt < texto.publishedAt) {
-      ctx.addIssue({ code: "custom", path: ["updatedAt"], message: "updatedAt anterior a publishedAt" });
+    // Text comparison works because both dates are in the YYYY-MM-DD format, which orders the same as
+    // chronological order. An unreadable date never reaches here: the date shape was already checked above.
+    if (text.updatedAt < text.publishedAt) {
+      ctx.addIssue({ code: "custom", path: ["updatedAt"], message: "updatedAt is before publishedAt" });
     }
   });
 
-export type BlogSource = z.infer<typeof esquemaFonte>;
-export type BlogFaq = z.infer<typeof esquemaPerguntaBlog>;
-// Campos do texto antes de virarem blocos: `blog.ts` é quem acrescenta os blocos, porque ler markdown é
-// trabalho da camada de conteúdo e não do esquema.
-export type BlogPostFields = z.infer<typeof esquemaTexto>;
+export type BlogSource = z.infer<typeof sourceSchema>;
+export type BlogFaq = z.infer<typeof blogQuestionSchema>;
+// Text fields before they become blocks: `blog.ts` is what appends the blocks, because reading markdown is
+// work for the content layer and not for the schema.
+export type BlogPostFields = z.infer<typeof postSchema>;
 
-// Lista de erros legível, para a mensagem de falha nomear arquivo e campo sem despejar o zod inteiro.
-export function descreverErros(erro: z.ZodError): string {
-  return erro.issues.map((i) => `${i.path.join(".") || "raiz"}: ${i.message}`).join("; ");
+// Readable error list, so the failure message names file and field without dumping the whole zod.
+export function describeErrors(error: z.ZodError): string {
+  return error.issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
 }

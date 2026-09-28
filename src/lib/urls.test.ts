@@ -1,72 +1,72 @@
-// O endereço público em um lugar só. O motivo é medido: o canônico e o Open Graph usavam endereço sem
-// barra, o dado estruturado usava com barra e o redirecionamento da raiz também, então o dado estruturado
-// apontava para um endereço que responde 308. E a queda para localhost era silenciosa: em produção, sem
-// variável de ambiente, o canônico e a imagem de compartilhamento passariam a apontar para a máquina de
-// quem roda o build.
+// The public address in one place only. The reason is measured: the canonical and the Open Graph used an address with no
+// slash, the structured data used one with a slash and the root redirect as well, so the structured data
+// pointed at an address that answers 308. And the fallback to localhost was silent: in production, with no
+// environment variable, the canonical and the share image would start pointing at the machine of
+// whoever runs the build.
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { urlDoSchema } from "./structured";
+import { schemaUrl } from "./structured";
 import { cityPath, cityUrl, siteUrl } from "./urls";
 
-const cidade = JSON.parse(readFileSync("src/data/cities/phoenix-az.json", "utf8"));
+const city = JSON.parse(readFileSync("src/data/cities/phoenix-az.json", "utf8"));
 
 afterEach(() => vi.unstubAllEnvs());
 
-describe("endereço público", () => {
-  it("usa a variável própria quando existe, sem barra no fim", () => {
+describe("public address", () => {
+  it("uses its own variable when it exists, with no trailing slash", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://brightfield.example/");
     expect(siteUrl()).toBe("https://brightfield.example");
   });
 
-  it("cai na variável da hospedagem quando a própria não existe", () => {
+  it("falls back to the hosting variable when its own does not exist", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "alvorada.vercel.app");
     expect(siteUrl()).toBe("https://alvorada.vercel.app");
   });
 
   it.each([
-    ["na Vercel", { VERCEL: "1" }],
-    ["em integração contínua", { CI: "1" }],
-    ["com exigência explícita", { EXIGIR_ENDERECO_PUBLICO: "1" }],
-  ])("em publicação %s sem endereço configurado, falha em vez de apontar para localhost", (_nome, marcador) => {
+    ["on Vercel", { VERCEL: "1" }],
+    ["on continuous integration", { CI: "1" }],
+    ["with an explicit requirement", { REQUIRE_PUBLIC_ADDRESS: "1" }],
+  ])("in a publication %s with no address configured, it fails instead of pointing at localhost", (_nome, marker) => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");
     vi.stubEnv("VERCEL_URL", "");
     vi.stubEnv("VERCEL", "");
     vi.stubEnv("CI", "");
-    vi.stubEnv("EXIGIR_ENDERECO_PUBLICO", "");
-    for (const [chave, valor] of Object.entries(marcador)) vi.stubEnv(chave, valor);
-    expect(() => siteUrl()).toThrow(/endereço público/);
+    vi.stubEnv("REQUIRE_PUBLIC_ADDRESS", "");
+    for (const [key, value] of Object.entries(marker)) vi.stubEnv(key, value);
+    expect(() => siteUrl()).toThrow(/public address/);
   });
 
-  it("build de produção na máquina de quem desenvolve avisa e segue com localhost", () => {
-    // Build local não é publicação: derrubar aqui não protege ninguém e atrapalha a verificação.
+  it("a production build on the developer machine warns and goes on with localhost", () => {
+    // A local build is not a publication: failing here protects nobody and gets in the way of the verification.
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");
     vi.stubEnv("VERCEL_URL", "");
     vi.stubEnv("VERCEL", "");
     vi.stubEnv("CI", "");
-    vi.stubEnv("EXIGIR_ENDERECO_PUBLICO", "");
-    const aviso = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("REQUIRE_PUBLIC_ADDRESS", "");
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(siteUrl()).toBe("http://localhost:3000");
-    expect(aviso).toHaveBeenCalledWith(expect.stringMatching(/localhost/));
-    aviso.mockRestore();
+    expect(warning).toHaveBeenCalledWith(expect.stringMatching(/localhost/));
+    warning.mockRestore();
   });
 
-  it("em desenvolvimento sem endereço configurado, cai no localhost sem avisar", () => {
+  it("in development with no address configured, it falls back to localhost without warning", () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "");
     vi.stubEnv("VERCEL_URL", "");
-    const aviso = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(siteUrl()).toBe("http://localhost:3000");
-    expect(aviso).not.toHaveBeenCalled();
-    aviso.mockRestore();
+    expect(warning).not.toHaveBeenCalled();
+    warning.mockRestore();
   });
 
-  it("monta caminho e endereço de cidade sem barra no fim", () => {
+  it("builds the city path and address with no trailing slash", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://brightfield.example");
     expect(cityPath("phoenix-az")).toBe("/phoenix-az");
     expect(cityUrl("phoenix-az")).toBe("https://brightfield.example/phoenix-az");
@@ -74,18 +74,18 @@ describe("endereço público", () => {
     expect(cityUrl("phoenix-az")).not.toMatch(/\/$/);
   });
 
-  it("o dado estruturado aponta para o mesmo endereço do canônico, sem barra", () => {
-    // Divergiram uma vez: o canônico usava sem barra e o dado estruturado com barra, então o endereço
-    // declarado ao buscador respondia 308.
+  it("the structured data points at the same address as the canonical one, with no slash", () => {
+    // They diverged once: the canonical used no slash and the structured data used a slash, so the address
+    // declared to the crawler answered 308.
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://brightfield.example");
-    const doSchema = urlDoSchema(cidade, siteUrl());
-    expect(doSchema).toBe("https://brightfield.example/phoenix-az");
-    expect(doSchema).not.toMatch(/\/$/);
+    const fromSchema = schemaUrl(city, siteUrl());
+    expect(fromSchema).toBe("https://brightfield.example/phoenix-az");
+    expect(fromSchema).not.toMatch(/\/$/);
   });
 
-  it("recusa slug que não seja forma de slug", () => {
-    // O mesmo motivo do carregador: o slug vira endereço, então forma fechada aqui também.
-    expect(() => cityPath("Phoenix AZ")).toThrow(/slug inválido/);
-    expect(() => cityUrl("../etc")).toThrow(/slug inválido/);
+  it("refuses a slug that is not slug shape", () => {
+    // The same reason as the loader: the slug becomes an address, so the shape is closed here too.
+    expect(() => cityPath("Phoenix AZ")).toThrow(/invalid slug/);
+    expect(() => cityUrl("../etc")).toThrow(/invalid slug/);
   });
 });

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Trava antes do commit: segredo e lint.
+# Commit gate: secrets and lint.
 #
-# Por que aqui e não só na integração contínua: segredo commitado continua no histórico depois de
-# removido do arquivo, e limpar histórico é caro. Barrar no commit é a única hora em que o custo é zero.
-# O lint entra junto porque é rápido e evita commit que a integração vai reprovar dois minutos depois.
+# Why here and not only in CI: a committed secret stays in the history after it is removed from the file,
+# and cleaning history is expensive. Blocking at commit time is the only moment where the cost is zero.
+# Lint runs here too because it is fast and it prevents a commit that CI would reject two minutes later.
 #
-# Ativação, uma vez por clone: git config core.hooksPath .githooks
+# Activation, once per clone: git config core.hooksPath .githooks
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
@@ -13,12 +13,12 @@ cd "$(git rev-parse --show-toplevel)"
 if command -v gitleaks >/dev/null 2>&1; then
   if ! gitleaks git --staged --no-banner --redact; then
     echo
-    echo "commit barrado: o gitleaks achou segredo no que está preparado para commitar."
-    echo "Remova o segredo do arquivo, ou marque a linha como falsa com o comentário de isenção do gitleaks."
+    echo "commit blocked: gitleaks found a secret in the staged changes."
+    echo "Remove the secret from the file, or mark the line as a false positive with the gitleaks allow comment."
     exit 1
   fi
 else
-  echo "aviso: gitleaks não instalado, então este commit não foi conferido (brew install gitleaks)"
+  echo "warning: gitleaks is not installed, so this commit was not checked (brew install gitleaks)"
 fi
 
 pnpm lint

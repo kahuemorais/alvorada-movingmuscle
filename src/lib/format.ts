@@ -1,15 +1,15 @@
-// Formatacao no padrao dos Estados Unidos, porque a pagina atende dono de casa americano. O
-// Intl faz o trabalho: moeda com separador de milhar e duas casas, numero inteiro com milhar.
+// Formatting in the United States standard, because the page serves the American homeowner. The
+// Intl does the work: currency with a thousands separator and two decimals, integer with thousands.
 //
-// A guarda de numero nao finito e a segunda camada, e nao a primeira: o esquema da cidade ja barra dado
-// invalido na entrada. Ela existe porque o modo de falha e conhecido: cidade de tarifa zero
-// rendendo "infinito, $NaN, NaN years" na tela: falhar o build e sempre melhor do que publicar numero
-// quebrado, e a mensagem diz qual formatador recebeu o valor, para o build apontar o lugar.
+// The not-finite number guard is the second layer, and not the first: the city schema already blocks invalid
+// data at the entrance. It exists because the failure mode is known: a city with a zero rate
+// yielding "infinity, $NaN, NaN years" on the screen: failing the build is always better than publishing a number
+// that is broken, and the message says which formatter received the value, so the build points at the place.
 const usdFmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
-// O dólar redondo precisa de formatador próprio, e não de um `round` antes do formatador cheio: o `Intl` com
-// `style: currency` sempre escreve os centavos, então `usdRedondo(179)` saía "$179.00" e o número continuava com
-// cara de extrato. Foi o teste que mostrou, não a leitura do código.
-const usdInteiroFmt = new Intl.NumberFormat("en-US", {
+// The round dollar needs its own formatter, and not a `round` before the full formatter: `Intl` with
+// `style: currency` always writes the cents, so `usdRedondo(179)` came out "$179.00" and the number still had
+// the look of a bank statement. It was the test that showed it, not a reading of the code.
+const usdIntegerFmt = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
   minimumFractionDigits: 0,
@@ -17,30 +17,30 @@ const usdInteiroFmt = new Intl.NumberFormat("en-US", {
 });
 const numFmt = new Intl.NumberFormat("en-US");
 
-function finito(valor: number, formatador: string): number {
-  if (!Number.isFinite(valor)) {
-    throw new Error(`${formatador} recebeu número não finito: ${String(valor)}`);
+function finite(value: number, formatter: string): number {
+  if (!Number.isFinite(value)) {
+    throw new Error(`${formatter} received a number that is not finite: ${String(value)}`);
   }
-  return valor;
+  return value;
 }
 
-export const usd = (n: number) => usdFmt.format(finito(n, "usd"));
+export const usd = (n: number) => usdFmt.format(finite(n, "usd"));
 
-// O número em destaque lê como ferramenta, e o centavo é coisa de extrato: "$179.01" no cartão do
-// resultado e "1.466,67 kWh" na conta detalhada convivem bem, porque a
-// segunda é onde a pessoa confere a aritmética; o destaque pede o valor redondo. O arredondamento é SÓ de
-// apresentação: `simulate()` continua devolvendo o centavo, e é ele que a lista das contas mostra.
-export const usdRedondo = (n: number) => usdInteiroFmt.format(Math.round(finito(n, "usdRedondo")));
-export const num = (n: number) => numFmt.format(finito(n, "num"));
-export const anos = (n: number) => `${finito(n, "anos").toFixed(1)} years`;
-export const porcento = (n: number) => `${numFmt.format(finito(n, "porcento"))}%`;
+// The highlighted number reads as a tool, and the cent is a bank statement thing: "$179.01" on the
+// result card and "1.466,67 kWh" in the detailed bill live together well, because the
+// second is where the person checks the arithmetic; the highlight asks for the round value. The rounding is ONLY for
+// presentation: `simulate()` still returns the cent, and it is what the list of bills shows.
+export const usdRedondo = (n: number) => usdIntegerFmt.format(Math.round(finite(n, "usdRedondo")));
+export const num = (n: number) => numFmt.format(finite(n, "num"));
+export const years = (n: number) => `${finite(n, "years").toFixed(1)} years`;
+export const percent = (n: number) => `${numFmt.format(finite(n, "percent"))}%`;
 
-// Alíquota guardada como fração no arquivo da cidade (0,3) virando o rótulo que a pessoa lê (30%). Existe
-// como função porque o rótulo do simulador e a descrição de metadados precisam do mesmo número, e porque
-// antes esse 30 estava escrito à mão nos dois lugares: dado que muda com rótulo fixo é rótulo que mente.
-// Nota de avaliação, sempre com uma casa: o dado traz 5 e 4.9, e sem formatador a linha mistura as duas
-// escalas ("5" ao lado de "4.9").
-export const nota = (valor: number) => finito(valor, "nota").toFixed(1);
+// Rate stored as a fraction in the city file (0,3) becoming the label the person reads (30%). It exists
+// as a function because the simulator label and the metadata description need the same number, and because
+// before, that 30 was written by hand in both places: data that changes with a fixed label is a label that lies.
+// Rating score, always with one decimal: the data brings 5 and 4.9, and without a formatter the line mixes the two
+// scales ("5" next to "4.9").
+export const note = (value: number) => finite(value, "note").toFixed(1);
 
-export const porcentoCheio = (fracao: number) =>
-  `${numFmt.format(Math.round(finito(fracao, "porcentoCheio") * 100))}%`;
+export const percentFull = (fraction: number) =>
+  `${numFmt.format(Math.round(finite(fraction, "percentFull") * 100))}%`;

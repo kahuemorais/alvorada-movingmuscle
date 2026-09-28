@@ -1,22 +1,22 @@
 import { expect, test } from "@playwright/test";
 
-// O requisito de negócio: na segunda-feira, quem cuida das campanhas precisa saber quais anúncios
-// geraram simulações de economia. Pageview não responde isso, então o evento leva a origem junto dos números.
+// The business requirement: on Monday, whoever runs the campaigns needs to know which ads
+// generated savings simulations. Pageview does not answer that, so the event carries the origin together with the numbers.
 //
-// Este teste existe porque o defeito morava exatamente no vão entre as duas metades: o módulo de analytics sabia
-// ler a tag da busca, e o teste de unidade dele prova isso com a busca na mão. Só que o simulador reescreve a URL
-// a cada ajuste (`replaceState` com bill e coverage), e os eventos liam `window.location.search` no momento de
-// disparar — quando as tags já tinham sido apagadas. A função estava certa e o evento chegava vazio. É o tipo de
-// defeito que só aparece com a página inteira rodando, que é o que este arquivo faz.
-const COM_CAMPANHA = "/phoenix-az?utm_source=google&utm_medium=cpc&utm_campaign=phoenix-solar&gclid=abc123";
+// This test exists because the defect lived exactly in the gap between the two halves: the analytics module knew how to
+// read the tag from the search, and its unit test proves that with the search in hand. But the simulator rewrites the URL
+// on every adjustment (`replaceState` with bill and coverage), and the events read `window.location.search` at the moment of
+// firing, when the tags had already been erased. The function was right and the event arrived empty. It is the kind of
+// defect that only shows up with the whole page running, which is what this file does.
+const WITH_CAMPAIGN = "/phoenix-az?utm_source=google&utm_medium=cpc&utm_campaign=phoenix-solar&gclid=abc123";
 
-async function comFila(page: import("@playwright/test").Page) {
-  // A fila do `va` é a mesma porta que o @vercel/analytics usa; a página não serve o script dele no ambiente
-  // local, então a fila fica nossa e o teste lê o que a aplicação mandou.
+async function withQueue(page: import("@playwright/test").Page) {
+  // The `va` queue is the same gate that @vercel/analytics uses; the page does not serve its script in the
+  // local environment, so the queue becomes ours and the test reads what the application sent.
   await page.addInitScript(() => {
     (window as unknown as { __va: unknown[] }).__va = [];
-    (window as unknown as { va: (cmd: string, dados: unknown) => void }).va = (cmd, dados) => {
-      (window as unknown as { __va: unknown[] }).__va.push({ cmd, dados });
+    (window as unknown as { va: (cmd: string, data: unknown) => void }).va = (cmd, data) => {
+      (window as unknown as { __va: unknown[] }).__va.push({ cmd, data });
     };
   });
 }
@@ -24,72 +24,72 @@ async function comFila(page: import("@playwright/test").Page) {
 const eventos = (page: import("@playwright/test").Page) =>
   page.evaluate(
     () =>
-      (window as unknown as { __va: { cmd: string; dados: { name?: string; data?: Record<string, unknown> } }[] })
+      (window as unknown as { __va: { cmd: string; data: { name?: string; data?: Record<string, unknown> } }[] })
         .__va ?? [],
   );
 
-async function mexerNoSimulador(page: import("@playwright/test").Page, conta: number) {
+async function touchesSimulator(page: import("@playwright/test").Page, bill: number) {
   const campo = page.locator("#simulator input#bill");
   await campo.click();
-  await campo.fill(String(conta));
+  await campo.fill(String(bill));
   await campo.blur();
-  // A espera é a do próprio código: o evento só sai depois que a pessoa para de mexer, para não contar cada
-  // passo do controle como uma simulação no relatório da equipe de mídia.
+  // The wait is the one from the code itself: the event only goes out after the person stops touching it, so as not to count every
+  // step of the control as a simulation in the media team report.
   await page.waitForTimeout(1800);
 }
 
-test("o evento da simulação leva a campanha, mesmo depois de a URL perder as tags", async ({ page }) => {
-  await comFila(page);
-  await page.goto(COM_CAMPANHA);
+test("the simulation event carries the campaign, even after the URL loses the tags", async ({ page }) => {
+  await withQueue(page);
+  await page.goto(WITH_CAMPAIGN);
   await page.waitForTimeout(600);
-  await mexerNoSimulador(page, 310);
+  await touchesSimulator(page, 310);
 
-  const fila = await eventos(page);
-  const concluido = fila.filter((e) => e.cmd === "event" && e.dados?.name === "simulation_completed").pop();
-  expect(concluido, "nenhum evento simulation_completed").toBeTruthy();
+  const queue = await eventos(page);
+  const completed = queue.filter((e) => e.cmd === "event" && e.data?.name === "simulation_completed").pop();
+  expect(completed, "no simulation_completed event").toBeTruthy();
 
-  const dados = concluido!.dados.data ?? {};
-  // Os quatro números da simulação continuam no evento: é o que o time usa para decidir o que pausar.
-  expect(dados.panels).toBe(24);
-  expect(dados.bill).toBe(310);
-  // E a origem, que é o ponto do requisito.
-  expect(dados.utm_source, "evento sem utm_source").toBe("google");
-  expect(dados.utm_medium, "evento sem utm_medium").toBe("cpc");
-  expect(dados.utm_campaign, "evento sem utm_campaign").toBe("phoenix-solar");
-  expect(dados.gclid, "evento sem gclid").toBe("abc123");
+  const data = completed!.data.data ?? {};
+  // The four simulation numbers stay in the event: it is what the team uses to decide what to pause.
+  expect(data.panels).toBe(24);
+  expect(data.bill).toBe(310);
+  // And the origin, which is the point of the requirement.
+  expect(data.utm_source, "event without utm_source").toBe("google");
+  expect(data.utm_medium, "event without utm_medium").toBe("cpc");
+  expect(data.utm_campaign, "event without utm_campaign").toBe("phoenix-solar");
+  expect(data.gclid, "event without gclid").toBe("abc123");
 
-  // A URL perdeu as tags ao ajustar o controle, e isso é de propósito: o link compartilhado leva a simulação.
+  // The URL lost the tags when the control was adjusted, and that is on purpose: the shared link carries the simulation.
   expect(await page.evaluate(() => window.location.search)).not.toContain("utm_source");
 });
 
-test("a campanha sobrevive a uma segunda visita na mesma sessão", async ({ page }) => {
-  // O módulo guarda a origem na sessão justamente porque a pessoa rola a página e mexe no simulador depois. Sem
-  // esta guarda, a segunda visita dentro da mesma sessão mandaria o evento sem a tag, e o relatório da agência
-  // contaria a simulação como tráfego direto.
-  await comFila(page);
-  await page.goto(COM_CAMPANHA);
+test("the campaign survives a second visit in the same session", async ({ page }) => {
+  // The module stores the origin in the session precisely because the person scrolls the page and touches the simulator afterwards. Without
+  // this guard, the second visit within the same session would send the event with no tag, and the agency report
+  // would count the simulation as direct traffic.
+  await withQueue(page);
+  await page.goto(WITH_CAMPAIGN);
   await page.waitForTimeout(600);
   await page.reload();
   await page.waitForTimeout(600);
-  await mexerNoSimulador(page, 430);
+  await touchesSimulator(page, 430);
 
-  const fila = await eventos(page);
-  const concluido = fila.filter((e) => e.cmd === "event" && e.dados?.name === "simulation_completed").pop();
-  const dados = concluido?.dados.data ?? {};
-  expect(dados.utm_campaign, "a campanha se perdeu na recarga").toBe("phoenix-solar");
+  const queue = await eventos(page);
+  const completed = queue.filter((e) => e.cmd === "event" && e.data?.name === "simulation_completed").pop();
+  const data = completed?.data.data ?? {};
+  expect(data.utm_campaign, "the campaign got lost on the reload").toBe("phoenix-solar");
 });
 
-test("sem campanha na URL, o evento não inventa origem", async ({ page }) => {
-  await comFila(page);
+test("with no campaign in the URL, the event does not invent an origin", async ({ page }) => {
+  await withQueue(page);
   await page.goto("/phoenix-az");
   await page.waitForTimeout(600);
-  await mexerNoSimulador(page, 310);
+  await touchesSimulator(page, 310);
 
-  const fila = await eventos(page);
-  const concluido = fila.filter((e) => e.cmd === "event" && e.dados?.name === "simulation_completed").pop();
-  const dados = concluido?.dados.data ?? {};
-  expect(dados.panels).toBe(24);
-  for (const chave of ["utm_source", "utm_medium", "utm_campaign", "gclid", "fbclid"]) {
-    expect(dados[chave], `evento sem campanha ganhou ${chave}`).toBeUndefined();
+  const queue = await eventos(page);
+  const completed = queue.filter((e) => e.cmd === "event" && e.data?.name === "simulation_completed").pop();
+  const data = completed?.data.data ?? {};
+  expect(data.panels).toBe(24);
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "gclid", "fbclid"]) {
+    expect(data[key], `event with no campaign gained ${key}`).toBeUndefined();
   }
 });

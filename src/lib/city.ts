@@ -1,57 +1,57 @@
 import fs from "node:fs";
 import path from "node:path";
-import { descreverErros, esquemaCidade, type City } from "./schema";
+import { describeErrors, citySchema, type City } from "./schema";
 
-// O tipo e os subtipos vêm do esquema, que é a fonte única. Reexportados aqui para quem já importa
-// `City` deste módulo continuar funcionando sem mudar chamada nenhuma.
+// The type and the subtypes come from the schema, which is the single source. Re-exported here so whoever already imports
+// `City` from this module keeps working without changing any call.
 export type { City, Crew, Faq, HouseholdProfile, Testimonial } from "./schema";
 
-// Uma pasta, um arquivo por cidade. Trocar o arquivo tem que gerar a pagina da outra cidade sem
-// tocar em codigo, que e o requisito de escala (cerca de 120 cidades).
+// One folder, one file per city. Swapping the file has to generate the page of the other city without
+// touching code, which is the scale requirement (about 120 cities).
 const DIR = path.join(process.cwd(), "src", "data", "cities");
 
 export function listCitySlugs(): string[] {
   return fs
     .readdirSync(DIR)
-    .filter((arquivo) => arquivo.endsWith(".json"))
-    .map((arquivo) => arquivo.replace(/\.json$/, ""))
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => file.replace(/\.json$/, ""))
     .sort();
 }
 
-// Forma do slug, fechada no carregador e não em quem chama. O valor vira nome de arquivo e endereço de
-// página, então aceitar ponto, barra ou sublinhado é aceitar sair da pasta de dados: um JSON de fora com
-// slug de `..` já apareceu, e antes disto o defeito só não era alcançável porque o build fixa a
-// lista de cidades e o corpo da página conferia essa lista. As duas coisas são defesa de fora; esta é a
-// defesa onde o dado entra.
-const FORMA_DO_SLUG = /^[a-z0-9-]+$/;
+// Slug shape, closed in the loader and not in whoever calls it. The value becomes a file name and a page
+// address, so accepting dot, slash or underscore is accepting leaving the data folder: an external JSON with
+// a `..` slug has already showed up, and before this the defect was only unreachable because the build fixes the
+// city list and the page body checked that list. Both of those are defense from outside; this is the
+// defense where the data enters.
+const SLUG_FORM = /^[a-z0-9-]+$/;
 
-// Miolo separado de propósito: recebe o diretório, para o teste poder apontar para uma pasta temporária
-// com um arquivo torto dentro, sem escrever nada em src/data.
-export function carregarCidadeDe(dir: string, slug: string): City {
-  if (!FORMA_DO_SLUG.test(slug)) throw new Error(`slug inválido: ${slug}`);
+// Core separated on purpose: it takes the directory, so the test can point at a temporary folder
+// with a crooked file inside, without writing anything into src/data.
+export function loadCityFrom(dir: string, slug: string): City {
+  if (!SLUG_FORM.test(slug)) throw new Error(`invalid slug: ${slug}`);
 
-  const arquivo = `${slug}.json`;
-  const caminho = path.join(dir, arquivo);
-  if (!fs.existsSync(caminho)) throw new Error(`cidade sem arquivo de dados: ${slug}`);
+  const file = `${slug}.json`;
+  const filePath = path.join(dir, file);
+  if (!fs.existsSync(filePath)) throw new Error(`city without a data file: ${slug}`);
 
-  const bruto: unknown = JSON.parse(fs.readFileSync(caminho, "utf8"));
-  const resultado = esquemaCidade.safeParse(bruto);
-  if (!resultado.success) {
-    // A mensagem nomeia o arquivo e o campo, e nunca o valor: é para consertar dado, não para vazar
-    // conteúdo de arquivo errado no log do build.
-    throw new Error(`dado inválido em ${arquivo}: ${descreverErros(resultado.error)}`);
+  const raw: unknown = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  const result = citySchema.safeParse(raw);
+  if (!result.success) {
+    // The message names the file and the field, and never the value: it is to fix data, not to leak
+    // content of a wrong file into the build log.
+    throw new Error(`invalid data in ${file}: ${describeErrors(result.error)}`);
   }
-  return resultado.data;
+  return result.data;
 }
 
 export function getCity(slug: string): City {
-  return carregarCidadeDe(DIR, slug);
+  return loadCityFrom(DIR, slug);
 }
 
-// Caminho seguro para quem só desenha a página: slug que não existe ou tem forma inválida devolve nulo,
-// e quem chama decide o 404. Existe porque `generateMetadata` chamava o carregador direto, sem a
-// conferência que o corpo da página fazia.
-export function buscarCidadeOpcional(slug: string): City | null {
+// Safe path for whoever only renders the page: a slug that does not exist or has an invalid shape returns null,
+// and the caller decides the 404. It exists because `generateMetadata` called the loader directly, without the
+// check the page body did.
+export function findOptionalCity(slug: string): City | null {
   try {
     return getCity(slug);
   } catch {

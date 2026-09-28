@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------------------------
-   Tokens do shadcn: cada nome semântico aponta para um utilitário do Tailwind, e o valor real vive
-   no :root mais abaixo, que por sua vez aponta para os tokens do DESIGN.md.
+   shadcn tokens: each semantic name points to a Tailwind utility, and the real value lives
+   in the :root further below, which in turn points to the tokens of DESIGN.md.
    --------------------------------------------------------------------------------------------- */
 @theme inline {
   --color-background: var(--background);
@@ -53,32 +53,32 @@
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Tema do projeto, gerado do DESIGN.md:
+   Project theme, generated from DESIGN.md:
      npx -y @google/design.md export --format css-tailwind DESIGN.md
-   Não editar à mão: mudar o DESIGN.md e rodar o export de novo. Este bloco vem DEPOIS do bloco do
-   shadcn de propósito, porque os dois declaram --color-primary e --radius-*: com o mesmo nome, quem
-   vence é a última declaração, e a última tem que ser a nossa.
+   Do not edit by hand: change DESIGN.md and run the export again. This block comes AFTER the
+   shadcn block on purpose, because the two declare --color-primary and --radius-*: with the same name, the one
+   that wins is the last declaration, and the last one has to be ours.
    --------------------------------------------------------------------------------------------- */
 @theme {
-  /* Sem --font-display/title/body/label de proposito: o nome de familia e o de peso de um mesmo
-     degrau caem na mesma classe do Tailwind. A familia fica so no --font-sans, abaixo. */
+  /* No --font-display/title/body/label on purpose: the family name and the weight name of one same
+     step fall into the same Tailwind class. The family stays only in --font-sans, below. */
   --color-ink: #16181a;
   --color-support: #5b6167;
   --color-primary: #e8882a;
-  /* O hover da acao: um amarelo dourado mais claro e mais vibrante que o laranja, derivado dele e
-     claramente diferente — o matiz sai de ~28 graus para ~42. Ele vale para o hover dos botoes de acao e dos cards
-     do blog, e nao para a faixa final, que continua so em laranja: por isso o veu dela nao usa mais este token. */
+  /* The hover of the action color: a golden yellow lighter and more vibrant than the orange, derived from it and
+     clearly different, the hue goes from ~28 degrees to ~42. It holds for the hover of the action buttons and of the cards
+     of the blog, and not for the final band, which stays only in orange: that is why its veil no longer uses this token. */
   --color-primary-light: #f5a623;
-  /* O dourado escuro existe por medição, e nao por gosto: o dourado claro sobre o branco mede 1,86 e nao
-     identifica um desenho de 20 px. Este mede 3,89 sobre o branco e 3,61 sobre o fundo da pagina, que e o minimo
-     do Material para limite e icone. Ele vive nos icones da calculadora, que ficam sobre cartao branco; os icones
-     dos passos, das aspas e do bairro continuam no dourado claro, porque ali tem circulo escuro atras. */
+  /* The dark gold exists by measurement, and not by taste: the light gold over white measures 1,86 and does not
+     identify a 20 px drawing. This one measures 3,89 over white and 3,61 over the background of the page, which is the Material
+     minimum for a limit and an icon. It lives in the icons of the calculator, which stay over a white card; the icons
+     of the steps, of the quote marks and of the neighborhood stay in the light gold, because there they have a dark circle behind. */
   --color-primary-dark: #b0740f;
-  /* Cor secundaria (#1E5FBF). O papel dela e medido: ela marca o que e TECNICO — icones, numeros
-     de dado, contorno de etiqueta, estado de controle — e a cor de acao fica reservada as duas acoes principais da
-     pagina (`Estimate my savings` e `Book the site visit`) e a faixa final. A variante clara existe porque a
-     abertura tem fundo escuro (foto com veu) e o azul cheio sobre ela mede 1,9 para 1: sobre superficie escura o
-     azul entra claro, e o numero medido esta no DESIGN.md. */
+  /* Secondary color (#1E5FBF). Its role is measured: it marks what is TECHNICAL (icons, data
+     numbers, tag outline, control state), and the action color stays reserved to the two main actions of the
+     page (`Estimate my savings` and `Book the site visit`) and the final band. The light variant exists because the
+     opening has a dark background (photo with veil) and the full blue over it measures 1,9 to 1: over a dark surface the
+     blue comes in light, and the measured number is in DESIGN.md. */
   --color-secondary: #1e5fbf;
   --color-savings: #1f7a4d;
   --color-canvas: #f7f6f3;
@@ -112,10 +112,10 @@
   --spacing-touch: 48px;
 }
 
-/* O export do DESIGN.md nao leva a altura de linha de cada degrau, entao ela entra aqui, uma vez, com o
-   valor que esta la. Os titulos sao comprimidos de proposito, no sistema do Zapier (0,95 no H1 e 1,06 no
-   titulo de secao), e o corpo segue folgado em 1,5: texto corrido de pergunta frequente no celular le
-   melhor assim, e esta e a divergencia declarada em relacao a referencia. */
+/* The export of DESIGN.md does not carry the line height of each step, so it comes in here, once, with the
+   value that is there. The titles are compressed on purpose, in the Zapier system (0,95 in the H1 and 1,06 in the
+   section title), and the body follows loose at 1,5: running text of a frequent question on mobile reads
+   better that way, and this is the declared divergence in relation to the reference. */
 @theme {
   --text-display--line-height: 0.95;
   --text-number--line-height: 1;
@@ -125,12 +125,12 @@
   --text-label--line-height: 1.43;
 }
 
-/* Classes de janela do Material, no lugar dos breakpoints padrao do Tailwind (640, 768, 1024, 1280).
-   Sao os quatro cortes permitidos: 600 compacto, 840 expandido, 1200 grande, 1600 extra grande. Assim
-   `md:` na pagina passa a ser 840 px, que e onde o conteudo de duas colunas realmente precisa de
-   espaco, em vez de 768 px escolhido por padrao de ferramenta.
-   `--container-measure` e a largura maxima de texto: 40 rem, que da de 65 a 75 caracteres em corpo de
-   16 px. Uma medida so para a pagina inteira, em vez de cada bloco escolher a sua. */
+/* Material window classes, in place of the default Tailwind breakpoints (640, 768, 1024, 1280).
+   They are the four allowed cuts: 600 compact, 840 expanded, 1200 large, 1600 extra large. That way
+   `md:` on the page becomes 840 px, which is where the two-column content really needs
+   space, instead of 768 px chosen by tool default.
+   `--container-measure` is the maximum width of text: 40 rem, which gives from 65 to 75 characters in a body of
+   16 px. A single measure for the whole page, instead of each block choosing its own. */
 @theme {
   --breakpoint-sm: 37.5rem;
   --breakpoint-md: 52.5rem;
@@ -139,19 +139,19 @@
   --container-measure: 40rem;
 }
 
-/* Altura da barra de navegação do celular, medida no navegador: 58 px de vidro encostado na borda de baixo
-   (48 do alvo de toque mais o respiro de 4 px de cada lado, arredondado pelo que a fonte desenha). Ela existe
-   como token porque dois blocos precisam reservar esse espaço no FIM deles — a abertura e o simulador — e
-   número copiado em dois lugares diverge na primeira vez que a barra mudar. Não é valor de desenho novo: é a
-   medida da barra, e `tests/navegacao.spec.ts` confere que a reserva continua sendo pelo menos a altura dela. */
+/* Height of the mobile navigation bar, measured in the browser: 58 px of glass against the bottom edge
+   (48 of the touch target plus the 4 px padding on each side, rounded by what the font draws). It exists
+   as a token because two blocks need to reserve that space at the END of them, the opening and the simulator, and a
+   number copied in two places diverges the first time the bar changes. It is not a new design value: it is the
+   measure of the bar, and `tests/navigation.spec.ts` checks that the reservation keeps being at least its height. */
 @theme {
-  --spacing-barra: 58px;
+  --spacing-bar: 58px;
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Ponte entre os dois: os nomes semânticos do shadcn passam a valer o token do DESIGN.md.
-   Nenhum hex nasce aqui, só referência. Borda é preta a 12% de alfa, como o DESIGN.md descreve,
-   em vez de virar um cinza novo na paleta.
+   Bridge between the two: the semantic names of shadcn come to mean the token of DESIGN.md.
+   No hex is born here, only reference. Border is black at 12% alpha, as DESIGN.md describes,
+   instead of becoming a new gray in the palette.
    --------------------------------------------------------------------------------------------- */
 :root {
   --font-sans: var(--font-archivo), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -191,16 +191,16 @@
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Degraus de tipo como utilitario proprio, e nao como par "text-<degrau> font-<degrau>".
+   Type steps as a utility of their own, and not as the pair "text-<step> font-<step>".
 
-   Dois motivos, os dois achados medindo. O primeiro: o `cn` da base usa tailwind-merge, que nao
-   conhece degrau customizado e classifica `text-lead` como classe de cor ou de alinhamento. Numa
-   lista que tambem tem `text-left` e `text-ink`, ele descartava o tamanho em silencio: a pergunta do
-   FAQ saia com 16 px quando o codigo pedia 22. O segundo: tamanho e peso eram duas classes que
-   podiam se perder uma da outra, e foi assim que o H1 saiu com peso 400 sem ninguem ver.
+   Two reasons, both found by measuring. The first: the `cn` of the base uses tailwind-merge, which does not
+   know a custom step and classifies `text-lead` as a color or alignment class. In a
+   list that also has `text-left` and `text-ink`, it discarded the size in silence: the question of the
+   FAQ came out at 16 px when the code asked for 22. The second: size and weight were two classes that
+   could lose each other, and that is how the H1 came out with weight 400 without anyone seeing it.
 
-   Cada utilitario abaixo aplica tamanho, altura de linha e peso juntos, entao nao existe par para
-   desencontrar. Para peso diferente do degrau, por `font-*` depois, que a ultima classe vence.
+   Each utility below applies size, line height and weight together, so there is no pair to
+   mismatch. For a weight different from the step, use `font-*` afterwards, since the last class wins.
    --------------------------------------------------------------------------------------------- */
 @utility type-display {
   font-size: var(--text-display);
@@ -239,11 +239,11 @@
   * {
     @apply border-border outline-ring/50;
   }
-  /* Margem de rolagem das seções. Do tamanho médio para cima (600 px, que é o mesmo corte em que a barra
-     sobe para o topo) ela fica fixa com 56 px, então mirar a seção deixaria o título escondido atrás
-     dela. No celular a barra vive no rodapé e basta o degrau de container.
-     Vale só para `section[id]` de propósito: o destino do topo da página é uma âncora sem altura no
-     começo do documento, e com margem o navegador pararia antes do topo, que era o defeito relatado. */
+  /* Scroll margin of the sections. From the medium size up (600 px, which is the same cut where the bar
+     rises to the top) it stays fixed at 56 px, so aiming at the section would leave the title hidden behind
+     it. On mobile the bar lives in the footer and the container step is enough.
+     It holds only for `section[id]` on purpose: the destination of the top of the page is an anchor with no height at the
+     start of the document, and with a margin the browser would stop before the top, which was the reported defect. */
   section[id] {
     scroll-margin-top: var(--spacing-lg);
   }
@@ -255,16 +255,16 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Rolagem suave nas âncoras do menu. Tinha sido recusada quando a âncora era pura e sem enfeite;
-     volta agora que a pagina tem movimento. O bloco global de `prefers-reduced-motion` devolve o salto
-     seco para quem pediu menos movimento. */
+  /* Smooth scrolling in the anchors of the menu. It had been refused when the anchor was pure and with no ornament;
+     it comes back now that the page has motion. The global block of `prefers-reduced-motion` gives back the dry
+     jump for whoever asked for less motion. */
   html {
     @apply font-sans;
     scroll-behavior: smooth;
   }
-  /* Ponteiro em tudo que e clicavel. O Tailwind v4 tirou o `cursor: pointer` que o v3 punha em button,
-     entao o gatilho do acordeao e os botoes ficavam com a seta padrao e nao pareciam clicaveis. Fica na
-     base, e nao item por item, para controle novo ja nascer certo. Desabilitado segue com a seta. */
+  /* Pointer on everything that is clickable. Tailwind v4 removed the `cursor: pointer` that v3 put on button,
+     so the accordion trigger and the buttons kept the default arrow and did not look clickable. It stays in the
+     base, and not item by item, so a new control is born right. Disabled keeps the arrow. */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [role="radio"]:not([aria-disabled="true"]),
@@ -273,8 +273,8 @@
   label[for] {
     cursor: pointer;
   }
-  /* O acordeão abre e fecha com animação, e quem pediu menos movimento no sistema não deve receber
-     nenhuma. Regra da própria biblioteca de acessibilidade, e o Material também manda respeitar. */
+  /* The accordion opens and closes with animation, and whoever asked for less motion in the system should get
+     none. A rule of the accessibility library itself, and Material also requires respecting it. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -285,12 +285,12 @@
       scroll-behavior: auto !important;
     }
   }
-  /* O valor em dinheiro é o único em verde, e é onde o olho precisa parar primeiro. */
+  /* The money value is the only one in green, and it is where the eye needs to stop first. */
   .savings {
     color: var(--color-savings);
   }
-  /* Componente `microcopy` do DESIGN.md: o texto de apoio sob um controle, em corpo pequeno e
-     cinza de apoio. Existe como classe para o par tipografia+cor nao ser redigitado em cada uso. */
+  /* `microcopy` component of DESIGN.md: the support text under a control, in a small body and
+     support gray. It exists as a class so the typography+color pair is not retyped in each use. */
   .microcopy {
     font-size: var(--text-label);
     font-weight: var(--font-weight-label);
@@ -300,25 +300,25 @@
 }
 
 
-/* Entrada das seções na rolagem. Curva de saída exponencial, sem quique, e só opacidade e deslocamento: animar
-   largura, altura ou topo obriga o navegador a refazer o layout a cada quadro. Quem pediu menos movimento no
-   sistema não recebe animação nenhuma, e o componente resolve isso antes de chegar aqui. */
+/* Entry of the sections on scroll. Exponential exit curve, with no bounce, and only opacity and offset: animating
+   width, height or top forces the browser to redo the layout every frame. Whoever asked for less motion in the
+   system gets no animation at all, and the component solves that before arriving here. */
 @theme {
   --aparencia-duracao: 420ms;
   --aparencia-curva: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer utilities {
-  .vai-entrar {
+  .will-enter {
     opacity: 0;
     transform: translateY(12px);
   }
-  .entrou {
+  .entered {
     opacity: 1;
     transform: none;
-    animation: aparecer var(--aparencia-duracao) var(--aparencia-curva) both;
+    animation: reveal var(--aparencia-duracao) var(--aparencia-curva) both;
   }
-  @keyframes aparecer {
+  @keyframes reveal {
     from {
       opacity: 0;
       transform: translateY(12px);
@@ -329,8 +329,8 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .vai-entrar,
-    .entrou {
+    .will-enter,
+    .entered {
       opacity: 1;
       transform: none;
       animation: none;
@@ -339,15 +339,15 @@
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Enfeite e movimento. A página estava parada. Tudo aqui anima só opacidade,
-   deslocamento e escala — nunca largura, altura ou topo, que obrigam o navegador a refazer o
-   layout a cada quadro. Quem pediu menos movimento no sistema já é atendido pelo bloco global de
-   `prefers-reduced-motion` no topo desta folha, que zera animação e transição.
+   Ornament and motion. The page was standing still. Everything here animates only opacity,
+   offset and scale, never width, height or top, which force the browser to redo the
+   layout every frame. Whoever asked for less motion in the system is already served by the global block of
+   `prefers-reduced-motion` at the top of this sheet, which zeroes animation and transition.
    --------------------------------------------------------------------------------------------- */
 @layer utilities {
-  /* Entrada da abertura: roda no carregamento, sem depender de JavaScript, e a espera de cada peça
-     vem de `animationDelay` no próprio elemento. */
-  @keyframes entrar {
+  /* Entry of the opening: it runs at load, without depending on JavaScript, and the wait of each piece
+     comes from `animationDelay` on the element itself. */
+  @keyframes enter-anim {
     from {
       opacity: 0;
       transform: translateY(14px);
@@ -357,22 +357,22 @@
       transform: none;
     }
   }
-  .entrada {
-    animation: entrar var(--aparencia-duracao) var(--aparencia-curva) both;
+  .enter {
+    animation: enter-anim var(--aparencia-duracao) var(--aparencia-curva) both;
   }
 
-  /* Cartão que entra junto com a seção, com espera própria para dar escalonamento. Vive dentro do
-     `.vai-entrar` que já existe, então não cria estado novo de visibilidade. */
-  .ecoar {
+  /* Card that enters together with the section, with its own wait to give staggering. It lives inside the
+     `.will-enter` that already exists, so it does not create a new visibility state. */
+  .stagger {
     opacity: 0;
   }
-  .entrou .ecoar {
-    animation: aparecer var(--aparencia-duracao) var(--aparencia-curva) both;
+  .entered .stagger {
+    animation: reveal var(--aparencia-duracao) var(--aparencia-curva) both;
   }
 
-  /* O número que mudou no simulador: pulso de opacidade e escala, para a pessoa ver QUAL número respondeu
-     ao que ela mexeu. */
-  @keyframes pulsar {
+  /* The number that changed in the simulator: a pulse of opacity and scale, so the person sees WHICH number answered
+     what they changed. */
+  @keyframes pulse {
     0% {
       opacity: 1;
       transform: none;
@@ -386,26 +386,26 @@
       transform: none;
     }
   }
-  .pulsou {
-    animation: pulsar 420ms var(--aparencia-curva) both;
+  .pulsed {
+    animation: pulse 420ms var(--aparencia-curva) both;
   }
 
-  /* Cartão que sobe no ponteiro, só onde existe ponteiro de verdade. */
-  .sobe {
+  /* Card that rises on the pointer, only where there is a real pointer. */
+  .rise {
     transition:
       transform 200ms var(--aparencia-curva),
       box-shadow 200ms var(--aparencia-curva);
   }
   @media (hover: hover) {
-    .sobe:hover {
+    .rise:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px color-mix(in oklab, var(--color-ink) 12%, transparent);
     }
   }
 
-  /* Planos de fundo: o bloco de tinta e o bloco de ação deixam de ser cor chapada. As paradas saem de
-     token, nunca de hex. */
-  .veu-acao {
+  /* Backgrounds: the ink block and the action block stop being a flat color. The stops come from
+     a token, never from hex. */
+  .action-veil {
     background-image: linear-gradient(
       160deg,
       var(--color-primary) 45%,
@@ -413,34 +413,34 @@
     );
   }
 
-  /* O fundo da abertura e uma FOTO, no lugar do efeito de grade e sol que estava aqui: os dois instaladores no
-     telhado, com o ceu claro em cima e o telhado escuro embaixo — a foto ja tem a luz que o veu amarelo imitava.
-     O `background-position` fica um pouco acima do centro (42%) para o quadro pegar os dois corpos e o comeco do
-     telhado, e nao so o telhado. O `bg-ink` do painel continua: ele pinta ATRAS da imagem, entao e o fundo de
-     reserva se a imagem nao carregar, e o texto claro nunca cai sobre branco.
-     O arquivo e servido do proprio dominio, como as outras fotos, e nao pelo otimizador do Next. */
-  .fundo-abertura {
-    background-image: url("/fotos/instaladores-no-telhado.avif");
+  /* The background of the opening is a PHOTO, in place of the grid and sun effect that was here: the two installers on the
+     roof, with the light sky above and the dark roof below, the photo already has the light the yellow veil imitated.
+     The `background-position` stays a little above the center (42%) so the frame catches the two bodies and the start of the
+     roof, and not only the roof. The `bg-ink` of the panel stays: it paints BEHIND the image, so it is the fallback
+     background if the image does not load, and the light text never falls over white.
+     The file is served from the domain itself, like the other photos, and not by the Next optimizer. */
+  .hero-background {
+    background-image: url("/fotos/installers-on-roof.avif");
     background-size: cover;
     background-position: center 42%;
     background-repeat: no-repeat;
   }
-  /* O fundo do fecho é a quarta foto do conjunto: os painéis no deserto, que fecham a página com o produto instalado.
-     Mesmo desenho da abertura — foto no painel e o véu de tinta por cima —, e o `bg-primary` da faixa continua sendo
-     a cor de base, atrás da foto, para a faixa não ficar sem fundo se o arquivo não carregar. */
-  .fundo-fecho {
-    background-image: url("/fotos/paineis-no-deserto.avif");
+  /* The background of the close is the fourth photo of the set: the panels in the desert, which close the page with the product installed.
+     Same design as the opening, photo in the panel and the ink veil over it, and the `bg-primary` of the band keeps being
+     the base color, behind the photo, so the band does not end up with no background if the file does not load. */
+  .closing-background {
+    background-image: url("/fotos/panels-in-desert.avif");
     background-size: cover;
     background-position: center 45%;
     background-repeat: no-repeat;
   }
-  /* O véu do fecho: as MESMAS paradas da abertura, com o alfa mais leve, e o valor saiu de medição, não de gosto.
-     A foto dos painéis no deserto atrás do véu da abertura entregava o texto com 7,09 (título) e 7,90 (parágrafo) no
-     desktop e 6,41 e 8,46 no celular, mas o pixel atrás do título media rgb(97,81,62) — o deserto aparecia apagado.
-     Com 0,70 / 0,52 / 0,46 o mesmo pixel mede rgb(116,95,71) e o texto fica em 5,58 / 7,19 / 5,59 no desktop e
-     4,91 / 7,79 / 6,52 no celular, todos acima dos 4,5 exigidos. Um degrau abaixo (0,62 / 0,45 / 0,40) o rótulo cai
-     para 4,47 no desktop e o título para 3,97 no celular, então 0,70 é o piso. */
-  .veu-foto-fecho {
+  /* The veil of the close: the SAME stops as the opening, with the lighter alpha, and the value came out of measurement, not of taste.
+     The photo of the panels in the desert behind the veil of the opening delivered the text at 7,09 (title) and 7,90 (paragraph) on
+     the desktop and 6,41 and 8,46 on mobile, but the pixel behind the title measured rgb(97,81,62), the desert came out faded.
+     With 0,70 / 0,52 / 0,46 the same pixel measures rgb(116,95,71) and the text sits at 5,58 / 7,19 / 5,59 on the desktop and
+     4,91 / 7,79 / 6,52 on mobile, all above the required 4,5. One step below (0,62 / 0,45 / 0,40) the label falls
+     to 4,47 on the desktop and the title to 3,97 on mobile, so 0,70 is the floor. */
+  .closing-photo-veil {
     background-image: linear-gradient(
       180deg,
       color-mix(in oklab, var(--color-ink) 70%, transparent) 0%,
@@ -448,12 +448,12 @@
       color-mix(in oklab, var(--color-ink) 46%, transparent) 100%
     );
   }
-  /* O veu da foto, escuro COMECANDO EM CIMA, que e onde a foto e clara: o ceu ocupa a faixa de cima do quadro, e e
-     onde a marca e a sobrancelha caem no celular. O alfa nao foi escolhido no olho: o texto da abertura e claro
-     (`canvas`, luminancia 0,90) e precisa de 4,5 para 1; sobre o telhado (0,03) qualquer alfa passa, e sobre o ceu
-     (0,72) so passa a partir de ~78 por cento de tinta. O veu afrouxa para baixo porque embaixo ja e telhado
-     escuro, e assim a foto continua aparecendo onde ela tem contraste para aparecer. */
-  .veu-foto {
+  /* The veil of the photo, dark STARTING AT THE TOP, which is where the photo is light: the sky takes the top band of the frame, and it is
+     where the brand and the eyebrow fall on mobile. The alpha was not chosen by eye: the text of the opening is light
+     (`canvas`, luminance 0,90) and needs 4,5 to 1; over the roof (0,03) any alpha passes, and over the sky
+     (0,72) it only passes from ~78 percent of ink. The veil loosens downwards because below it is already a dark
+     roof, and so the photo keeps appearing where it has contrast to show. */
+  .photo-veil {
     background-image: linear-gradient(
       180deg,
       color-mix(in oklab, var(--color-ink) 80%, transparent) 0%,
@@ -461,11 +461,11 @@
       color-mix(in oklab, var(--color-ink) 55%, transparent) 100%
     );
   }
-  /* A faixa curta do blog — o cabeçalho do índice — usa um véu mais fechado que a abertura. Ela é baixa, então o
-     texto ocupa a faixa inteira, inclusive a parte de cima, que é onde a foto é clara: com o véu da abertura o
-     título media 4,70 no celular, e 4,70 é margem fina demais para um texto que ainda pode crescer. Com este véu
-     ele mede 8,34, e a foto continua aparecendo no que sobra de folga. */
-  .veu-foto-faixa {
+  /* The short band of the blog, the index header, uses a veil more closed than the opening. It is short, so the
+     text takes the whole band, including the top part, which is where the photo is light: with the veil of the opening the
+     title measured 4,70 on mobile, and 4,70 is a margin too thin for a text that can still grow. With this veil
+     it measures 8,34, and the photo keeps appearing in what is left of room. */
+  .band-photo-veil {
     background-image: linear-gradient(
       180deg,
       color-mix(in oklab, var(--color-ink) 88%, transparent) 0%,

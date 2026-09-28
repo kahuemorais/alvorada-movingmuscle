@@ -4,52 +4,52 @@ import { getCity } from "./city";
 import { simulate } from "./solar";
 
 const phoenix = getCity("phoenix-az");
-const resultado = simulate(phoenix, { bill: 220, coverage: 80 });
+const result = simulate(phoenix, { bill: 220, coverage: 80 });
 
-function fakeStore(inicial: Record<string, string> = {}) {
-  const dados = { ...inicial };
+function fakeStore(initial: Record<string, string> = {}) {
+  const data = { ...initial };
   return {
-    getItem: (k: string) => dados[k] ?? null,
+    getItem: (k: string) => data[k] ?? null,
     setItem: (k: string, v: string) => {
-      dados[k] = v;
+      data[k] = v;
     },
-    dump: () => dados,
+    dump: () => data,
   };
 }
 
-describe("tags de campanha", () => {
-  it("le os parametros da URL", () => {
+describe("campaign tags", () => {
+  it("reads the URL parameters", () => {
     const store = fakeStore();
     const tags = campaignTags("?utm_source=meta&utm_campaign=phoenix-julho&gclid=abc123", store);
     expect(tags).toEqual({ utm_source: "meta", utm_campaign: "phoenix-julho", gclid: "abc123" });
   });
 
-  it("guarda na sessao e devolve depois, porque a pessoa mexe no simulador depois de rolar", () => {
+  it("stores in the session and returns it afterwards, because the person touches the simulator after scrolling", () => {
     const store = fakeStore();
     campaignTags("?utm_source=meta&utm_campaign=phoenix-julho", store);
-    const depois = campaignTags("", store);
-    expect(depois).toEqual({ utm_source: "meta", utm_campaign: "phoenix-julho" });
+    const after = campaignTags("", store);
+    expect(after).toEqual({ utm_source: "meta", utm_campaign: "phoenix-julho" });
   });
 
-  it("sem URL e sem sessao devolve vazio, e nao quebra", () => {
+  it("without URL and without session it returns empty, and does not break", () => {
     expect(campaignTags("", fakeStore())).toEqual({});
     expect(campaignTags("", null)).toEqual({});
   });
 
-  it("ignora parametro desconhecido", () => {
+  it("ignores an unknown parameter", () => {
     expect(campaignTags("?foo=bar&utm_source=google", fakeStore())).toEqual({ utm_source: "google" });
   });
 });
 
-describe("evento de simulacao concluida", () => {
-  const payload = simulationPayload(resultado, { bill: 220, coverage: 80 }, { utm_source: "meta" }, "3");
+describe("simulation completed event", () => {
+  const payload = simulationPayload(result, { bill: 220, coverage: 80 }, { utm_source: "meta" }, "3");
 
-  it("leva a origem da campanha junto dos numeros", () => {
+  it("carries the campaign origin together with the numbers", () => {
     expect(payload.name).toBe("simulation_completed");
     expect(payload.data.utm_source).toBe("meta");
   });
 
-  it("leva os numeros que a equipe precisa para decidir o que pausar", () => {
+  it("carries the numbers the crew needs to decide what to pause", () => {
     expect(payload.data.panels).toBe(17);
     expect(payload.data.monthly_savings).toBe(179.01);
     expect(payload.data.cost_after_credit).toBe(14726.25);
@@ -57,9 +57,9 @@ describe("evento de simulacao concluida", () => {
     expect(payload.data.coverage).toBe(80);
   });
 
-  it("diz quando uma regra entrou em acao, para ninguem ler o numero como erro de conta", () => {
-    const comMinimo = simulate(phoenix, { bill: 60, coverage: 50 });
-    const p = simulationPayload(comMinimo, { bill: 60, coverage: 50 }, {}, null);
+  it("says when a rule came into action, so nobody reads the number as a bill error", () => {
+    const withMinimum = simulate(phoenix, { bill: 60, coverage: 50 });
+    const p = simulationPayload(withMinimum, { bill: 60, coverage: 50 }, {}, null);
     expect(p.data.min_panels_applied).toBe(true);
     expect(p.data.profile).toBe("none");
   });

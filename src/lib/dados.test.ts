@@ -1,43 +1,43 @@
-// Varredura de todos os arquivos de cidade, e não só do que está publicado hoje.
+// Sweep of every city file, and not only of what is published today.
 //
-// Por que existe separado do city.test.ts: aquele prova a regra do carregador com uma cidade; este
-// percorre a pasta inteira. A pasta pode chegar a cerca de 120 cidades, e cada arquivo novo é um arquivo
-// escrito à mão: sem varredura, a cidade número 40 entra torta e o erro aparece na visita, na forma de
-// número quebrado na tela. Com varredura, o build falha dizendo qual arquivo e qual campo.
+// Why it exists separately from city.test.ts: that one proves the loader rule with one city; this
+// one walks the whole folder. The folder can reach around 120 cities, and each new file is a file
+// written by hand: without the sweep, city number 40 lands crooked and the error shows up on the visit, in the form of a
+// broken number on the screen. With the sweep, the build fails saying which file and which field.
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { esquemaCidade } from "./schema";
+import { citySchema } from "./schema";
 
-const PASTA = path.join(process.cwd(), "src", "data", "cities");
+const FOLDER = path.join(process.cwd(), "src", "data", "cities");
 
-describe("varredura dos arquivos de cidade", () => {
-  const arquivos = readdirSync(PASTA).filter((nome) => nome.endsWith(".json"));
+describe("sweep of the city files", () => {
+  const files = readdirSync(FOLDER).filter((name) => name.endsWith(".json"));
 
-  it("tem pelo menos uma cidade publicada", () => {
-    expect(arquivos.length).toBeGreaterThan(0);
+  it("has at least one published city", () => {
+    expect(files.length).toBeGreaterThan(0);
   });
 
-  it("cada arquivo passa no esquema, com o nome do arquivo na falha", () => {
-    const problemas: string[] = [];
-    for (const arquivo of arquivos) {
-      const bruto: unknown = JSON.parse(readFileSync(path.join(PASTA, arquivo), "utf8"));
-      const resultado = esquemaCidade.safeParse(bruto);
-      if (!resultado.success) {
-        const campos = resultado.error.issues.map((i) => i.path.join(".") || "raiz").join(", ");
-        problemas.push(`${arquivo}: ${campos}`);
+  it("each file passes the schema, with the file name in the failure", () => {
+    const problems: string[] = [];
+    for (const file of files) {
+      const raw: unknown = JSON.parse(readFileSync(path.join(FOLDER, file), "utf8"));
+      const result = citySchema.safeParse(raw);
+      if (!result.success) {
+        const fields = result.error.issues.map((i) => i.path.join(".") || "root").join(", ");
+        problems.push(`${file}: ${fields}`);
       }
     }
-    expect(problemas, `arquivos com problema:\n${problemas.join("\n")}`).toEqual([]);
+    expect(problems, `files with a problem:\n${problems.join("\n")}`).toEqual([]);
   });
 
-  it("o nome do arquivo é o slug declarado dentro dele", () => {
-    // Divergência entre os dois produziria endereço de página diferente do slug usado em endereço
-    // canônico e em dado estruturado.
-    const divergentes = arquivos
-      .map((arquivo) => ({ arquivo, slug: JSON.parse(readFileSync(path.join(PASTA, arquivo), "utf8")).slug }))
-      .filter(({ arquivo, slug }) => arquivo !== `${slug}.json`)
-      .map(({ arquivo, slug }) => `${arquivo} declara ${slug}`);
-    expect(divergentes).toEqual([]);
+  it("the file name is the slug declared inside it", () => {
+    // A divergence between the two would produce a page address different from the slug used in the canonical
+    // address and in the structured data.
+    const divergent = files
+      .map((file) => ({ file, slug: JSON.parse(readFileSync(path.join(FOLDER, file), "utf8")).slug }))
+      .filter(({ file, slug }) => file !== `${slug}.json`)
+      .map(({ file, slug }) => `${file} declares ${slug}`);
+    expect(divergent).toEqual([]);
   });
 });

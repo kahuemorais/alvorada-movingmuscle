@@ -8,92 +8,90 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-## O que é este projeto
+## What this project is
 
-Página de cidade para a Brightfield Solar. Next.js com App Router, uma página por cidade, gerada a partir
-de arquivo de dados.
+A city page for Brightfield Solar. Next.js with App Router, one page per city, generated from a data file.
 
-## Comandos
+## Commands
 
-- Instalar: `pnpm install`
-- Desenvolvimento: `pnpm dev`
+- Install: `pnpm install`
+- Development: `pnpm dev`
 - Build: `pnpm build`
-- Testes: `pnpm test`
+- Tests: `pnpm test`
 - Lint: `pnpm lint`
 
-## Estrutura
+## Structure
 
-- `src/app/[city]/page.tsx`: rota por cidade, com `generateStaticParams` lendo `src/data/cities`
-- `src/data/cities/*.json`: TODO o conteúdo que muda de cidade vive aqui
-- `src/app/blog/page.tsx`: índice do blog, com os textos lidos de `src/content/blog`
-- `src/app/blog/[slug]/page.tsx`: uma página por texto, com `generateStaticParams` lendo a pasta e 404 de verdade
-- `src/content/blog/*.md`: os textos do blog, com cabeçalho em JSON entre cercas e corpo em markdown
-- `src/lib/blog.ts`: leitura, validação e ordenação dos textos, no mesmo desenho de `src/lib/city.ts`
-- `src/components/BlogCard.tsx`: o cartão de texto, usado no índice e no fim de cada texto
-- `src/lib/solar.ts`: cálculo do sistema, função pura, sem React
-- `src/lib/city.ts`: tipo `City` e leitura dos arquivos de cidade
-- `src/components/`: os seis blocos da página
-- `src/components/ui/`: componentes do shadcn, versionados e editáveis
-- `DESIGN.md`: tokens e regras de design, fonte única de cor, raio, tipo e espaçamento
+- `src/app/[city]/page.tsx`: route per city, with `generateStaticParams` reading `src/data/cities`
+- `src/data/cities/*.json`: EVERYTHING that changes from city to city lives here
+- `src/app/blog/page.tsx`: blog index, with the posts read from `src/content/blog`
+- `src/app/blog/[slug]/page.tsx`: one page per post, with `generateStaticParams` reading the folder and a real 404
+- `src/content/blog/*.md`: the blog posts, with a JSON header between the fences and a markdown body
+- `src/lib/blog.ts`: reading, validation and ordering of the posts, same shape as `src/lib/city.ts`
+- `src/components/BlogCard.tsx`: the post card, used in the index and at the end of each post
+- `src/lib/solar.ts`: system calculation, pure function, no React
+- `src/lib/city.ts`: `City` type and reading of the city files
+- `src/components/`: the six blocks of the page
+- `src/components/ui/`: shadcn components, versioned and editable
+- `DESIGN.md`: tokens and design rules, single source for color, radius, type and spacing
 
-## Regras que não se negociam
+## Rules that are not negotiable
 
-- **Nenhum valor de cidade nasce no componente.** Todo número que muda de cidade (tarifa, sol, preço,
-  mínimo de painéis, alíquota) vem de `src/data/cities/*.json`. Constante no componente é permitida só
-  para trilho de entrada, ou seja, o intervalo e o passo dos controles do simulador, que são iguais em
-  todas as cidades, e nesse caso ela é nomeada e com o motivo escrito ao lado. Hoje são
-  quatro: os limites da conta, o passo da conta, o intervalo da cobertura e o passo da cobertura.
-- **O cálculo não mora no React.** `src/lib/solar.ts` é função pura e é ele que os testes
-  exercitam. As três regras do cálculo (painel inteiro, mínimo da cidade, teto da economia) têm teste
-  próprio.
-- **Nada de estilo solto.** Cor, raio, espaçamento e escala de tipo saem do `DESIGN.md` para o
-  `@theme` do `globals.css`. Componente novo não escreve hex na mão.
-- **Degrau de tipo se escreve `type-<degrau>`, nunca `text-<degrau>` junto de `font-<degrau>`.**
-  Cada utilitário `type-*` aplica tamanho, altura de linha e peso de uma vez. O motivo é medido: o
-  `cn` usa tailwind-merge, que não conhece degrau customizado, classifica `text-<degrau>` como cor
-  ou alinhamento e descarta a classe em silêncio quando ela convive com `text-ink` ou `text-left`. A
-  pergunta do FAQ saía com 16 px quando o código pedia 22, e o H1 saía com peso 400 quando pedia 700.
-- **Borda que carrega significado usa `border-outline`, não um cinza claro.** O Material pede 3 para 1 de
-  contraste em limite de componente, e `ink` a 15% mede 1,37: não identifica nada. Vale para campo de
-  formulário, controle de escolha, item clicável e qualquer coisa cujo limite precise ser percebido.
-  Borda de agrupamento, como a do cartão, é decorativa e fica clara.
-- **Largura não se escreve com `w-lg`, `max-w-md` e afins.** Os nossos degraus de espaço se chamam
-  `xs`, `sm`, `md`, `lg`, `xl` e `xxl`, e no Tailwind v4 esses mesmos nomes definem a escala de
-  contêiner, então `max-w-lg` resolve para `var(--spacing-lg)`, que são 24 px em vez dos 32 rem do
-  Tailwind. Largura vai em valor explícito (`max-w-[34rem]`) ou em nome que não declaramos (`2xl` para
-  cima). Custou uma pílula de navegação colapsada para 24 px de largura no celular.
-- **`calc()` dentro de classe do Tailwind precisa de `_` no lugar do espaço.** `w-[calc(100vw-2rem)]`
-  vira CSS inválido e a propriedade é ignorada em silêncio; o certo é
-  `bottom-[calc(1rem_+_env(safe-area-inset-bottom))]`. O exemplo precisa ser uma classe de verdade, com o
-  argumento do `env` escrito: o Tailwind varre os `.md` do projeto como fonte de classe, então exemplo com
-  reticências no lugar do argumento gera CSS inválido, e isso derruba o `pnpm dev` com 500 em toda rota — o build
-  de produção engole, o pipeline de desenvolvimento não.
-- **Sem dado de cliente, sem credencial, sem código de empregador.**
-- **Acessibilidade não é polimento de fim.** Se mexer no simulador, conferir teclado e leitor de
-  tela antes de commitar.
+- **No city value is born inside a component.** Every number that changes from city to city (rate, sun,
+  price, minimum panels, credit rate) comes from `src/data/cities/*.json`. A constant inside a component is
+  allowed only for input rails, that is, the range and the step of the simulator controls, which are the
+  same in every city, and in that case it is named, with the reason written next to it. There are four
+  today: the bill limits, the bill step, the coverage range and the coverage step.
+- **The calculation does not live in React.** `src/lib/solar.ts` is a pure function and it is what the tests
+  exercise. The three rules of the calculation (a panel is a whole unit, the city minimum, the savings cap)
+  have their own test.
+- **No loose styling.** Color, radius, spacing and the type scale come out of `DESIGN.md` into the `@theme`
+  of `globals.css`. A new component does not write hex by hand.
+- **A type step is written `type-<step>`, never `text-<step>` next to `font-<step>`.** Each `type-*`
+  utility applies size, line height and weight at once. The reason is measured: `cn` uses tailwind-merge,
+  which does not know a custom step, classifies `text-<step>` as color or alignment, and silently drops the
+  class when it sits next to `text-ink` or `text-left`. The FAQ question rendered at 16 px when the code
+  asked for 22, and the H1 rendered at weight 400 when it asked for 700.
+- **A border that carries meaning uses `border-outline`, not a light gray.** Material asks for 3 to 1 of
+  contrast on a component boundary, and `ink` at 15% measures 1.37: it identifies nothing. It applies to a
+  form field, a choice control, a clickable item and anything whose boundary must be perceived. A grouping
+  border, like the one on a card, is decorative and stays light.
+- **Width is not written with `w-lg`, `max-w-md` and the like.** Our space steps are called `xs`, `sm`,
+  `md`, `lg`, `xl` and `xxl`, and in Tailwind v4 those same names define the container scale, so `max-w-lg`
+  resolves to `var(--spacing-lg)`, which is 24 px instead of the 32 rem of Tailwind. Width goes in an
+  explicit value (`max-w-[34rem]`) or in a name we do not declare (`2xl` and up). It cost a collapsed
+  navigation pill 24 px of width on mobile.
+- **`calc()` inside a Tailwind class needs `_` in place of the space.** `w-[calc(100vw-2rem)]` becomes
+  invalid CSS and the property is silently ignored; the right way is
+  `bottom-[calc(1rem_+_env(safe-area-inset-bottom))]`. The example has to be a real class, with the `env`
+  argument written out: Tailwind scans the project `.md` files as a class source, so an example with an
+  ellipsis in place of the argument generates invalid CSS, and that takes `pnpm dev` down with a 500 on
+  every route — the production build swallows it, the development pipeline does not.
+- **No customer data, no credential, no employer code.**
+- **Accessibility is not a finishing polish.** If you touch the simulator, check keyboard and screen reader
+  before committing.
 
-## Antes de terminar qualquer mudança
+## Before finishing any change
 
 `pnpm verify`
 
-Um comando só: build, testes, lint, desenho e varredura de segurança, nesta ordem, parando no primeiro que
-falhar. A varredura cobre quatro frentes e cada uma pega uma classe diferente: `pnpm audit` para
-dependência publicada com vulnerabilidade conhecida, `gitleaks` para segredo no código e no histórico,
-`semgrep` para padrão de código inseguro em TypeScript, e `osv-scanner` para dependência contra a base do
-OSV pelo arquivo de travamento. Ferramenta ausente reprova a varredura com o comando de instalação, e não
-passa como aviso.
+A single command: build, tests, lint, design and security sweep, in this order, stopping at the first
+failure. The sweep covers four fronts and each one catches a different class: `pnpm audit` for a published
+dependency with a known vulnerability, `gitleaks` for a secret in the code and in the history, `semgrep` for
+an insecure code pattern in TypeScript, and `osv-scanner` for a dependency against the OSV database by
+lockfile. A missing tool fails the sweep with the install command, and does not pass as a warning.
 
-A rede de verdade é rodar o comando na máquina antes de cada commit: o hook de pré-commit
-(`git config core.hooksPath .githooks`, uma vez por clone) roda a varredura de segredo e o lint, e o
-`pnpm verify` completo é o portão de cada mudança.
+The real net is running the command on the machine before every commit: the pre-commit hook
+(`git config core.hooksPath .githooks`, once per clone) runs the secret sweep and the lint, and the full
+`pnpm verify` is the gate for every change.
 
-Ferramentas exigidas na máquina:
+Tools required on the machine:
 
 ```
 brew install semgrep gitleaks osv-scanner
-git config core.hooksPath .githooks   # ativa o hook de pré-commit, uma vez por clone
+git config core.hooksPath .githooks   # activates the pre-commit hook, once per clone
 ```
 
-`pnpm design` confere que as cores, os degraus de tipo, os pesos e os cantos do `DESIGN.md` são os
-mesmos do `@theme`, que nenhum componente escreve cor em hexadecimal nem tamanho fora da escala, e
-imprime a tabela de contraste de todo par de cor usado, com o mínimo do Material Design.
+`pnpm design` checks that the colors, the type steps, the weights and the corners in `DESIGN.md` are the
+same ones in the `@theme`, that no component writes a hex color or a size outside the scale, and prints the
+contrast table of every color pair in use, with the Material Design minimum.
