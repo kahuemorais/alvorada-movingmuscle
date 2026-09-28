@@ -197,7 +197,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   // simulator, composed only once: two compositions of the same address diverge at the first change of
   // entry city.
   const [first] = listCitySlugs();
-  if (!first) throw new Error("nenhuma city publicada em src/data/cities");
+  if (!first) throw new Error("no city published in src/data/cities");
   const base = cityPath(first);
   const calculadora = `${base}#simulator`;
 

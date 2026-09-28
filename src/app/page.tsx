@@ -7,6 +7,6 @@ import { cityPath } from "@/lib/urls";
 // written in the code, so the list keeps being the data folder.
 export default function Home() {
   const [first] = listCitySlugs();
-  if (!first) throw new Error("nenhuma city publicada em src/data/cities");
+  if (!first) throw new Error("no city published in src/data/cities");
   redirect(cityPath(first));
 }

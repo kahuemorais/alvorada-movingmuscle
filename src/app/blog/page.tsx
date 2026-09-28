@@ -66,7 +66,7 @@ export default function BlogIndexPage() {
   // site root, which uses that list as source, and it is what makes the four anchors of the bar point to
   // the city page instead of to a section that does not exist here.
   const [first] = listCitySlugs();
-  if (!first) throw new Error("nenhuma city publicada em src/data/cities");
+  if (!first) throw new Error("no city published in src/data/cities");
   const base = cityPath(first);
 
   return (
