@@ -304,8 +304,8 @@
    width, height or top forces the browser to redo the layout every frame. Whoever asked for less motion in the
    system gets no animation at all, and the component solves that before arriving here. */
 @theme {
-  --aparencia-duracao: 420ms;
-  --aparencia-curva: cubic-bezier(0.16, 1, 0.3, 1);
+  --appearance-duration: 420ms;
+  --appearance-curve: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer utilities {
@@ -316,7 +316,7 @@
   .entered {
     opacity: 1;
     transform: none;
-    animation: reveal var(--aparencia-duracao) var(--aparencia-curva) both;
+    animation: reveal var(--appearance-duration) var(--appearance-curve) both;
   }
   @keyframes reveal {
     from {
@@ -358,7 +358,7 @@
     }
   }
   .enter {
-    animation: enter-anim var(--aparencia-duracao) var(--aparencia-curva) both;
+    animation: enter-anim var(--appearance-duration) var(--appearance-curve) both;
   }
 
   /* Card that enters together with the section, with its own wait to give staggering. It lives inside the
@@ -367,7 +367,7 @@
     opacity: 0;
   }
   .entered .stagger {
-    animation: reveal var(--aparencia-duracao) var(--aparencia-curva) both;
+    animation: reveal var(--appearance-duration) var(--appearance-curve) both;
   }
 
   /* The number that changed in the simulator: a pulse of opacity and scale, so the person sees WHICH number answered
@@ -387,14 +387,14 @@
     }
   }
   .pulsed {
-    animation: pulse 420ms var(--aparencia-curva) both;
+    animation: pulse 420ms var(--appearance-curve) both;
   }
 
   /* Card that rises on the pointer, only where there is a real pointer. */
   .rise {
     transition:
-      transform 200ms var(--aparencia-curva),
-      box-shadow 200ms var(--aparencia-curva);
+      transform 200ms var(--appearance-curve),
+      box-shadow 200ms var(--appearance-curve);
   }
   @media (hover: hover) {
     .rise:hover {

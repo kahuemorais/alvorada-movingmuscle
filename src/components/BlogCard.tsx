@@ -5,10 +5,10 @@ import { blogPath } from "@/lib/urls";
 // Readable date. The time zone comes in explicit because `new Date("2026-09-23")` is midnight in UTC: formatted in the visitor's
 // time zone, it goes back a day in the west of the United States, and the printed date comes to disagree with the `datePublished`
 // the structured data declares.
-const FORMATO_DA_DATA = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+const DATE_FORMAT = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 
-function dataLegivel(iso: string): string {
-  return FORMATO_DA_DATA.format(new Date(`${iso}T00:00:00Z`));
+function readableDate(iso: string): string {
+  return DATE_FORMAT.format(new Date(`${iso}T00:00:00Z`));
 }
 
 // The text card of the blog, used in the index and at the end of each text. It exists so there are not two truths about the same
@@ -20,7 +20,7 @@ function dataLegivel(iso: string): string {
 export function BlogCard({ text, featured = false }: { text: BlogPost; featured?: boolean }) {
   // The revision date only comes in when it really exists. The field is required in the schema and repeats the
   // publication date when the text was not revised.
-  const revisado = text.updatedAt !== text.publishedAt;
+  const revised = text.updatedAt !== text.publishedAt;
   // The reading time comes from the body of the text, and not from the header: it is the only datum of this line that does not
   // age on its own if someone edits the text.
   const minutes = readingMinutes(text);
@@ -52,12 +52,12 @@ export function BlogCard({ text, featured = false }: { text: BlogPost; featured?
           </span>
           <span aria-hidden>·</span>
           <span>
-            Published <time dateTime={text.publishedAt}>{dataLegivel(text.publishedAt)}</time>
+            Published <time dateTime={text.publishedAt}>{readableDate(text.publishedAt)}</time>
           </span>
-          {revisado && (
+          {revised && (
             <>
               {" · Updated "}
-              <time dateTime={text.updatedAt}>{dataLegivel(text.updatedAt)}</time>
+              <time dateTime={text.updatedAt}>{readableDate(text.updatedAt)}</time>
             </>
           )}
         </p>

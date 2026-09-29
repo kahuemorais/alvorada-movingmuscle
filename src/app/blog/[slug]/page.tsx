@@ -29,10 +29,10 @@ export const dynamicParams = false;
 // Readable date. The time zone comes in explicit for the same reason as in the index: `new Date("2026-09-23")` is
 // midnight in UTC, and formatted in the visitor's time zone it goes back a day in the west of the United States,
 // which would make the printed date disagree with the `datePublished` the structured data declares.
-const FORMATO_DA_DATA = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+const DATE_FORMAT = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 
-function dataLegivel(iso: string): string {
-  return FORMATO_DA_DATA.format(new Date(`${iso}T00:00:00Z`));
+function readableDate(iso: string): string {
+  return DATE_FORMAT.format(new Date(`${iso}T00:00:00Z`));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -68,7 +68,7 @@ type Node = Record<string, unknown>;
 // Image declared in the `BlogPosting`. There is still no share card per text, and inventing an
 // image address that does not respond is worse than not declaring it: while the route of its own does not exist,
 // the declared image is the one the site already serves, and the adjustment stays in a single place when the card arrives.
-function imagemDoSite(site: string): string {
+function siteImage(site: string): string {
   return `${site}/icon.svg`;
 }
 
@@ -83,14 +83,14 @@ function postSchema(text: BlogPost, site: string): { "@context": string; "@graph
   const url = blogPageUrl(site, text.slug);
   const index = blogPageUrl(site);
 
-  const grafo: Node[] = [
+  const graph: Node[] = [
     {
       "@type": "BlogPosting",
       "@id": `${url}#post`,
       headline: text.title,
       description: text.description,
       url,
-      image: [imagemDoSite(site)],
+      image: [siteImage(site)],
       datePublished: text.publishedAt,
       dateModified: text.updatedAt,
       // Organization, and not person: the `author` of the text header is the brand that signs the
@@ -112,7 +112,7 @@ function postSchema(text: BlogPost, site: string): { "@context": string; "@graph
   // FAQPage only comes in when the text header declares questions, and the answer is the one from the header,
   // literal, which is the one the body already states. A summary written here would be a new statement with no source.
   if (text.faq?.length) {
-    grafo.push({
+    graph.push({
       "@type": "FAQPage",
       "@id": `${url}#faq`,
       mainEntity: text.faq.map((item) => ({
@@ -123,7 +123,7 @@ function postSchema(text: BlogPost, site: string): { "@context": string; "@graph
     });
   }
 
-  return { "@context": "https://schema.org", "@graph": grafo };
+  return { "@context": "https://schema.org", "@graph": graph };
 }
 
 // Body in blocks. They are the only three types the markdown reader of `blog.ts` produces: section
@@ -180,8 +180,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const text = findOptionalPost(slug);
   // Three other guides, from the most recent. The list already comes ordered, so there is no reordering here.
-  const outros = listPosts()
-    .filter((outro) => outro.slug !== slug)
+  const others = listPosts()
+    .filter((other) => other.slug !== slug)
     .slice(0, 3);
 
   if (!text) notFound();
@@ -190,7 +190,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   // The revision date only comes in when it really exists. The field is required in the schema and repeats
   // the publication date when the text was not revised, so printing it always would say that every guide was
   // revised on the day it came out.
-  const revisado = text.updatedAt !== text.publishedAt;
+  const revised = text.updatedAt !== text.publishedAt;
 
   // Header base: the first published city, and not a slug written in the code, for the same reason
   // the site root uses that list. It is the same path the close of the text uses to reach the
@@ -199,7 +199,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const [first] = listCitySlugs();
   if (!first) throw new Error("no city published in src/data/cities");
   const base = cityPath(first);
-  const calculadora = `${base}#simulator`;
+  const calculator = `${base}#simulator`;
 
   return (
     <>
@@ -253,12 +253,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <span>By {text.author}</span>
               <span aria-hidden>·</span>
               <span>
-                Published <time dateTime={text.publishedAt}>{dataLegivel(text.publishedAt)}</time>
+                Published <time dateTime={text.publishedAt}>{readableDate(text.publishedAt)}</time>
               </span>
-              {revisado && (
+              {revised && (
                 <>
                   {" · Updated "}
-                  <time dateTime={text.updatedAt}>{dataLegivel(text.updatedAt)}</time>
+                  <time dateTime={text.updatedAt}>{readableDate(text.updatedAt)}</time>
                 </>
               )}
             </p>
@@ -304,7 +304,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               sunlight hours, the panel used and the installed cost per watt.
             </p>
             <a
-              href={calculadora}
+              href={calculator}
               className="type-label text-ink underline decoration-outline underline-offset-4 transition-colors hover:decoration-primary-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               Open the calculator
@@ -329,14 +329,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             would be a second truth about the same list. The button exists because whoever arrived from search and wants to keep
             reading needs a path, and three cards do not cover the list. With no divider line above: what
             separates is the padding of the block. */}
-        {outros.length > 0 && (
+        {others.length > 0 && (
           <section aria-labelledby="others-title" className="flex flex-col gap-lg pt-xl">
             <h2 id="others-title" className="type-lead text-ink">
               Keep reading
             </h2>
             <ul className="flex flex-col gap-md md:grid md:grid-cols-3 md:items-stretch">
-              {outros.map((outro) => (
-                <BlogCard key={outro.slug} text={outro} />
+              {others.map((other) => (
+                <BlogCard key={other.slug} text={other} />
               ))}
             </ul>
             <div className="flex justify-center">

@@ -18,12 +18,12 @@ import { blogPageUrl, cityPath, siteUrl } from "@/lib/urls";
 // Title of 57 characters and description of 155, measured: the copy standard asks for 50 to 60 in the title and 150 to 160 in the
 // description. They stay in a constant because the structured data declares both again, and text written twice
 // diverges at the first revision.
-const TITULO = "Solar guides on estimates and payback | Brightfield Solar";
+const TITLE = "Solar guides on estimates and payback | Brightfield Solar";
 const DESCRIPTION =
   "Plain answers about reading a solar estimate, how many panels a roof holds, and what a utility rate does to payback, written by the crews who install them.";
 
 export const metadata: Metadata = {
-  title: TITULO,
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: blogPageUrl(siteUrl()) },
 };
@@ -40,7 +40,7 @@ function collectionSchema(texts: BlogPost[], site: string) {
     "@type": "CollectionPage",
     "@id": `${url}#collection`,
     url,
-    name: TITULO,
+    name: TITLE,
     description: DESCRIPTION,
     inLanguage: "en-us",
     hasPart: texts.map((text) => {

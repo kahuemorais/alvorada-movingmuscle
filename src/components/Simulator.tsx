@@ -57,7 +57,7 @@ const nearestPoint = (value: number) =>
 const DEFAULT_BILL = 220;
 const DEFAULT_COVERAGE = 80;
 
-type Estado = { bill: number; coverage: number };
+type State = { bill: number; coverage: number };
 
 // The state lives in the query string because the address is sent by message to whoever decides together:
 // whoever receives the link has to open the SAME simulation, not the blank page.
@@ -67,12 +67,12 @@ type Estado = { bill: number; coverage: number };
 // the URL in another effect dispute the same cycle, and in React strict mode the effects run
 // twice, so the write erased the read and the link opened at the default. The second is that here there is no
 // parallel state to synchronize: the simulation IS the URL, and changing the control writes the URL.
-function subscrever(avisar: () => void) {
-  window.addEventListener("popstate", avisar);
-  window.addEventListener(URL_EVENT, avisar);
+function subscribe(notify: () => void) {
+  window.addEventListener("popstate", notify);
+  window.addEventListener(URL_EVENT, notify);
   return () => {
-    window.removeEventListener("popstate", avisar);
-    window.removeEventListener(URL_EVENT, avisar);
+    window.removeEventListener("popstate", notify);
+    window.removeEventListener(URL_EVENT, notify);
   };
 }
 
@@ -86,7 +86,7 @@ function readSearchOnServer(): string {
   return "";
 }
 
-function stateFromSearch(search: string): Estado | null {
+function stateFromSearch(search: string): State | null {
   const params = new URLSearchParams(search);
   const bill = Number(params.get("bill"));
   const coverage = Number(params.get("coverage"));
@@ -99,10 +99,10 @@ function stateFromSearch(search: string): Estado | null {
 
 const URL_EVENT = "brightfield:url";
 
-const DEFAULT: Estado = { bill: DEFAULT_BILL, coverage: DEFAULT_COVERAGE };
+const DEFAULT: State = { bill: DEFAULT_BILL, coverage: DEFAULT_COVERAGE };
 
 export default function Simulator({ city }: { city: City }) {
-  const search = useSyncExternalStore(subscrever, readSearch, readSearchOnServer);
+  const search = useSyncExternalStore(subscribe, readSearch, readSearchOnServer);
   // The campaign lives in the search of the FIRST visit, and the simulator rewrites the URL at every adjustment (`replaceState`
   // with bill and coverage), which erases the tags. Read at the moment of the event, they no longer exist: the event
   // arrived at the media team without knowing WHICH ad generated the simulation, which is exactly what this module
@@ -131,7 +131,7 @@ export default function Simulator({ city }: { city: City }) {
   // Writes the URL and notifies whoever is reading, which is the page itself. `replaceState` instead of the
   // router: the page is static, there is no navigation to register, and without that every drag of the control
   // would enter the browser history.
-  const aplicar = (next: Estado, nextProfile: string | null) => {
+  const apply = (next: State, nextProfile: string | null) => {
     const params = new URLSearchParams({ bill: String(next.bill), coverage: String(next.coverage) });
     window.history.replaceState(null, "", `?${params.toString()}`);
     window.dispatchEvent(new Event(URL_EVENT));
@@ -141,23 +141,23 @@ export default function Simulator({ city }: { city: City }) {
   // Simulation event, fired after the person stops moving: without the wait, every step of the
   // control would become a simulation in the media team report and the number would lose meaning.
   const firstRound = useRef(true);
-  const comecou = useRef(false);
+  const started = useRef(false);
 
   useEffect(() => {
     if (firstRound.current) {
       firstRound.current = false;
       return;
     }
-    if (!comecou.current) {
-      comecou.current = true;
+    if (!started.current) {
+      started.current = true;
       // The ACTIVE profile goes, and not only the one that was clicked: with the initial state already being a profile of the table,
       // the event of the first adjustment would say "none" while the screen shows the three-bedroom card marked.
       trackSimulationStarted(campaignSearch, activeProfile);
     }
-    const relogio = setTimeout(() => {
+    const timer = setTimeout(() => {
       trackSimulationCompleted(result, state, campaignSearch, activeProfile);
     }, 1000);
-    return () => clearTimeout(relogio);
+    return () => clearTimeout(timer);
     // `buscaDaCampanha` stays in the list because it is read inside here and never changes after the first render: the
     // effect keeps firing for the same three reasons, but the lint warning does not stand.
   }, [state, profile, activeProfile, result, campaignSearch]);
@@ -169,7 +169,7 @@ export default function Simulator({ city }: { city: City }) {
 
   const setBill = (value: number) => {
     const clamped = Math.min(BILL_MAX, Math.max(BILL_MIN, value));
-    aplicar({ ...state, bill: Math.round(clamped / BILL_STEP) * BILL_STEP }, profile);
+    apply({ ...state, bill: Math.round(clamped / BILL_STEP) * BILL_STEP }, profile);
   };
 
   const commitDraft = () => {
@@ -187,7 +187,7 @@ export default function Simulator({ city }: { city: City }) {
     // bill and coverage passed straight to the calculation, and it passes with or without the reset. It was an interface decision, and
     // it discarded in silence a choice of whoever was using the page: with 50% marked, touching a card
     // returned 80 with no explanation.
-    aplicar({ ...state, bill: city.householdProfiles[Number(index)].typicalBill }, index);
+    apply({ ...state, bill: city.householdProfiles[Number(index)].typicalBill }, index);
   };
 
   // What is left of the bill after the savings. The savings never goes over the bill (rule 3, in `src/lib/solar.ts`), so
@@ -200,19 +200,19 @@ export default function Simulator({ city }: { city: City }) {
   // `simulate()` or from the city file.
   const bills = [
     {
-      termo: "Usage",
+      term: "Usage",
       text: `${usd(state.bill)} a month at ${usd(city.utilityRatePerKwh)} per kWh is ${num(result.monthlyUsageKwh)} kWh.`,
     },
     {
-      termo: "Target",
+      term: "Target",
       text: `${percent(state.coverage)} of that, or ${num(result.targetKwh)} kWh.`,
     },
     {
-      termo: "One panel",
+      term: "One panel",
       text: `${num(city.panelWatts)} W at ${city.peakSunHoursPerDay} peak sun hours a day and a ${city.performanceRatio} performance factor makes ${num(result.panelGenerationKwh)} kWh a month.`,
     },
     {
-      termo: "Panels",
+      term: "Panels",
       // Two steps, and the sentence says both: the ceiling of the raw number and, after, the floor of the city. Before it used
       // the final number in place of the ceiling and said that the floor was below it, which contradicts the calculation.
       text:
@@ -222,11 +222,11 @@ export default function Simulator({ city }: { city: City }) {
           : ""),
     },
     {
-      termo: "Price",
+      term: "Price",
       text: `${num(result.panels)} panels at ${num(city.panelWatts)} W and ${usd(city.costPerWattInstalled)} per watt installed is ${usd(result.investmentGross)}. The ${percentFull(city.federalCreditRate)} federal credit takes it to ${usd(result.investmentAfterCredit)}.`,
     },
     {
-      termo: "Savings",
+      term: "Savings",
       text:
         `${num(result.generationKwh)} kWh a month is ${usd(result.rawGenerationValue)} of electricity. ` +
         (result.flags.savingsCapped
@@ -354,12 +354,12 @@ export default function Simulator({ city }: { city: City }) {
                   step={BILL_STEP}
                   value={draft ?? state.bill}
                   aria-describedby="bill-hint"
-                  onChange={(evento) => setDraft(evento.target.value)}
+                  onChange={(event) => setDraft(event.target.value)}
                   onBlur={commitDraft}
-                  onKeyDown={(evento) => {
-                    if (evento.key === "Enter") {
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
                       commitDraft();
-                      evento.currentTarget.blur();
+                      event.currentTarget.blur();
                     }
                   }}
                   className="h-full min-w-0 flex-1 bg-transparent px-xs type-lead text-ink tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -401,23 +401,23 @@ export default function Simulator({ city }: { city: City }) {
                 value={state.coverage}
                 aria-label="Share of your usage you want to cover"
                 aria-valuetext={`${percent(state.coverage)} of your usage`}
-                onChange={(evento) =>
-                  aplicar({ ...state, coverage: Number(evento.target.value) }, profile)
+                onChange={(event) =>
+                  apply({ ...state, coverage: Number(event.target.value) }, profile)
                 }
                 className="h-touch flex-1 accent-primary"
               />
             </div>
             {/* The three named points, as a shortcut: they are where the sentence that explains each range lives. */}
             <div className="flex flex-wrap gap-xs">
-              {COVERAGE_OPTIONS.map((opcao) => (
+              {COVERAGE_OPTIONS.map((option) => (
                 <button
-                  key={opcao.value}
+                  key={option.value}
                   type="button"
-                  onClick={() => aplicar({ ...state, coverage: opcao.value }, profile)}
-                  aria-pressed={state.coverage === opcao.value}
+                  onClick={() => apply({ ...state, coverage: option.value }, profile)}
+                  aria-pressed={state.coverage === option.value}
                   className="min-h-touch flex-1 rounded-sm border border-outline px-md type-label text-ink transition-colors hover:bg-canvas aria-pressed:border-primary aria-pressed:ring-1 aria-pressed:ring-primary"
                 >
-                  {opcao.label} · <span className="tabular-nums">{percent(opcao.value)}</span>
+                  {option.label} · <span className="tabular-nums">{percent(option.value)}</span>
                 </button>
               ))}
             </div>
@@ -556,7 +556,7 @@ export default function Simulator({ city }: { city: City }) {
           <ol role="list" className="grid list-none gap-md gap-x-xl md:grid-cols-2">
             {bills.map((bill, index) => (
               <li
-                key={bill.termo}
+                key={bill.term}
                 className="stagger flex items-start gap-sm"
                 style={{ animationDelay: `${index * 60}ms` }}
               >
@@ -567,7 +567,7 @@ export default function Simulator({ city }: { city: City }) {
                   {index + 1}
                 </span>
                 <span className="flex flex-col gap-xs">
-                  <span className="type-label text-ink">{bill.termo}</span>
+                  <span className="type-label text-ink">{bill.term}</span>
                   <span className="type-body text-support">{bill.text}</span>
                 </span>
               </li>
