@@ -32,7 +32,7 @@ describe("city data", () => {
   });
 
   it("names the file and the field when the data is wrong", () => {
-    const folder = mkdtempSync(path.join(tmpdir(), "cidade-"));
+    const folder = mkdtempSync(path.join(tmpdir(), "city-"));
     writeFileSync(path.join(folder, "broken.json"), JSON.stringify({ ...realCity, utilityRatePerKwh: 0 }));
     expect(() => loadCityFrom(folder, "broken")).toThrow(/broken\.json/);
     expect(() => loadCityFrom(folder, "broken")).toThrow(/utilityRatePerKwh/);
