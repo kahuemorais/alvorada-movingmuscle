@@ -1,4 +1,4 @@
----
+gra---
 version: alpha
 name: Brightfield Solar
 description: Desert sun on a warm background, with the savings always in green, on the skeleton of Zapier.
@@ -55,7 +55,7 @@ spacing:
   xxl: 64px
   touch: 48px
 components:
-  pagina:
+  page:
     backgroundColor: "{colors.canvas}"
     textColor: "{colors.ink}"
   cta-button:
@@ -110,7 +110,7 @@ The palette is Brightfield's and does not change: what came from Zapier was type
 
 What came from Zapier, and why:
 
-- **Type compressed at the top.** The opening uses a line height of 0,95 with negative leading, which gives the
+- **Type compressed at the top.** The opening uses a line height of 0.95 with negative leading, which gives the
   compact block of someone who does not need to shout. The weight drops from 700 to 600: with Archivo, a grotesque
   with a sturdy stroke, the 500 of the original reads weak on the phone, and 600 is the weight Zapier itself uses in the
   large button text.
@@ -125,8 +125,8 @@ What came from Zapier, and why:
 What stayed out, with the reason:
 
 - **Their palette.** Orange `#ff4f00` over cream `#fffefb` is beautiful and is not our brand.
-- **Short leading in the body.** Zapier uses 1,20 to 1,25 in the body because it writes short and functional text;
-  here the questions are running text on the phone, and 1,5 reads better. Declared divergence.
+- **Short leading in the body.** Zapier uses 1.20 to 1.25 in the body because it writes short and functional text;
+  here the questions are running text on the phone, and 1.5 reads better. Declared divergence.
 - **Alternation of light and dark section.** They switch the environment of the page halfway; here the whole page
   is the same light, and the contrast stays for the result card.
 - **Touch target of 44 px.** Theirs is 44; here it is 48, which is the project rule and is better for the thumb.
@@ -151,10 +151,10 @@ below the Material minimum is `pnpm design`.
   keeps being what the band is: the base color (it is what appears if the photo does not load, together with the gradient of
   `action-veil`) and the color of the call button, which with the dark veil went back to being the light one of the action color, with the text in ink.
 - **primary-dark (#B0740F):** the dark gold, and it exists by measurement, not by taste: the light gold over
-  white measures 1,86 and does not identify a 20 px drawing. It measures **3,92** over white and **3,63** over the page
+  white measures 1.86 and does not identify a 20 px drawing. It measures **3.92** over white and **3.63** over the page
   background, which is the Material minimum for an icon. It lives in the calculator icons, which sit over a white card; the
   icons with a **dark circle** behind them (three steps, neighborhood location, testimonial quotes and the crew
-  hard hat) stay in the light gold, which over ink measures 8,78.
+  hard hat) stay in the light gold, which over ink measures 8.78.
 - **secondary (#1E5FBF):** the blue, and it is **accent, never the background of a block**. **The page no longer uses
   this color**: the last appearance was the circle of initials of the crews, which moved to ink, and the token stays in the theme
   because the `secondary` variants of the shadcn components are still
@@ -162,7 +162,7 @@ below the Material minimum is `pnpm design`.
   (which became filled and gold), the label of the three steps (which went back to ink), the focus of the bill
   field (which went back to the action color, because blue is not a control color here), the hairline of the number box and, last,
   the crews. It measures
-  **5,64** over the page background and **6,10** over white, so it would serve for text, unlike the amber, and
+  **5.64** over the page background and **6.10** over white, so it would serve for text, unlike the amber, and
   that is what is in `DESIGN.md` as a contrast reference, not as a use. The light variant (`secondary-light`)
   existed to read over the dark
   photo of the opening, and left when white came back there: an unused token does not stay in the theme.
@@ -170,7 +170,7 @@ below the Material minimum is `pnpm design`.
   than it, and clearly another tone, the hue goes from ~28 to ~42 degrees. The hex is the one of the gold, the same
   the page consumes. It has two roles, and that is why the name speaks of the color and not of a single use: it is the **hover** of the
   action buttons and of the blog cards, and it is the color of the **filled icons** of the three steps, of the testimonial quotes
-  and of the neighborhood location icon. Its pair with ink measures **8,78** in both directions. It does not come into the veil
+  and of the neighborhood location icon. Its pair with ink measures **8.78** in both directions. It does not come into the veil
   of the final band: the close stays in orange only, and the veil darkens the amber itself by `color-mix`,
   with no new token. The token exists from before, for a reason that keeps holding: the hover was the amber with opacity,
   and opacity no checker can measure.
@@ -179,17 +179,17 @@ below the Material minimum is `pnpm design`.
 - **canvas and surface:** page background and card background. The card is white over the warm background, and it is that
   difference of two tones that separates the simulator result from the rest of the page without needing a shadow.
 - **outline (#7F8081):** boundary gray, and it exists by measurement. With `ink` at 15 percent the border measured
-  1,37 to 1 against white, and Material asks for 3 to 1 in a component boundary, which is what makes a
-  field or a clickable item perceived as clickable. With this token it measures 3,96 over white and 3,66
+  1.37 to 1 against white, and Material asks for 3 to 1 in a component boundary, which is what makes a
+  field or a clickable item perceived as clickable. With this token it measures 3.96 over white and 3.66
   over the page background. A grouping border, like the one of the card, stays light on purpose: it does not
   need to be perceived, the content is what groups.
 
 The contrast of every color pair used is in `pnpm design`, which fails when some pair falls below the
-Material minimum. The numbers of today: ink over the background 16,47, ink over white 17,80, support
-over white 6,27, savings over white 5,32, ink over the action color 6,77, boundary over white
-3,96, ink over the gold `primary-light` 8,78 (and the same 8,78 in the gold over ink, which is the case of the icon in the
-dark circle), `primary-dark` over white 3,92 and over the background 3,63, and the ones of the new color: blue over the background 5,64, blue over white 6,10 and
-light ink over blue 5,64. The action color over white measures 2,63, and that is why it does not serve as text: where it appears it is a decorative
+Material minimum. The numbers of today: ink over the background 16.47, ink over white 17.80, support
+over white 6.27, savings over white 5.32, ink over the action color 6.77, boundary over white
+3.96, ink over the gold `primary-light` 8.78 (and the same 8.78 in the gold over ink, which is the case of the icon in the
+dark circle), `primary-dark` over white 3.92 and over the background 3.63, and the ones of the new color: blue over the background 5.64, blue over white 6.10 and
+light ink over blue 5.64. The action color over white measures 2.63, and that is why it does not serve as text: where it appears it is a decorative
 icon, a background with ink over it, or the border of a chosen state, which has the text and the radio as a
 second signal.
 
@@ -233,7 +233,7 @@ in the items of the bar. The bar itself is not a pill: it touches the bottom edg
 width and has a straight corner, and from the medium size up it glues to the top, also straight. That was once a floating
 pill and was removed.
 
-A border that carries meaning uses the `outline` token, at 3,96 to 1 against white: that is the case of a form
+A border that carries meaning uses the `outline` token, at 3.96 to 1 against white: that is the case of a form
 field, a choice control and a clickable item. A grouping border, like the one of the card, stays light on
 purpose. Separation comes from background tone and from border, never from shadow, and the page uses no shadow at all.
 
@@ -241,7 +241,7 @@ purpose. Separation comes from background tone and from border, never from shado
 
 - `microcopy` is the support text under a control: it explains where the number comes from, in a small body.
 - The main call is the shadcn `Button` in the large size, with 56 px of height, a corner of 8 px and dark
-  ink over the amber, and not white: white over that amber sits at 2,6:1 and fails contrast. The 56 px
+  ink over the amber, and not white: white over that amber sits at 2.6:1 and fails contrast. The 56 px
   come from the reference, which uses a large button taller than the touch minimum, and they stay above the 48 px the
   project rule demands.
 - The simulator result is the white `Card` over the warm background, with a corner of 8 px, which is the corner of the
@@ -260,7 +260,7 @@ purpose. Separation comes from background tone and from border, never from shado
   highlight, as in the blog), the term in ink on the `label` step and the sentence in support in the body, in two columns on the
   desktop and one on the phone. Every value comes out of `simulate()` or of the city file, so none is a new number, and it is
   where the rule of the minimum of panels stays visible always, and not only when it comes in. The block enters the scroll
-  like the other sections (`Aparecer`) and the six rows arrive staggered 60 in 60 ms, the same resource of the
+  like the other sections (`Reveal`) and the six rows arrive staggered 60 in 60 ms, the same resource of the
   cards of the three steps: this part had to be prettier and more
   dynamic. The block went through four arrangements: it started inside the result card (the three
   blocks stayed glued together), moved to two cards below it (it was still too much content), became one only with the list in
@@ -302,7 +302,7 @@ purpose. Separation comes from background tone and from border, never from shado
 - The navigation is the `SiteHeader` bar: glass, destinations with an icon over the label and the call to book
   closing the bar, with no item with a background of its own. There are five items, and the blog one is the only one that is not an anchor
   of this page: it leads to another page of the site (`src/components/SiteHeader.tsx:28-34`).
-- A category label, to separate groups inside a block, is an `h3` in uppercase with 0,5 px of
+- A category label, to separate groups inside a block, is an `h3` in uppercase with 0.5 px of
   letter spacing, on the `label` step and in the support color. It is the label resource of the Zapier reference,
   used only where a real category exists (the social proof has two: what the neighbors say and who did the
   work). In uppercase, the label is never running text.
@@ -343,9 +343,9 @@ purpose. Separation comes from background tone and from border, never from shado
   same pending point as the others.
 - **The veil of the photo is not an ornament, it is what guarantees the contrast.** It starts dark AT THE TOP, which is where the photo is light:
   on the phone the brand and the eyebrow fall exactly in the band of the sky. The alpha is measured: the text of the opening is light
-  (`canvas`, luminance 0,90) and needs 4,5 to 1; over the roof (0,03) any alpha passes, and over the sky
-  (0,72) it passes only from ~78% of ink. Measured with the photo live: title **5,36**, sentence **10,60** and eyebrow
-  **10,38** on the desktop; on the phone, **10,12**, **11,67** and **10,17**. The smallest margin is the one of the title, and it is the one that
+  (`canvas`, luminance 0.90) and needs 4.5 to 1; over the roof (0.03) any alpha passes, and over the sky
+  (0.72) it passes only from ~78% of ink. Measured with the photo live: title **5.36**, sentence **10.60** and eyebrow
+  **10.38** on the desktop; on the phone, **10.12**, **11.67** and **10.17**. The smallest margin is the one of the title, and it is the one that
   reports first if the photo is swapped for a lighter one.
 - From the medium size up the opening starts right below the fixed bar, and not behind it: `md:mt-[3.5rem]` on the
   box of the opening reserves the height of the bar (`src/app/[city]/page.tsx`), and the measure checks the slack. The corners
@@ -365,9 +365,9 @@ purpose. Separation comes from background tone and from border, never from shado
   background that is behind it (composed by the ancestors, because the band of 12% has alpha and the white cards sit above
   it; text over photo stays out of that count and is measured on the pixel, like the one of the opening and the one of the closing).
 - **The band of numbers of the opening counts from the floor, and not from zero.** It counted from zero to the value, and printing the band
-  frame by frame showed the defect: 24 distinct values for three numbers, with the rating of 4,8 appearing as `0.3` at the
+  frame by frame showed the defect: 24 distinct values for three numbers, with the rating of 4.8 appearing as `0.3` at the
   start. A number the server delivers right and that regresses on the screen reads as wrong data. The fix was to keep the
-  count starting at 90% of the value (`floor`, in `src/components/Counter.tsx`): 1.656 to 1.840, 4,3 to 4,8, 11 to
+  count starting at 90% of the value (`floor`, in `src/components/Counter.tsx`): 1.656 to 1.840, 4.3 to 4.8, 11 to
   12, always rising and never going through zero. The `tests/motion.spec.ts` guards the three halves of that: no frame
   below the floor, the count never descending and the last frame equal to the value of the city file.
 - **On the phone the bar is reserved at the END of two blocks, and not only at the end of the document.** The bar lives glued to the
@@ -383,7 +383,7 @@ purpose. Separation comes from background tone and from border, never from shado
   (393 by 852 and 375 by 667).
 - **On the phone the brand is light, and the band of numbers takes one line.** The icon of the brand went in the action color over
   a chip of the action color itself, and with the sun hitting it from above it vanished: on the phone it becomes light ink
-  over a light chip at 10% (the brand reads 6,21 to 1 over the yellow band, measured). And the three numbers sit in a grid
+  over a light chip at 10% (the brand reads 6.21 to 1 over the yellow band, measured). And the three numbers sit in a grid
   of three columns, and not in `flex-wrap`: with a gap of 24 px the labels added up to more than the 345 useful px of the panel and the
   third one fell to the line below.
 - **The band of numbers says where it comes from.** The rule is social proof that can be checked, with no invented
@@ -397,8 +397,8 @@ purpose. Separation comes from background tone and from border, never from shado
 - **The block of the neighborhoods uses the same highlight of the middle call**, ink of the action color at 25% with a border of the same
   color, with the title one step above the label (`type-lead`) and the count of neighborhoods beside it. **The list is a grid
   with a gold pin, and not a row of chips**: each neighborhood is a grid item (two columns on the phone,
-  three on the desktop) with the `NeighborhoodIcon`, the same pin of the title of the block, in `primary-dark`. The light gold measures 1,86
-  to 1 over the light background and does not identify a 16 px drawing; the dark gold measures 3,92, which is the minimum of
+  three on the desktop) with the `NeighborhoodIcon`, the same pin of the title of the block, in `primary-dark`. The light gold measures 1.86
+  to 1 over the light background and does not identify a 16 px drawing; the dark gold measures 3.92, which is the minimum of
   Material for an icon, and it is the solution the calculator icons already used. The middle block and this one are the only two
   with that highlight on the page, and both have decision work: one asks for the visit, the other proves local presence.
 - **The icons are FILLED.** The full weight takes the place of the thin stroke, with the size and the position of
@@ -408,12 +408,12 @@ purpose. Separation comes from background tone and from border, never from shado
   **brand of the header** stays outlined, because it is not an interface icon but the drawing of the identity, which does not
   get fatter. The quote rose one size step (28 px) along with the weight, for "more visual weight".
   And the gold gained a **dark circular background** (`rounded-full bg-ink`): gold over a light background
-  measured 1,86 and did not allow identifying the drawing. The black #1A1A1A is the ink the page already has
+  measured 1.86 and did not allow identifying the drawing. The black #1A1A1A is the ink the page already has
   (#16181A, four points of difference in the red channel), so the declared value is worth it instead of a second near-black in
-  the theme: the gold-over-ink pair measures 8,78. It holds in the three steps, in the location icon and in the quotes; in the icons
+  the theme: the gold-over-ink pair measures 8.78. It holds in the three steps, in the location icon and in the quotes; in the icons
   of the **menu** there is no background at all: they are dark at rest and gold only under the cursor. And where the icon sits over
   a white card with no circle, the ones of the calculator, the light gold was swapped for the **dark gold**, which is what
-  measures 3,92 there: the little contrast on the screen asks for a color correction, and not a background one.
+  measures 3.92 there: the little contrast on the screen asks for a color correction, and not a background one.
 - **The blog uses the language of the city page, and not a new one.** The index opened with more ornament: the
   **photo band** of the opening, a **gold** hairline on the eyebrow (gold because there the background is the
   dark photo, and not the light background of the sections) and the **first card taking the two columns**, hierarchy by the
@@ -441,18 +441,18 @@ purpose. Separation comes from background tone and from border, never from shado
   competing with it in the same corner. The fine grid and the yellow veil of the
   opening left when the photo came in, and the `globals.css` keeps no unused utility. The fourth one is the **veil of the short band**
   (`band-photo-veil`), and it exists by measurement: the header of the blog uses the same photo in a low band, so the
-  text catches the light part of the frame; with the veil of the opening the title measured 4,70 on the phone, and 4,70 is a margin that is too
-  thin. With its own veil it measures 8,34, and the photo keeps showing. **The closing came into the same drawing**: the photo
+  text catches the light part of the frame; with the veil of the opening the title measured 4.70 on the phone, and 4.70 is a margin that is too
+  thin. With its own veil it measures 8.34, and the photo keeps showing. **The closing came into the same drawing**: the photo
   of the panels in the desert is the background of the band (`.closing-background`), the `photo-veil` covers it, and the text of the band went from ink
-  to light, which is the pair the veil exists to guarantee. In the closing the veil is lighter (`.closing-photo-veil`, 0,70 / 0,52 /
-  0,46 instead of 0,80 / 0,60 / 0,55) by measurement: with the veil of the opening the desert appeared washed out behind the text, and the photo
-  has to show; with the lighter alpha the text stays between 4,9 and 7,8 in both sizes, and one step
-  below that the label falls to 4,47 on the desktop. There the contrast and the presence of the photo are also measured over the
+  to light, which is the pair the veil exists to guarantee. In the closing the veil is lighter (`.closing-photo-veil`, 0.70 / 0.52 /
+  0.46 instead of 0.80 / 0.60 / 0.55) by measurement: with the veil of the opening the desert appeared washed out behind the text, and the photo
+  has to show; with the lighter alpha the text stays between 4.9 and 7.8 in both sizes, and one step
+  below that the label falls to 4.47 on the desktop. There the contrast and the presence of the photo are also measured over the
   pixels, in the probe `the closing text has contrast measured over the pixels of the photo`.
-- **The ceiling of the yellow is measured, not chosen by eye.** The text of the panel is light (`canvas`, luminance 0,90):
-  pure yellow on show (`primary`, #e8882a, luminance 0,38) leaves that text at 2,2 to 1 and fails the 4,5
-  demanded. At 55% over the ink the pixel paints around #81532c and the same text measures 6,04 to 1, measured on the
-  pixel behind the three numbers of the opening: **6,04 / 5,98 / 7,45**. The strong yellow lives at the foot of the panel, and raising
+- **The ceiling of the yellow is measured, not chosen by eye.** The text of the panel is light (`canvas`, luminance 0.90):
+  pure yellow on show (`primary`, #e8882a, luminance 0.38) leaves that text at 2.2 to 1 and fails the 4.5
+  demanded. At 55% over the ink the pixel paints around #81532c and the same text measures 6.04 to 1, measured on the
+  pixel behind the three numbers of the opening: **6.04 / 5.98 / 7.45**. The strong yellow lives at the foot of the panel, and raising
   that mix means running the pixel contrast test first (`tests/visual.spec.ts`) and the check of the band of
   numbers. The previous description, that there was no gradient at all on the page, held for the old drawing.
 - **The page uses seven photos, and all of them are a static file, not the Next optimizer.** The complete map, file by file:
