@@ -4,6 +4,8 @@ Next.js with App Router, one page per city, generated from a data file. The same
 roughly 120 cities: publishing the next one means dropping its file and rebuilding.
 
 - **Published page:** https://alvorada-chi.vercel.app
+- **Video walkthrough:** https://www.youtube.com/watch?v=6f0xhMYhIzM — the recording walks the page, the
+  simulator on a scenario outside the brief, the SEO and the blog, and the design
 - **One page per city:** `src/data/cities/<slug>.json`
 
 ## Running it
